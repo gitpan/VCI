@@ -1,0 +1,214 @@
+NAME
+    VCI - A generic interface for interacting with various version-control
+    systems.
+
+SYNOPSIS
+     my $repository = VCI->connect(type => $type, repo => $repo);
+
+DESCRIPTION
+    This is VCI, the generic Version Control Interface. The goal of VCI is
+    to create a common API that can interface with all version control
+    systems.
+
+    VCI uses Moose, so all constructors for all objects are called `new'
+    (although for VCI itself you'll want to use connect), and they all take
+    named parameters as a hash (not a hashref).
+
+    Note: The interface of all VCI modules should currently be considered
+    UNSTABLE. I may make breaking changes in order to fix any fundamental
+    design problems that are discovered.
+
+  The Structure of VCI
+
+    If you aren't sure where to start, you want to first look at connect and
+    then at VCI::Abstract::Repository.
+
+    The general interface of VCI is described in the various `VCI::Abstract'
+    modules, and the actual implementations are in modules named after the
+    particular version-control system, but their names start with
+    `VCI::VCS'. For example, VCI::VCS::CVS.
+
+    For example, the methods that you use on a File in your version-control
+    system are described in VCI::Abstract::File, but the actual specific
+    implementation for CVS is in VCI::CVS::File. VCI::CVS::File must
+    implement all of the methods described in VCI::Abstract::File, but it
+    also may implement extension methods whose names start with `x_'.
+
+  Repositories and Projects
+
+    A server that contains your version-controlled files is considered a
+    "repository", and is represented by VCI::Abstract::Repository.
+
+    An actual set of code that you could check out of the repository is
+    considered a "project", and is represented by VCI::Abstract::Project.
+
+    Almost all information that VCI gives is in relation to the *project*.
+    For example, file paths are relative to the base directory of the
+    project, not the base directory of the entire repository.
+
+VERSION NUMBERING SCHEME
+    VCI has three-number version numbers, like this:
+
+    `MAJOR'.`API'.`MINOR'_`DEVEL'
+
+    Here's what each number means:
+
+    MAJOR
+        As long as this number is `0', major breaking changes may occur to
+        the API all the time. When this becomes `1', the API is stable. For
+        numbers greater than `1', it means we made a major breaking change
+        to the API.
+
+        For example, VCI 2.0.0 would have breaking changes for the user or
+        for the drivers, compared to VCI 1.0.1. But VCI 0.1.1 and 0.2.1
+        could contain breaking changes between them, also, because the first
+        number is still `0'.
+
+    API VCI has various features, but the drivers may not implement all of
+        these features. So, when we add new features that drivers must
+        implement, the `API' number gets incremented.
+
+        For example, VCI 0.0.1 doesn't have support for authenticating to
+        repositories, but VCI 0.1.1 might support it.
+
+        Drivers will say which VCI API they support. Using a driver that
+        doesn't support the current VCI API may throw an error. Using a
+        driver that supports an API *later* than the current VCI will throw
+        an error.
+
+    MINOR
+        This indicates a bug-fix release, with the API staying the same.
+
+        This will always be `1' or higher unless this is a development
+        release, in which case it will be `0'.
+
+    DEVEL
+        If this is an unstable development release, this number will be
+        included. In this case, the `MINOR' number should almost always be
+        `0'.
+
+CLASS METHODS
+  Constructors
+
+    `connect'
+        Description
+            Returns a VCI::Repository object based on your parameters. This
+            is how you "start" using VCI.
+
+            Note that you cannot currently connect to repositories that
+            require authentication, as VCI has no way of dealing with
+            usernames or passwords. So you must connect to repositories that
+            don't require authentication, or to which you have already
+            authenticated. Future versions of VCI will support
+            authentication.
+
+        Parameters
+            `repo' (Required)
+                This is a string representing the repository you want to
+                connect to, in the exact same format that you'd pass to the
+                command-line interface to your VCS. For example, for CVS
+                this would be the contents of `CVSROOT'.
+
+            `type' (Required)
+                What VCI driver you want to use. For example, to use
+                VCI::CVS you'd say `CVS' for this parameter.
+
+            `debug'
+                If you'd like VCI to print out a lot of information about
+                what it's doing to `STDERR', set this to `1'. Different
+                drivers will print out different information.
+
+    `new'
+        This has the same parameters as `connect', but actually returns a
+        VCI object, not a VCI::Repository.
+
+        You'll generally want use connect instead of this.
+
+  Other
+
+    `api_version'
+        This is for drivers, to indicate what API version they implement.
+
+        Returns a hashref with two items:
+
+        `major' - The major version number of the VCI API that this driver
+        implements.
+
+        `api' - The api version numer of the VCI API that this driver
+        implements.
+
+        For more information about what these numbers mean, see VERSION
+        NUMBERING SCHEME.
+
+METHODS
+  Accessors
+
+    All of the fields that `connect' takes can also be accessed with methods
+    named after them. In addition to the fields that you pass in to new,
+    there are other accessors:
+
+    `repository'
+        Returns the VCI::Abstract::Repository that this VCI is connected to.
+        Generally you don't want to use this, and you just want to use
+        connect.
+
+HOW TO GET VCI
+    Currently VCI is only available from my source repository. You can get
+    the latest version by doing:
+
+     bzr co http://bzr.everythingsolved.com/vci/
+
+PERFORMANCE
+    Currently, you should expect good performance on small projects, and bad
+    performance on large projects. This isn't due to the design of VCI
+    itself, but just because many performance optimizations haven't been
+    implemented yet in the various drivers.
+
+    As time goes on, performance should improve significantly.
+
+GENERAL NOTES FOR VCI::VCS IMPLEMENTORS
+    This is information for people who want to hack on the internals of VCI
+    or implement a driver for their VCS.
+
+  The POD is an API
+
+    If the POD of the `VCI::Abstract' modules says something, that is an API
+    for VCI. Unless the POD specifically *says* you can change the behavior
+    of a method, you must not deviate from how the POD says the methods and
+    accessors work.
+
+    You may add new `required' attributes to the constructors of various
+    modules, but you must not add `required' attributes to methods other
+    than what is already specified in the POD for that method.
+
+  Extending VCI
+
+    VCI provides a base set of functions that are common to all
+    Version-Control Systems, but if your VCS can do special things, feel
+    free to add extension methods.
+
+    So that your methods don't conflict with VCI methods, their names should
+    start with `x_' (or `_x_' for private methods). VCI won't *enforce*
+    that, but if you don't do it, your module could seriously break in the
+    future if VCI implements a method with the same name as yours.
+
+    VCI promises not to have any standard methods or accesors that start
+    with `x_' or `_x_'.
+
+  The Design Goals of VCI
+
+    In order of priority, the goals of VCI are:
+
+    1   Correctness
+
+    2   Ease of Driver Implementation
+
+    3   To implement as many VCS features as possible, not to only implement
+        the common denominator of all VCSes.
+
+    4   Speed Efficiency
+
+    Memory Efficiency is a fourth consideration to be taken into account
+    when writing drivers, but isn't considered as important as the above
+    items.
+

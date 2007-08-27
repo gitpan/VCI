@@ -1,0 +1,93 @@
+package VCI::VCS::Git::Commit;
+use Moose;
+
+use VCI::VCS::Git::File;
+
+extends 'VCI::Abstract::Commit';
+
+has 'x_changes' => (is => 'ro', lazy => 1,
+                    default => sub { shift->build_x_changes });
+has+ 'message' => (lazy => 1, default => sub { shift->build_message });
+
+
+sub build_message {
+    my $self = shift;
+    return $self->project->x_do('log', ['-1', '--pretty=format:%b',
+                                        $self->revision], 1);
+}
+
+sub build_added    { return shift->_x_files_from_changes('A') }
+sub build_removed  { return shift->_x_files_from_changes('D') }
+sub build_modified { return shift->_x_files_from_changes('M') }
+sub build_moved    { return shift->x_changes->{'R'} }
+
+sub build_copied {
+    my $self = shift;
+    my $copied = $self->x_changes->{'C'};
+    my %return;
+    foreach my $new_name (keys %$copied) {
+        my %params = %{ $copied->{$new_name} };
+        $return{$new_name} =
+            VCI::VCS::Git::File->new(%params, project => $self->project);
+    }
+    return \%return;
+}
+
+sub _x_files_from_changes {
+    my ($self, $type) = @_;
+    my $files = $self->x_changes->{$type};
+    (print STDERR "Creating " . scalar @$files . " $type file objects...\n")
+        if $self->project->repository->vci->debug;
+    return [map { VCI::VCS::Git::File->new(path => $_, project => $self->project,
+                                           revision => $self->revision) }
+                @$files];
+}
+
+sub build_x_changes {
+    my $self = shift;
+    my $output = $self->project->x_do('whatchanged',
+        ['-m', '-1', '-C', '--pretty=format:%P', $self->revision]);
+
+    my (%moved, %copied);
+    my %actions = ('A' => [], 'M' => [], 'D' => [],
+                   'C' => \%copied, 'R' => \%moved);
+    
+    my @parents = split(' ', shift @$output) if @$output;
+    foreach my $line (@$output) {
+        # The format of this line is described in the git-diff-tree manpage.
+        $line =~ /^:\d+ \d+ (\w+)\.* (\w+)\.* (\w)(\d+)?\t([^\t]+)(\t(.*))?$/o;
+        my ($sha1, $sha2, $type, $file, $new_name) = ($1, $2, $3, $5, $7);
+        if ($type eq 'C') {
+            # NOTE: If we have one parent, we can do "copied" reliably. If we
+            #       have more than one parent, we can't figure out where we
+            #       came from.
+            if (scalar @parents == 1) {
+                $copied{$new_name} = {path => $file, revision => $parents[0]};
+                if ($sha1 eq $sha2) {
+                    push(@{ $actions{'A'} }, $new_name);
+                }
+                else {
+                    push(@{ $actions{'M'} }, $new_name);
+                }
+            }
+            else {
+                push(@{ $actions{'A'} }, $new_name);
+            }
+        }
+        elsif ($type eq 'R') {
+            $moved{$new_name} = $file;
+            if ($sha1 ne $sha2) {
+                push(@{ $actions{'M'} }, $new_name);
+            }
+        }
+        else {
+            push(@{ $actions{$type} }, $file);
+        }
+    }
+    
+    return \%actions;
+}
+
+__PACKAGE__->meta->make_immutable;
+
+1;
