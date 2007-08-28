@@ -8,11 +8,6 @@ use VCI::VCS::Cvs::Project;
 
 extends 'VCI::Abstract::Repository';
 
-has 'x_repo' => (is => 'ro', isa => 'VCS::LibCVS::Repository', required => 1);
-has 'x_root_dir' => (is => 'ro', isa => 'VCS::LibCVS::RepositoryDirectory',
-                     default => sub { VCS::LibCVS::RepositoryDirectory->new(
-                                        shift->x_repo, '.') });
-
 # XXX get_project Doesn't support modules yet.
 # For get_project module support, all paths will be from the root of the
 # repository. But for directory support, they will be from the root

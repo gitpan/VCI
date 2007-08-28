@@ -1,16 +1,6 @@
 package VCI::VCS::Bzr::Committable;
 use Moose::Role;
 
-sub BUILD {
-    my $self = shift;
-    # This condition is because bzr can't reliably get a revision number
-    # if provided with just a time.
-    if (defined $self->{time} && !defined $self->{revision}) {
-        confess("You cannot build a Bzr Committable that has its time"
-                . " defined but not its revision.");
-    }
-}
-
 sub build_time {
     my $self = shift;
     my $commit = $self->_x_this_commit;

@@ -7,7 +7,7 @@ use VCI::Util;
 
 extends 'VCI';
 
-our $VERSION = '0.0.0_1';
+our $VERSION = '0.0.1';
 
 has 'x_ua' => (is => 'ro', isa => 'LWP::UserAgent', lazy => 1,
                default => sub { shift->build_x_ua });
@@ -29,7 +29,7 @@ __END__
 
 =head1 NAME
 
-VCI::VCS::Hg - VCI Implementation for Mercurial (aka Hg)
+VCI::VCS::Hg - The Mercurial (aka Hg) implementation of VCI
 
 =head1 DESCRIPTION
 
@@ -50,6 +50,13 @@ root of your hgweb installation.
 
 For example, for C<http://hg.intevation.org/mercurial/stable>,
 the C<repo> would be C<http://hg.intevation.org/>.
+
+=head1 REVISION IDENTIFIERS
+
+Mercurial has two revision identifiers on a commit: an integer and a hex
+string. VCI::VCS::Hg uses the hex string as the revision id for Commit,
+File, and Directory objects, and does not understand integer revision
+ids.
 
 =head1 LIMITATIONS AND EXTENSIONS
 

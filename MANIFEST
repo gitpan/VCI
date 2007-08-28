@@ -19,6 +19,10 @@ lib/VCI/VCS/Bzr/History.pm
 lib/VCI/VCS/Bzr/Project.pm
 lib/VCI/VCS/Bzr/Repository.pm
 lib/VCI/VCS/Cvs.pm
+lib/VCI/VCS/Cvs/Commit.pm
+lib/VCI/VCS/Cvs/Directory.pm
+lib/VCI/VCS/Cvs/File.pm
+lib/VCI/VCS/Cvs/History.pm
 lib/VCI/VCS/Cvs/Project.pm
 lib/VCI/VCS/Cvs/Repository.pm
 lib/VCI/VCS/Git.pm
@@ -46,9 +50,7 @@ lib/VCI/VCS/Svn/FileOrDirectory.pm
 lib/VCI/VCS/Svn/History.pm
 lib/VCI/VCS/Svn/Project.pm
 lib/VCI/VCS/Svn/Repository.pm
-Makefile.PL
 MANIFEST			This list of files
-META.yml
 README
 t/010_abstract_compile.t
 t/020_vcs_compile.t
@@ -62,3 +64,5 @@ t/lib/VCI/VCS/Test.pm
 t/lib/VCI/VCS/VersionJustRight.pm
 t/pod.t
 t/pod_coverage.t
+Makefile.PL
+META.yml

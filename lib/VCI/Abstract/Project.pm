@@ -260,7 +260,7 @@ Methods to get information about specific files and directories.
 Note that paths are case-sensitive in the default implementation of
 VCI, but particular drivers may be case-insensitive (for example,
 for version-control systems that are on Windows servers). However,
-it is best not to rely on case-sensitivity, and always specify your
+it is best not to rely on case-insensitivity, and always specify your
 file names assuming that VCI will be case-sensitive.
 
 =over
@@ -353,7 +353,7 @@ Also, if any of the parent directories don't exist, we return C<undef>.
 
 =item B<Description>
 
-Gets a L<directory|VCI::Abstract::Directory> from the repository.
+Gets a L<file|VCI::Abstract::File> from the repository.
 
 =item B<Parameters>
 
@@ -375,8 +375,8 @@ This method will throw an error if you pass in an empty string or just C<"/">.
 =item B<Returns>
 
 A L<VCI::Abstract::Directory>, or C<undef> if there is no I<file>
-with that name. (Even if there's a directory with that name, if it's not a
-directory, we will still return C<undef>.)
+with that name. (Even if there's I<something> with that name, if it's not a
+file, we will still return C<undef>.)
 
 If the parent directory doesn't exist, or any of the parent directories
 don't exist, this will throw an error (identically to how L</get_path> works).
@@ -403,11 +403,8 @@ its unique identifier.
 Takes a single parameter: C<$revision>, the unique identifier of the commit
 that you want, as a string.
 
-Some version-control systems don't have unique identifiers for commits.
-In this case, C<$revision> is whatever is returned by
-L<VCI::Abstract::Commit/revision> for that particular commit. Individual
-C<VCI::VCS> implementations will specify the format of their revision
-IDs, if they are a VCS that doesn't have unique identifiers for commits.
+See L<VCI::Abstract::Commit/revision> for a discussion of exactly what a
+revision identifier is.
 
 =item B<Returns>
 

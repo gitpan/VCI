@@ -1,7 +1,7 @@
 package VCI;
 use Moose;
 
-our $VERSION = '0.0.0_1';
+our $VERSION = '0.0.1';
 
 # Will also need a write_repo in the future, if we add commit support,
 # for things like Hg that read from hgweb but have to write through the
@@ -104,25 +104,39 @@ VCI uses L<Moose>, so all constructors for all objects are called
 C<new> (although for L<VCI> itself you'll want to use L</connect>),
 and they all take named parameters as a hash (not a hashref).
 
-B<Note>: The interface of all VCI modules should currently be considered
-B<UNSTABLE>. I may make breaking changes in order to fix any fundamental
-design problems that are discovered.
+The VCI home page is at L<http://vci.everythingsolved.com/>.
 
-=head2 The Structure of VCI
+B<Note>: The interface of all VCI modules should currently be considered
+B<UNSTABLE>. I may make breaking changes in order to fix I<any> design
+problems.
+
+=head2 New to VCI?
 
 If you aren't sure where to start, you want to first look at L</connect>
 and then at L<VCI::Abstract::Repository>.
 
-The general interface of VCI is described in the various C<VCI::Abstract>
-modules, and the actual implementations are in modules named after the
-particular version-control system, but their names start with
-C<VCI::VCS>. For example, L<VCI::VCS::CVS>.
+The general interface of VCI is described in the various VCI::Abstract
+modules, and those contain the documentation you should read in order to
+find out how VCI works.
 
-For example, the methods that you use on a File in your version-control
-system are described in L<VCI::Abstract::File>, but the actual specific
-implementation for CVS is in L<VCI::CVS::File>. L<VCI::CVS::File>
-B<must> implement all of the methods described in L<VCI::Abstract::File>,
-but it also may implement extension methods whose names start with C<x_>.
+"Drivers" for different VCSes are in modules whose names start with
+L<VCI::VCS>. For example, L<VCI::VCS::Cvs> is the "CVS support" for
+VCI. You only have to read L<VCI::VCS::Cvs> or the manual of any other
+driver if you want to know:
+
+=over
+
+=item The L</connect> syntax for that driver.
+
+=item The limitations of the driver. That is, any way that it differs
+from how VCI is supposed to work.
+
+=item Explanations of things that might be surprising or unexpected when
+dealing with that particular version-control system.
+
+=item Any extensions that that driver has implemented.
+
+=back
 
 =head2 Repositories and Projects
 
@@ -135,6 +149,27 @@ considered a "project", and is represented by L<VCI::Abstract::Project>.
 Almost all information that VCI gives is in relation to the I<project>.
 For example, file paths are relative to the base directory of the project,
 not the base directory of the entire repository.
+
+For information on how to get a Project object from a Repository, see
+L<VCI::Abstract::Repository>.
+
+=head2 The Structure of VCI (VCI::Abstract vs. VCI::VCS)
+
+The general interface of VCI classes is described in the VCI::Abstract
+modules, but the specific implementations for particular VCSes are in the
+C<VCI::VCS> namespace.
+
+For example, the methods that you use on a File in your version-control
+system are described in L<VCI::Abstract::File>, but the actual specific
+implementation for CVS is in C<VCI::Cvs::File>. C<VCI::Cvs::File>
+B<must> implement all of the methods described in L<VCI::Abstract::File>,
+but it also may implement extension methods whose names start with C<x_>.
+
+If you are going to use C<isa> on objects to check their type, you should
+check that they are the abstract type, not the specific type. For example,
+to find out if an object is a File, you would do:
+
+  $obj->isa('VCI::Abstract::File')
 
 =head1 VERSION NUMBERING SCHEME
 
@@ -167,8 +202,9 @@ For example, VCI 0.0.1 doesn't have support for authenticating to repositories,
 but VCI 0.1.1 might support it.
 
 Drivers will say which VCI API they support. Using a driver that doesn't
-support the current VCI API may throw an error. Using a driver that supports
-an API I<later> than the current VCI will throw an error.
+support the current VCI API will throw a warning if L</debug> mode is on.
+Using a driver that supports an API I<later> than the current VCI will
+throw an error.
 
 =item B<MINOR>
 
@@ -215,10 +251,14 @@ This is a string representing the repository you want to connect to, in
 the exact same format that you'd pass to the command-line interface to your
 VCS. For example, for CVS this would be the contents of C<CVSROOT>.
 
+The documentation of individual drivers will explain what the format
+required for this field is.
+
 =item C<type> B<(Required)>
 
-What VCI driver you want to use. For example, to use L<VCI::CVS> you'd
-say C<CVS> for this parameter.
+What VCI driver you want to use. For example, to use CVS (L<VCI::VCS::Cvs>)
+you'd say C<Cvs> for this parameter. It is case-sensitive, and must be the
+name of an installed module in the C<VCI::VCS> namespace.
 
 =item C<debug>
 
@@ -232,8 +272,8 @@ information.
 
 =item C<new>
 
-This has the same parameters as C<connect>, but actually returns a
-L<VCI> object, not a L<VCI::Repository>.
+This has the same parameters as L</connect>, but actually returns a
+C<VCI> object, not a L<VCI::Repository>.
 
 You'll generally want use L</connect> instead of this.
 
@@ -252,7 +292,7 @@ Returns a hashref with two items:
 C<major> - The L<major|/MAJOR> version number of the VCI API that this driver
 implements.
 
-C<api> - The L<api|/API> version numer of the VCI API that this driver
+C<api> - The L<api|/API> version number of the VCI API that this driver
 implements.
 
 For more information about what these numbers mean, see
@@ -264,7 +304,7 @@ L</VERSION NUMBERING SCHEME>.
 
 =head2 Accessors
 
-All of the fields that C<connect> takes can also be accessed with methods
+All of the fields that L</connect> takes can also be accessed with methods
 named after them. In addition to the fields that you pass in to new, there
 are other accessors:
 
@@ -279,12 +319,16 @@ Generally you don't want to use this, and you just want to use L</connect>.
 
 =head1 HOW TO GET VCI
 
-VCI is available on CPAN, which is the recommended way to get it.
+VCI is available on CPAN, which is the recommended way to get it:
+L<http://search.cpan.org/dist/VCI/>
 
 VCI is also available from my source repository. You can get the latest
-version by doing:
+development version by doing:
 
- bzr co http://bzr.everythingsolved.com/vci/
+ bzr co http://bzr.everythingsolved.com/vci/trunk
+
+Note that if you check out code from my repository, it may be unstable or
+completely broken.
 
 =head1 PERFORMANCE
 
@@ -466,7 +510,7 @@ L</connect>.)
 =head1 SEE ALSO
 
 B<Drivers>: L<VCI::VCS::Svn>, L<VCI::VCS::Bzr>, L<VCI::VCS::Hg>,
-L<VCI::VCS::Git>
+L<VCI::VCS::Git>, and L<VCI::VCS::Cvs>
 
 =head1 TODO
 
@@ -476,7 +520,7 @@ Eventually the drivers will be split into their own packages.
 
 Need C<user> and C<pass> support for L</connect>.
 
-Implement a CVS driver.
+Come up with a meaningful "branch" abstraction.
 
 =head1 BUGS
 
@@ -485,7 +529,7 @@ no better than alpha-quality at this point.
 
 =head1 AUTHOR
 
-Max Kanat-Alexander E<lt>mkanat@everythingsolved.comE<gt>
+Max Kanat-Alexander <mkanat@everythingsolved.com>
 
 =head1 COPYRIGHT AND LICENSE
 

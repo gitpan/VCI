@@ -6,6 +6,10 @@ with 'VCI::Abstract::Committable';
 has 'is_executable' => (is => 'ro', lazy => 1,
                         default => sub { shift->build_is_executable });
 
+# Because composed roles don't call BUILD, this is in all objects that
+# implment Committable.
+sub BUILD { shift->_no_time_without_revision; }
+
 __PACKAGE__->meta->make_immutable;
 
 1;
@@ -51,10 +55,12 @@ objects by interacting with the L<Project|VCI::Abstract::Project>.
 =item C<new>
 
 Takes all L</Accessors> of this class and L<VCI::Abstract::Committable>,
-as named parameters. The following fields are B<required>: L</path>
-and L</project>.
+as named parameters. The following fields are B<required>:
+L<path|VCI::Abstract::Committable/path> and
+L<project|VCI::Abstract::Committable/project>.
 
-If you don't specify L</revision>, VCI assumes you want an object
-representing the "latest" or "HEAD" revision of this File.
+If you don't specify L<revision|VCI::Abstract::Committable/revision>, VCI
+assumes you want an object representing the "latest" or "HEAD" revision of
+this File.
 
 =back

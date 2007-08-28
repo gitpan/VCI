@@ -24,6 +24,7 @@ __PACKAGE__->meta->make_immutable;
 
 __END__
 
+
 =head1 NAME
 
 VCI::Abstract::Repository - A repository where version-controlled items are kept.
@@ -31,7 +32,7 @@ VCI::Abstract::Repository - A repository where version-controlled items are kept
 =head1 SYNOPSIS
 
  my $repo = VCI->connect(...); # See VCI.pm for details.
- 
+
  my $projects = $repo->projects;
  my $project = $repo->get_project(name => 'Foo');
 
@@ -67,15 +68,12 @@ I<everything> that's tracked in the system.
 
 =item C<vci>
 
-The L<VCI> that connected to this repository. In general, unless you're
+The L<VCI> that connected us to this repository. In general, unless you're
 a L<VCI> implementor, you probably don't care about this.
 
 =back
 
-=head2 Convenience Methods
-
-These are methods that are easier to use or more efficient than the
-accessors above, when you only need to do particular things.
+=head2 Getting a Project
 
 =over
 
@@ -93,7 +91,9 @@ Takes the following named parameters:
 
 =over
 
-=item C<name> - The unique name of this Project. Something that uniquely
+=item C<name>
+
+The unique name of this Project. Something that uniquely
 identifies this project in the version control system. Usually, this is just
 the name of the directory that contains the Project, from the root of the
 repository.
@@ -105,8 +105,13 @@ project inside of the Mozilla CVS Server.)
 
 =item B<Returns>
 
-The L<VCI::Abstract::Project> that you asked for, or C<undef> if the
-Project does not exist in the repository.
+The L<VCI::Abstract::Project> that you asked for. Some VCI::VCS
+implementations will return a valid Project object even if that
+object doesn't exist in the Repository. The only way to know if
+a Project is valid is to perform some operation on it.
+
+Some VCI::VCS implementations will return C<undef> if the Project does not
+exist in the repository.
 
 If there was some other error than that the Project doesn't exist, this
 method will C<die>.

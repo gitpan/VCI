@@ -92,6 +92,18 @@ sub build_parent {
     return $self->project->get_path($parent_path);
 }
 
+#######################
+# Implementor Helpers #
+#######################
+
+sub _no_time_without_revision {
+    my $self = shift;
+    if (defined $self->{time} && !defined $self->{revision}) {
+        confess("You cannot build a Committable that has its time"
+                . " defined but not its revision");
+    }
+}
+
 1;
 
 __END__
@@ -115,6 +127,9 @@ C<time>, then we assume that you're talking about the most recent version
 that's in the repository, and L</revision> and L</time> will return the
 revision and time of the most recent revision.
 
+You cannot specify L</time> without specifying L</revision>, in the
+constructor.
+
 =head1 METHODS
 
 =head2 Accessors
@@ -124,9 +139,10 @@ All accessors are read-only.
 A lot of these accessors have to do with revision identifiers. Some
 committables (such as directories) might not I<have> revision identifiers
 of their own in certain types of version-control systems. In this case,
-the revision identifiers will always be C<undef>, but they will still
-have revision times. (</first_revision> and L</last_revision> might be
-equal to each other, though.)
+the revision identifiers will be an empty string or something specified
+by the VCI::VCS implementation, but they will still have revision times.
+(</first_revision> and L</last_revision> might be equal to each other,
+though.)
 
 =head3 Information About The History of the Item
 
@@ -179,12 +195,12 @@ right now.
 
 =item C<time>
 
-A timestamp (an integer number of seconds since January 1, 1970) representing
-the time that this revision was committed to the repository.
+A L<datetime|VCI::Util/DateTime> representing the time that this revision
+was committed to the repository.
 
 =item C<path>
 
-The file system path, from the project directory, of this file,
+The L<Path|VCI::Util/Path> of this file, from the root of the project,
 including its filename if it's a file.
 
 In most version-control systems, this will never change, but there are
@@ -214,3 +230,7 @@ accessor returns C<undef>.
 The L<VCI::Abstract::Project> that this committable is in.
 
 =back
+
+=head1 SEE ALSO
+
+B<Implementors>: L<VCI::Abstract::File> and L<VCI::Abstract::Directory>

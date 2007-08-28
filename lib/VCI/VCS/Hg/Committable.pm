@@ -3,16 +3,6 @@ use Moose::Role;
 
 use DateTime;
 
-sub BUILD {
-    my $self = shift;
-    # This condition is because I don't know of any way to get a revision
-    # number from hgweb if provided with just a time.
-    if (defined $self->{time} && !defined $self->{revision}) {
-        confess("You cannot build a Hg Committable that has its time"
-                . " defined but not its revision.");
-    }
-}
-
 # Anything without a revision specified is "tip".
 sub build_revision { return 'tip' }
 

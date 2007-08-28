@@ -1,2 +1,8 @@
+0.0.1 Tue, Aug 28, 2007
+    - Support for CVS
+    - Test::Warn was missing from build_requires
+    - Cleaned up documentation
+    - Committables now can never be created with just time and no revision.
+
 0.0.0_1 Mon, Aug 27, 2007
-    - Initial release, supporting Bzr, Svn. Hg, and Git
+    - Initial release, supporting Bzr, Svn, Hg, and Git

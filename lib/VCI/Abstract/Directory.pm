@@ -3,6 +3,10 @@ use Moose;
 
 with 'VCI::Abstract::Committable', 'VCI::Abstract::FileContainer';
 
+# Because composed roles don't call BUILD, this is in all objects that
+# implment Committable.
+sub BUILD { shift->_no_time_without_revision; }
+
 __PACKAGE__->meta->make_immutable;
 
 1;
@@ -40,7 +44,8 @@ string.
 
 In addition to what's specified in L<VCI::Abstract::Committable>:
 
-Root directories always have a path of C</>.
+Root directories always have an "empty" L<Path|VCI::Util/Path>. That is,
+the path is an empty string.
 
 =back
 
@@ -58,9 +63,11 @@ objects by interacting with the L<Project|VCI::Abstract::Project>.
 
 Takes all L</Accessors> of this class, L<VCI::Abstract::Committable>,
 and L<VCI::Abstract::FileContainer> as named parameters. The following
-fields are B<required>: L</path> and L</project>.
+fields are B<required>: L</path> and
+L<project|VCI::Abstract::FileContainer/project>.
 
-If you don't specify L</revision>, VCI assumes you want an object
-representing the "latest" or "HEAD" revision of this Directory.
+If you don't specify L<revision|VCI::Abstract::Committable/revision>, VCI
+assumes you want an object representing the "latest" or "HEAD" revision of
+this Directory.
 
 =back

@@ -3,7 +3,7 @@ use Moose;
 
 extends 'VCI';
 
-our $VERSION = '0.0.0_1';
+our $VERSION = '0.0.1';
 
 __PACKAGE__->meta->make_immutable;
 
@@ -31,6 +31,11 @@ possible in the future, depending on what is desired from VCI users.
 For the L<repo|VCI/repo> argument to L<VCI/connect>, choose the directory
 above where your projects are kept. For example, if you have a project
 whose path is C</var/git/project>, then the C<repo> would be C</var/git/>.
+
+=head1 REVISION IDENTIFIERS
+
+Commit, File, and Directory objects use the full sha1 id of the Commit
+(not the abbreviated sha1 hash) as their identifier.
 
 =head1 LIMITATIONS AND EXTENSIONS
 

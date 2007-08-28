@@ -8,6 +8,8 @@ use warnings;
 # If we don't require SVN::Core, Module::Build can't read its $VERSION.
 eval { require SVN::Core };
 
+my $ipc_support = $^O =~ /win32/ ? 'IPC::Run' : 'IPC::Open3';
+
 my $build = Module::Build->new(
     module_name => 'VCI',
     license  => 'perl',
@@ -23,12 +25,14 @@ my $build = Module::Build->new(
     build_requires => {
         'Test::More'      => '0',
         'Test::Exception' => '0',
+        'Test::Warn'      => '0',
     },
     auto_features => {
         bzr => {
             description => "Bazaar Support",
             requires => {
                 'IPC::Cmd'    => 0,
+                $ipc_support  => 0,
                 'XML::Simple' => 0,
             }
         },
@@ -49,6 +53,17 @@ my $build = Module::Build->new(
             description => 'Git Support',
             requires => {
                 'Git' => '0',
+            }
+        },
+        cvs => {
+            description => 'CVS Support',
+            requires => {
+                'IPC::Cmd'   => 0,
+                $ipc_support => 0,
+                'Cwd'        => 0,
+                'File::Path' => 0,
+                'File::Temp' => 0,
+                'List::Util' => 0,
             }
         },
     },

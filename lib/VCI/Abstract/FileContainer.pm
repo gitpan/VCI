@@ -28,17 +28,15 @@ sub build_contents_history {
 
 __END__
 
-head1 NAME
+=head1 NAME
 
 VCI::Abstract::FileContainer - Anything that can contain a
-L<VCI::Abstract::File>.
+File or Directory.
 
 =head1 DESCRIPTION
 
 This is a L<Moose::Role> that represents anything that can hold files.
-Usually that's a L<VCI::Abstract::Directory>, but in some version-control
-systems, a file can be in a Branch or a Tag as well. So those would
-also be FileContainers.
+Usually that's a L<VCI::Abstract::Directory>.
 
 =head1 METHODS
 
@@ -69,3 +67,7 @@ item.)
 The L<VCI::Abstract::Project> that this FileContainer belongs to.
 
 =back
+
+=head1 SEE ALSO
+
+B<Implementors>: L<VCI::Abstract::Directory> and L<VCI::Abstract::Commit>

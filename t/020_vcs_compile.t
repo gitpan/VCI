@@ -11,7 +11,7 @@ BEGIN {
     plan skip_all => "This test requires Module::Build 0.26." if $@;
 }
 
-my @features = qw(bzr svn hg git);
+my @features = qw(bzr svn hg git cvs);
 
 my %modules;
 my $tests = 0;

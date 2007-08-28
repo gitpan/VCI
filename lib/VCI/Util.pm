@@ -86,6 +86,8 @@ subtype 'ArrayOfProjects'
         return 1;
     };
 
+1;
+
 __END__
 
 =head1 NAME
@@ -139,10 +141,9 @@ a Unix epoch (seconds since January 1, 1970) and converted to a DateTime
 object using L<DateTime/from_epoch>.
 
 If you pass in a string that's not just an integer, it will be parsed
-by L<DateTime::Format::Natural>. This requires that
-L<DateTime::Format::Natural> be installed.
+by L<DateTime::Format::DateParse>.
 
-=item Directory
+=item Path
 
 A L<Path::Abstract> object.
 
@@ -157,5 +158,3 @@ with C</>.)
 If you pass the root path (C</>) you will get an empty path.
 
 =back
-
-1;

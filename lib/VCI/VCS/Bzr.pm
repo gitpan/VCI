@@ -7,24 +7,10 @@ use VCI::VCS::Bzr::Repository;
 
 extends 'VCI';
 
-our $VERSION = '0.0.0_1';
+our $VERSION = '0.0.1';
 
 # The path to the bzr binary.
 has 'x_bzr' => (is => 'ro', isa => 'Str', default => sub { shift->build_x_bzr });
-
-before 'new' => sub {
-    my $can_capture = IPC::Cmd->can_capture_buffer;
-    if (!$can_capture) {
-        my $error = 'IPC::Cmd cannot capture command output on your system.';
-        if ($^O =~ /MSWin32/io) {
-            $error .= " You must install IPC::Run.";
-        }
-        else {
-            $error .= " You must install IPC::Open3.";
-        }
-        confess($error);
-    }
-};
 
 sub build_x_bzr {
     my $cmd = IPC::Cmd::can_run('bzr')
@@ -146,16 +132,6 @@ However, L<get_project|VCI::Abstract::Repository/get_project> will still
 work on those repositories.
 
 =back
-
-=head2 VCI::VCS::Bzr::Committable
-
-When constructing a Committable, you cannot specify the C<time> without also
-specifying the C<revision>. If you do so, VCI::VCS::Bzr::Committable will
-throw an error. You can, however, specify C<revision> without specifying
-C<time>.
-
-This is due to a bug in bzr as of bzr 0.18:
-L<https://bugs.launchpad.net/bzr/+bug/131273>
 
 =head2 VCI::VCS::Bzr::Directory
 
