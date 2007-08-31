@@ -129,7 +129,7 @@ sub build_root_directory {
 ####################
 
 # For use in BUILD
-sub _name_never_ends_with_slash { $_[0]->{name} =~ s|/\s*|| }
+sub _name_never_ends_with_slash { $_[0]->{name} =~ s|/\s*$|| }
 
 # For helping build root_directory for some VCSes
 sub _directory_from_list {
@@ -146,13 +146,13 @@ sub _directory_from_list {
     foreach my $path (@dir_array) {
         ($path =~ s/^\Q$strip_root\E//) if defined $strip_root;
         next if !$path;
-        my $path_obj    = Path::Abstract->new($path);
+        my $path_obj    = Path::Abstract->new($path)->to_branch;
         my $parent_name = $path_obj->parent->stringify;
         my $parent      = $dirs{$parent_name};
         
         my $directory = $self->repository->vci->directory_class->new(
             path => $path_obj, parent => $parent, project => $self);
-        $dirs{$path} = $directory;
+        $dirs{$path_obj->stringify} = $directory;
         
         $dir_contents{$parent_name} ||= [];
         push(@{ $dir_contents{$parent_name} }, $directory);
@@ -161,7 +161,7 @@ sub _directory_from_list {
     # Create File objects and set their parent directories correctly.
     foreach my $path (@$file_names) {
         ($path =~ s/^\Q$strip_root\E//) if defined $strip_root;
-        my $path_obj    = Path::Abstract->new($path);
+        my $path_obj    = Path::Abstract->new($path)->to_branch;
         my $parent_name = $path_obj->parent->stringify;
         my $parent      = $parent_name ? $dirs{$parent_name} : $root_directory;
         

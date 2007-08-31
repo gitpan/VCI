@@ -54,6 +54,7 @@ sub x_from_xml {
             removed   => \@removed,
             modified  => \@modified,
             moved     => \%moved,
+            project   => $project,
         );
         
         push(@commits, $commit);

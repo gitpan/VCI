@@ -1,7 +1,7 @@
 package VCI;
 use Moose;
 
-our $VERSION = '0.0.1';
+our $VERSION = '0.0.2';
 
 # Will also need a write_repo in the future, if we add commit support,
 # for things like Hg that read from hgweb but have to write through the
@@ -529,7 +529,7 @@ no better than alpha-quality at this point.
 
 =head1 AUTHOR
 
-Max Kanat-Alexander <mkanat@everythingsolved.com>
+Max Kanat-Alexander <mkanat@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 

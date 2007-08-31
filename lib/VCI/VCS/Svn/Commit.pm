@@ -73,6 +73,7 @@ sub x_from_log {
         removed   => $actions{'D'},
         modified  => $actions{'M'},
         copied    => \%copied,
+        project   => $project,
     );
 }
 

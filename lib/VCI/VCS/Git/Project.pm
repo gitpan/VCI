@@ -89,7 +89,6 @@ sub build_history {
     my $lines = $self->x_do('log', ['--pretty=format:%H%n%cD%n%cn <%ce>%n',
                                     '--reverse', '-m'], 1);
     my @messages = split("\n\n", $lines);
-    @messages = @messages[1..1000]; # XXX
     my @commits;
     foreach my $message (@messages) {
         my ($id, $time, $committer) = split("\n", $message);

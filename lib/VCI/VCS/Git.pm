@@ -3,7 +3,7 @@ use Moose;
 
 extends 'VCI';
 
-our $VERSION = '0.0.1';
+our $VERSION = '0.0.2';
 
 __PACKAGE__->meta->make_immutable;
 

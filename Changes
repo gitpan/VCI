@@ -1,3 +1,8 @@
+0.0.2 Fri, Aug 31, 2007
+    - Bzr's history and contents were broken.
+    - Svn's history was broken.
+    - Git driver had some debug code left in that was breaking history.
+
 0.0.1 Tue, Aug 28, 2007
     - Support for CVS
     - Test::Warn was missing from build_requires
