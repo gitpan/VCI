@@ -1,10 +1,11 @@
 package VCI::VCS::Hg::Commit;
 use Moose;
+use VCI::VCS::Hg::Diff;
+
+extends 'VCI::Abstract::Commit';
 
 has 'x_changes' => (is => 'ro', isa => 'HashRef', lazy => 1,
                     default => sub { shift->build_x_changes });
-
-extends 'VCI::Abstract::Commit';
 
 use constant DIFF_HEADER => qr/^([\-\+]{3}) (\S+)\t\w{3} \w{3} \d\d \d\d:\d\d:\d\d \d{4} [\+\-]\d{4}$/;
 
@@ -23,12 +24,25 @@ sub x_from_rss_item {
         project   => $project);
 }
 
+sub build_as_diff {
+    my $self = shift;
+    my $text = $self->project->x_get(['raw-rev', $self->revision]);
+    my @lines = split("\n", $text);
+    my $line = shift @lines;
+    # XXX This may break if there's a line identical to DIFF_HEADER
+    #     in the log message.
+    while ($line !~ DIFF_HEADER) {$line = shift @lines}
+    unshift(@lines, $line);
+    return VCI::VCS::Hg::Diff->new(raw => join("\n", @lines),
+                                    project => $self->project);
+}
+
 # Mercurial doesn't say anything about directories in its logs, so we have
 # no idea when directories are added or removed.
 
 sub build_x_changes {
     my $self = shift;
-    my $text = $self->project->x_get(['raw-rev', $self->revision]);
+    my $text = $self->as_diff->raw;
     my $files = _diff_files($text);
     
     my (@added, @removed, @modified);

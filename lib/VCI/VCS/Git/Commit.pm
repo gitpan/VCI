@@ -1,6 +1,7 @@
 package VCI::VCS::Git::Commit;
 use Moose;
 
+use VCI::VCS::Git::Diff;
 use VCI::VCS::Git::File;
 
 extends 'VCI::Abstract::Commit';
@@ -31,6 +32,13 @@ sub build_copied {
             VCI::VCS::Git::File->new(%params, project => $self->project);
     }
     return \%return;
+}
+
+sub build_as_diff {
+    my $self = shift;
+    my $diff = $self->project->x_do('whatchanged',
+        ['-m', '-p', '-1', '--pretty=format:', $self->revision], 1);
+    return VCI::VCS::Git::Diff->new(raw => $diff, project => $self->project);
 }
 
 sub _x_files_from_changes {

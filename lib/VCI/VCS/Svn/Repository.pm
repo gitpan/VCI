@@ -11,12 +11,7 @@ extends 'VCI::Abstract::Repository';
 has 'x_ra' => (is => 'ro', isa => 'SVN::Ra', lazy => 1,
                default => sub { SVN::Ra->new(url => shift->root) });
 
-sub BUILD {
-    my $self = shift;
-    if ($self->root !~ m|/$|) {
-        $self->{root} .= '/';
-    }
-}
+sub BUILD { shift->_root_always_ends_with_slash }
 
 sub build_projects {
     my $self = shift;

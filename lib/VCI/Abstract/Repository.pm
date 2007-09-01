@@ -18,6 +18,18 @@ method 'get_project' => named (
         name => $params->{name}, repository => $self);
 };
 
+####################
+# Subclass Helpers #
+####################
+
+# For use in BUILD
+sub _root_always_ends_with_slash {
+    my $self = shift;
+    $self->_name_never_ends_with_slash;
+    $self->{name} .= '/';
+}
+sub _root_never_ends_with_slash  { $_[0]->{name} =~ s|/\s*$|| }
+
 __PACKAGE__->meta->make_immutable;
 
 1;

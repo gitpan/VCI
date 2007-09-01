@@ -1,7 +1,7 @@
 package VCI;
 use Moose;
 
-our $VERSION = '0.0.3';
+our $VERSION = '0.1.0_1';
 
 # Will also need a write_repo in the future, if we add commit support,
 # for things like Hg that read from hgweb but have to write through the
@@ -126,15 +126,23 @@ driver if you want to know:
 
 =over
 
-=item The L</connect> syntax for that driver.
+=item *
 
-=item The limitations of the driver. That is, any way that it differs
+The L</connect> syntax for that driver.
+
+=item *
+
+The limitations of the driver. That is, any way that it differs
 from how VCI is supposed to work.
 
-=item Explanations of things that might be surprising or unexpected when
+=item *
+
+Explanations of things that might be surprising or unexpected when
 dealing with that particular version-control system.
 
-=item Any extensions that that driver has implemented.
+=item *
+
+Any extensions that that driver has implemented.
 
 =back
 
@@ -265,6 +273,9 @@ name of an installed module in the C<VCI::VCS> namespace.
 If you'd like VCI to print out a lot of information about what it's doing
 to C<STDERR>, set this to C<1>. Different drivers will print out different
 information.
+
+Some drivers will print out more information if you set C<debug> to higher
+values than C<1>.
 
 =back
 

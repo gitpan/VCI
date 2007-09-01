@@ -4,6 +4,8 @@ use strict;
 use base qw(Exporter);
 our @EXPORT = qw(all_modules);
 
+use File::Spec;
+
 # Stolen from Test::Pod::Coverage
 
 sub all_modules {

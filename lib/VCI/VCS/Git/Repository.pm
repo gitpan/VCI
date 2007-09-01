@@ -5,6 +5,8 @@ use VCI::VCS::Git::Project;
 
 extends 'VCI::Abstract::Repository';
 
+sub BUILD { shift->_root_always_ends_with_slash }
+
 sub build_projects {
     my $self = shift;
     my $root = $self->root;

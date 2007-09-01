@@ -3,6 +3,8 @@ Changes
 lib/VCI.pm
 lib/VCI/Abstract/Commit.pm
 lib/VCI/Abstract/Committable.pm
+lib/VCI/Abstract/Diff.pm
+lib/VCI/Abstract/Diff/File.pm
 lib/VCI/Abstract/Directory.pm
 lib/VCI/Abstract/File.pm
 lib/VCI/Abstract/FileContainer.pm
@@ -20,6 +22,7 @@ lib/VCI/VCS/Bzr/Project.pm
 lib/VCI/VCS/Bzr/Repository.pm
 lib/VCI/VCS/Cvs.pm
 lib/VCI/VCS/Cvs/Commit.pm
+lib/VCI/VCS/Cvs/Diff.pm
 lib/VCI/VCS/Cvs/Directory.pm
 lib/VCI/VCS/Cvs/File.pm
 lib/VCI/VCS/Cvs/History.pm
@@ -28,6 +31,7 @@ lib/VCI/VCS/Cvs/Repository.pm
 lib/VCI/VCS/Git.pm
 lib/VCI/VCS/Git/Commit.pm
 lib/VCI/VCS/Git/Committable.pm
+lib/VCI/VCS/Git/Diff.pm
 lib/VCI/VCS/Git/Directory.pm
 lib/VCI/VCS/Git/File.pm
 lib/VCI/VCS/Git/History.pm
@@ -36,6 +40,7 @@ lib/VCI/VCS/Git/Repository.pm
 lib/VCI/VCS/Hg.pm
 lib/VCI/VCS/Hg/Commit.pm
 lib/VCI/VCS/Hg/Committable.pm
+lib/VCI/VCS/Hg/Diff.pm
 lib/VCI/VCS/Hg/Directory.pm
 lib/VCI/VCS/Hg/File.pm
 lib/VCI/VCS/Hg/History.pm

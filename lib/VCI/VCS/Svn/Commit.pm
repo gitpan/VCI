@@ -1,6 +1,9 @@
 package VCI::VCS::Svn::Commit;
 use Moose;
 
+use File::Temp qw(tempfile);
+
+use VCI::Abstract::Diff;
 use VCI::VCS::Svn::FileOrDirectory;
 
 extends 'VCI::Abstract::Commit';
@@ -76,6 +79,22 @@ sub x_from_log {
         copied    => \%copied,
         project   => $project,
     );
+}
+
+sub build_as_diff {
+    my $self = shift;
+    my $path = $self->project->repository->root . $self->project->name;
+    my $rev = $self->revision;
+    my $previous_rev = $self->revision - 1;
+    my $ctx = $self->project->repository->vci->x_client;
+    # Diff doesn't work unless these have filenames, for some reason.
+    my ($out, $oname) = tempfile();
+    my ($err, $ename) = tempfile();
+    warn "Path: [$path] Prev: [$previous_rev] Cur: [$rev]";
+    $ctx->diff([], $path, $previous_rev, $path, $rev, 1, 0, 0, $oname, $ename);
+    { local $/ = undef; $err = <$err>; $out = <$out> }
+    confess($err) if $err;
+    return VCI::Abstract::Diff->new(raw => $out, project => $self->project);
 }
 
 __PACKAGE__->meta->make_immutable;

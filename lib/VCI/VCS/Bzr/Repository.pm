@@ -4,12 +4,7 @@ use MooseX::Method;
 
 extends 'VCI::Abstract::Repository';
 
-sub BUILD {
-    my $self = shift;
-    if ($self->root !~ m|/$|) {
-        $self->{root} .= '/';
-    }
-}
+sub BUILD { shift->_root_always_ends_with_slash }
 
 # Note that "projects" won't work for some remote repositories, because of
 # limitations of "bzr branches".

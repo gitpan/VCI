@@ -8,6 +8,8 @@ use VCI::VCS::Cvs::Project;
 
 extends 'VCI::Abstract::Repository';
 
+sub BUILD { shift->_root_never_ends_with_slash }
+
 # XXX get_project Doesn't support modules yet.
 # For get_project module support, all paths will be from the root of the
 # repository. But for directory support, they will be from the root

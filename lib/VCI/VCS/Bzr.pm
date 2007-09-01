@@ -7,7 +7,7 @@ use VCI::VCS::Bzr::Repository;
 
 extends 'VCI';
 
-our $VERSION = '0.0.3';
+our $VERSION = '0.1.0_1';
 
 # The path to the bzr binary.
 has 'x_bzr' => (is => 'ro', isa => 'Str', default => sub { shift->build_x_bzr });
@@ -19,41 +19,48 @@ sub build_x_bzr {
 }
 
 method 'x_do' => named (
-    args         => { isa => 'ArrayRef', required => 1 },
-    errors_undef => { isa => 'ArrayRef', default => [] },
+    args          => { isa => 'ArrayRef', required => 1 },
+    errors_undef  => { isa => 'ArrayRef', default => [] },
+    errors_ignore => { isa => 'ArrayRef', default => [] },
     errors_undef_regex  => { isa => 'RegexpRef' },
     errors_ignore_regex => { isa => 'RegexpRef' },
 ) => sub {
     my ($self, $params) = @_;
     my $args = $params->{args};
+    
+    my $full_command = $self->x_bzr . ' ' . join(' ', @$args);
+    if ($self->debug) {
+        print STDERR "Command: $full_command\n";
+    }
     my ($success, $errorcode, $all, $stdout, $stderr) =
         IPC::Cmd::run(command => [$self->x_bzr, @$args]);
-
-    my $full_command = $self->x_bzr . ' ' . join(' ', @$args);
+        
+    print STDERR "Exit Code: $errorcode\n" if $self->debug;
+    
     if (!$success) {
         my $err_string = join('', @$stderr);
         
-        my $re = $params->{errors_undef_regex};
-        if (grep {$_ == $errorcode} @{$params->{errors_undef}}
-            || (defined $re && $err_string =~ $re))
-        {
-            return undef;
-        }
-        
-        my $ignore_re = $params->{errors_ignore_regex};
-        unless (defined $ignore_re && $err_string =~ $ignore_re) {
-            my $error_output = join('', @$stderr);
-            chomp($error_output);
-            confess("$full_command failed: $error_output");
+        if (!grep {$_ == $errorcode} @{$params->{errors_ignore}}) {
+            my $re = $params->{errors_undef_regex};
+            if (grep {$_ == $errorcode} @{$params->{errors_undef}}
+                || (defined $re && $err_string =~ $re))
+            {
+                return undef;
+            }
+            
+            my $ignore_re = $params->{errors_ignore_regex};
+            unless (defined $ignore_re && $err_string =~ $ignore_re) {
+                my $error_output = join('', @$stderr);
+                chomp($error_output);
+                confess("$full_command failed: $error_output");
+            }
         }
     }
     
     my $output_string = join('', @$stdout);
     chomp($output_string);
-    if ($self->debug) {
-        print STDERR "Command: $full_command\n",
-            "Exit Code: $errorcode\n",
-            "Results:\n" . join('', @$all);
+    if ($self->debug > 1) {
+            print STDERR "Results:\n" . join('', @$all);
     }
     return $output_string;
 };

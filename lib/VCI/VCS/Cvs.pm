@@ -8,7 +8,7 @@ use IPC::Cmd;
 
 use VCI::VCS::Cvs::Repository;
 
-our $VERSION = '0.0.3';
+our $VERSION = '0.1.0_1';
 
 has 'x_cvsps' => (is => 'ro', isa => 'Str', lazy => 1,
                   default => sub { shift->build_x_cvsps });
@@ -34,6 +34,12 @@ method 'x_do' => named (
     my ($self, $params) = @_;
     my $fromdir = $params->{fromdir};
     my $args    = $params->{args};
+
+    my $full_command = $self->x_cvs . ' -f ' . join(' ', @$args);
+    if ($self->debug) {
+        print STDERR "Command: $full_command\n",
+                     "   From: $fromdir\n";
+    }
     
     my $old_cwd = cwd();
     chdir $fromdir;
@@ -41,8 +47,8 @@ method 'x_do' => named (
         IPC::Cmd::run(command => [$self->x_cvs, '-f', @$args]);
     chdir $old_cwd;
 
-    my $full_command = $self->x_cvs . ' ' . join(' ', @$args);
-    if (!$success) {
+    # "cvs diff" returns 256 always, it seems.
+    if (!$success && $errorcode != 256) {
         my $err_string = join('', @$stderr);
         chomp($err_string);
         confess("$full_command failed: $err_string");
@@ -50,10 +56,8 @@ method 'x_do' => named (
     
     my $output = join('', @$all);
     if ($self->debug) {
-        print STDERR "Command: $full_command\n",
-            "From: $fromdir\n",
-            "Exit Code: $errorcode\n",
-            "Results: $output";
+        print "Exit Code: $errorcode\n";
+        print "Results: $output\n" if $self->debug > 1;
     }
     return $output;
 };

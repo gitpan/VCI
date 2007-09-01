@@ -34,27 +34,11 @@ has 'x_tmp' => (is => 'ro', isa => 'Str', lazy => 1,
 
 sub build_history {
     my $self = shift;
-    
-    my @args = ('-b HEAD', $self->name);
-    # Just using the --root argument of cvsps doesn't work.
-    my $root = $self->repository->root;
-    my $cvsps = $self->repository->vci->x_cvsps;
-    if ($self->repository->vci->debug) {
-        print STDERR "Running TZ=UTC CVSROOT=$root $cvsps " . join(' ', @args)
-                     . "\n";
-    }
-    
-    local $ENV{CVSROOT} = $root;
-    # XXX cvsps must be able to write to $HOME or this will fail.
-    my ($success, $errorcode, $all, $stdout, $stderr) =
-        IPC::Cmd::run(command => [$self->repository->vci->x_cvsps, @args]);
-    if (!$success) {
-        confess("cvsps failed with exit code $errorcode: $stderr");
-    }
-    
+    my $stdout = $self->x_cvsps_do();
+
     my @commits;
     # The \n\n makes the split work more easily.
-    $stdout = "\n\n" . join("", @$stdout);
+    $stdout = "\n\n$stdout";
     my @patchsets = split(CVSPS_SEPARATOR, $stdout);
     shift @patchsets; # The first item will be empty.
     foreach my $patchset (@patchsets) {
@@ -95,6 +79,30 @@ sub build_history {
     }
     
     return VCI::VCS::Cvs::History->new(commits => \@commits, project => $self);
+}
+
+sub x_cvsps_do {
+    my ($self, $addl_args) = @_;
+    $addl_args ||= [];
+    my @args = (@$addl_args, '-b HEAD', $self->name);
+    # Just using the --root argument of cvsps doesn't work.
+    my $root = $self->repository->root;
+    my $cvsps = $self->repository->vci->x_cvsps;
+    
+    if ($self->repository->vci->debug) {
+        print STDERR "Running CVSROOT=$root $cvsps " . join(' ', @args)
+                     . "\n";
+    }
+    
+    local $ENV{CVSROOT} = $root;
+    # XXX cvsps must be able to write to $HOME or this will fail.
+    my ($success, $errorcode, $all, $stdout, $stderr) =
+        IPC::Cmd::run(command => [$self->repository->vci->x_cvsps, @args]);
+    if (!$success) {
+        confess("cvsps failed with exit code $errorcode: $stderr");
+    }
+    
+    return join('', @$stdout);
 }
 
 sub DEMOLISH {

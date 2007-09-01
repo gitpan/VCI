@@ -20,6 +20,7 @@ my $build = Module::Build->new(
         'DateTime'       => '0',
         'Path::Abstract' => '0',
         'DateTime::Format::DateParse' => '0',
+        'Text::Diff::Parser' => '0',
         'Carp'           => '0',
     },
     build_requires => {

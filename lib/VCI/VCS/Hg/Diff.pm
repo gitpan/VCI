@@ -1,0 +1,12 @@
+package VCI::VCS::Hg::Diff;
+use Moose;
+
+extends 'VCI::Abstract::Diff';
+
+sub _transform_filename {
+    my ($self, $name) = @_;
+    $name =~ s|^[ab]/||;
+    return $name;
+}
+
+1;

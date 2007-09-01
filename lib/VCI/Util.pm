@@ -5,6 +5,7 @@ use Carp qw(confess);
 use DateTime;
 use DateTime::Format::DateParse;
 use Path::Abstract;
+use Scalar::Util qw(blessed);
 
 ################
 # Object Types #
@@ -45,12 +46,22 @@ coerce 'Path'
 ###############
 # Array Types #
 ###############
-    
+
+subtype 'ArrayOfChanges'
+    => as 'ArrayRef'
+    => where {
+        foreach my $item (@$_) {
+            return 0 if !(blessed($item)
+                          && $item->isa('Text::Diff::Parser::Change'));
+        }
+        return 1;
+    };
+
 subtype 'ArrayOfCommits'
     => as 'ArrayRef'
     => where {
         foreach my $item (@$_) {
-            return 0 if !(blessed $item
+            return 0 if !(blessed($item)
                           && $item->isa('VCI::Abstract::Commit'));
         }
         return 1;
@@ -60,7 +71,7 @@ subtype 'ArrayOfCommittables'
     => as 'ArrayRef'
     => where {
         foreach my $item (@$_) {
-            return 0 if !(blessed $item
+            return 0 if !(blessed($item)
                           && $item->does('VCI::Abstract::Committable'));
         }
         return 1;
@@ -70,7 +81,7 @@ subtype 'ArrayOfHistories'
     => as 'ArrayRef'
     => where {
         foreach my $item (@$_) {
-            return 0 if !(blessed $item
+            return 0 if !(blessed($item)
                           && $item->isa('VCI::Abstract::History'));
         }
         return 1;
@@ -107,6 +118,11 @@ All of these are extensions of the C<ArrayRef> type from
 L<Moose::Util::TypeConstraints>.
 
 =over
+
+=item C<ArrayOfChanges>
+
+An arrayref that can only contain
+L<Text::Diff::Parser::Change|Text::Diff::Parser/CHANGE_METHODS> objects.
 
 =item C<ArrayOfCommits>
 

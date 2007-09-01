@@ -6,6 +6,8 @@ use VCI::VCS::Hg::Project;
 
 extends 'VCI::Abstract::Repository';
 
+sub BUILD { shift->_root_always_ends_with_slash }
+
 # XXX Probably need to make Repository::Web and Repository::Local.
 
 # Mostly uses hgweb, right now.

@@ -1,6 +1,7 @@
 package VCI::Abstract::Commit;
 use Moose;
 use VCI::Util;
+use VCI::Abstract::Diff;
 
 with 'VCI::Abstract::FileContainer';
 
@@ -33,6 +34,8 @@ has 'message'   => (is => 'ro', isa => 'Str', default => sub { '' });
 # XXX This should really be being enforced by FileContainer, but see the
 #     note there.
 has 'project'  => (is => 'ro', isa => 'VCI::Abstract::Project', required => 1);
+has 'as_diff'  => (is => 'ro', isa => 'VCI::Abstract::Diff', lazy => 1,
+                   default => sub { shift->build_as_diff });
 
 sub build_added     { [] }
 sub build_removed   { [] }
@@ -169,6 +172,11 @@ means for that VCS.
 =item C<message>
 
 The message that was entered by the committer, describing this commit.
+
+=item C<as_diff>
+
+Returns a representation of the changes made to files in this commit,
+as a L<VCI::Abstract::Diff> object.
 
 =back
 

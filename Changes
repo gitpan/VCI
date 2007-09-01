@@ -1,5 +1,12 @@
-0.0.3 Fri, Aug 31, 2007
-    - Svn history was broken when the repo history contained copied items.
+0.1.0_1 Fri, Aug 31, 2007
+    - Added "as_diff" to VCI::Abstract::Commit, and implemented it in all
+      drivers. This allows you to get the actual changes done during
+      the commit both as a raw diff from the VCS and as an object
+      representing that diff.
+    - Repository objects now fix "root" to end with a slash (if it doesn't
+      already) on most VCSes, and fix it to *not* end with a slash on
+      CVS.
+    - Slightly improved debug output for Bzr.
 
 0.0.2 Fri, Aug 31, 2007
     - Bzr's history and contents were broken.
