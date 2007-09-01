@@ -1,3 +1,6 @@
+0.0.3 Fri, Aug 31, 2007
+    - Svn history was broken when the repo history contained copied items.
+
 0.0.2 Fri, Aug 31, 2007
     - Bzr's history and contents were broken.
     - Svn's history was broken.

@@ -7,7 +7,7 @@ use VCI::VCS::Bzr::Repository;
 
 extends 'VCI';
 
-our $VERSION = '0.0.2';
+our $VERSION = '0.0.3';
 
 # The path to the bzr binary.
 has 'x_bzr' => (is => 'ro', isa => 'Str', default => sub { shift->build_x_bzr });

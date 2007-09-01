@@ -9,9 +9,10 @@ sub x_from_log {
     my ($class, $project, $paths, $revno, $who, $when, $message) = @_;
     my %copied;
     my %actions = ('A' => [], 'D' => [], 'M' => []);
+    
+    my $project_path = $project->name;
     foreach my $name (keys %$paths) {
         my $item = $paths->{$name};
-        my $project_path = $project->name;
         
         # Get just the "path" part of the path, without the Project path.
         # We do this directly with a regex instead of with Path::Abstract,
@@ -24,7 +25,7 @@ sub x_from_log {
         if ($from_path) {
             my $from_parent = Path::Abstract->new($from_path);
             my $from_longer = scalar($from_parent->list)
-                              - scalar($project_path->list);
+                              - scalar($project_path =~ tr|/||);
             my $from_file   = $from_parent->pop($from_longer);
             
             # $from_parent is now just the "project" part of the path. Let's
@@ -33,7 +34,7 @@ sub x_from_log {
             
             # We were either copied from this project or a different one.
             my $project_from = $project;
-            if ($from_parent->path->stringify ne $project_path) {
+            if ($from_parent->stringify ne $project_path) {
                 # We just use the very first directory as the name of the
                 # project we copied from. There's no way to know what part
                 # of the path represents the branch.

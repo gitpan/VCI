@@ -7,7 +7,7 @@ use VCI::Util;
 
 extends 'VCI';
 
-our $VERSION = '0.0.2';
+our $VERSION = '0.0.3';
 
 has 'x_ua' => (is => 'ro', isa => 'LWP::UserAgent', lazy => 1,
                default => sub { shift->build_x_ua });
