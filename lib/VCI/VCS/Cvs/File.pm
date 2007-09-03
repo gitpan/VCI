@@ -20,7 +20,7 @@ sub build_time {
         args => ['-n', 'log', '-N', '-rHEAD', $self->name],
         fromdir => $self->parent->x_cvs_dir);
     $output =~ /^date: (\S+ \S+);/ms;
-    return $1;
+    return "$1 UTC";
 }
 
 __PACKAGE__->meta->make_immutable;

@@ -32,6 +32,12 @@ has 'x_tmp' => (is => 'ro', isa => 'Str', lazy => 1,
                 default => sub { tempdir('vci.cvs.XXXXXX', TMPDIR => 1,
                                          CLEANUP => 1) });
 
+sub BUILD {
+    my $self = shift;
+    $self->_name_never_ends_with_slash();
+    $self->_name_never_starts_with_slash();
+}
+
 sub build_history {
     my $self = shift;
     my $stdout = $self->x_cvsps_do();
@@ -84,7 +90,7 @@ sub build_history {
 sub x_cvsps_do {
     my ($self, $addl_args) = @_;
     $addl_args ||= [];
-    my @args = (@$addl_args, '-b HEAD', $self->name);
+    my @args = (@$addl_args, '-u', '-b HEAD', $self->name);
     # Just using the --root argument of cvsps doesn't work.
     my $root = $self->repository->root;
     my $cvsps = $self->repository->vci->x_cvsps;

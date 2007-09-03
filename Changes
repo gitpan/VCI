@@ -1,3 +1,54 @@
+0.1.0_2 Mon, Sep 3, 2007
+    - 0.1.0_1 was completely broken for several drivers (couldn't connect
+      to a Repository).
+    - Various fixes to Diffs in various drivers (compared to 0.1.0_1).
+    - Project objects now remove trailing and starting forward-slashes
+      from their names when they are initialized. So "/project/" will be the
+      same as "project".
+    - Various POD fixes.
+    - Doing "./Build dist" will now always run tests before building the
+      distribution. This is necessary because running the tests properly
+      sets up t/repos/ for distribution.
+    - Added tests for Cvs, Svn, Git, and Bzr, which caused a lot of re-arch
+      and various bug fixes:
+    
+    Svn:
+        - Support for local repositories, including relative paths.
+        - "time" on objects from get_path, get_file, and get_directory
+          was wrong. (Svn returns microseconds and we were interpreting
+          them as seconds.)
+        - The 'R' action is now interepreted as the file being modified,
+          not added and then deleted.
+        - Properly strip the final newline from Commit::message.
+        - Copied/moved files now handled correctly (and how they are
+          handled is better documented).
+        - File and Directory objects from other Projects won't show up
+          in your Project's Commit objects.
+    
+    Cvs:
+        - Support for local repositories, including relative paths.
+        - Repository now supports "projects".
+        - File and Directory objects now return the correct time if gotten
+          from get_path, get_file, or get_directory.
+        - We weren't passing the "-u" argument to cvsps, so the History
+          wasn't being updated if there was a new commit to the repository
+          since the very first time anybody ever called "history" on this
+          project.
+    
+    Git:
+        - Calling "contents" on a versioned Directory now correctly returns
+          the contents of that Directory at that time in history.
+        - Commit::message was always returning an empty string. It now
+          correctly returns the message.
+        - File objects now return their most recent revision instead of
+          'HEAD' if you got them from get_path or get_file.
+        - Support for relative paths to local repos.
+        - Repository::projects now also detects "bare" repositories.
+    
+    Bzr:
+        - Commit:message no longer has an extra space at the start or an
+          extra newline at the end.
+
 0.1.0_1 Fri, Aug 31, 2007
     - Added "as_diff" to VCI::Abstract::Commit, and implemented it in all
       drivers. This allows you to get the actual changes done during

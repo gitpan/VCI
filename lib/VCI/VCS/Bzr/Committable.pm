@@ -15,7 +15,7 @@ sub build_revision {
     my $self = shift;
     my $commit = $self->_x_this_commit;
     # Since we've got it now, set the time if it's not set.
-    if (!defined $self->{time}) {
+    if (!defined $self->{_time}) {
         $self->{time} = $commit->time;
     }
     return $commit->revision;

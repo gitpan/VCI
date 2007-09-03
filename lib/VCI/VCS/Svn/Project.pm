@@ -13,6 +13,7 @@ extends 'VCI::Abstract::Project';
 sub BUILD {
     my $self = shift;
     $self->_name_never_ends_with_slash();
+    $self->_name_never_starts_with_slash();
 }
 
 # We need a dirent for the root directory, so we have to override the

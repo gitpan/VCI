@@ -10,7 +10,20 @@ eval { require SVN::Core };
 
 my $ipc_support = $^O =~ /win32/ ? 'IPC::Run' : 'IPC::Open3';
 
-my $build = Module::Build->new(
+my $class = Module::Build->subclass(
+    class => 'Module::Build::VCI',
+    code => <<'EOT' );
+
+sub ACTION_dist {
+    my $self = shift;
+    $self->ACTION_manifest(@_);
+    $self->ACTION_test(@_);
+    $self->ACTION_manifest(@_);
+    $self->SUPER::ACTION_dist(@_);
+}
+EOT
+
+my $build = $class->new(
     module_name => 'VCI',
     license  => 'perl',
     create_makefile_pl => 'passthrough',

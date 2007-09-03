@@ -22,5 +22,8 @@ where the dependencies should be fairly clear.
 
 COPYRIGHT
 
-See COPYRIGHT section in VCI.pm for the copyright and usage/distribution 
-rights. The COPYRIGHT section of VCI.pm applies to this entire distribution.
+See COPYRIGHT AND LICENSE section in VCI.pm for the copyright and
+usage/distribution rights. The COPYRIGHT AND LICENSE section of VCI.pm
+applies to this entire distribution, except the testing repos included
+in t/repos/, which have their own copyrights and licenses. (However,
+all of them are compatible with the Artistic license and GPL.)

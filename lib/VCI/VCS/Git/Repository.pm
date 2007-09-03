@@ -10,11 +10,13 @@ sub BUILD { shift->_root_always_ends_with_slash }
 sub build_projects {
     my $self = shift;
     my $root = $self->root;
-    my @directories = glob "$root*/.git";
+    my @dirs = glob "$root*/.git";
     # XXX Path Separator assumption
-    @directories = map { s|/.git$||; s|^\Q$root\E||; $_ } @directories;
+    @dirs = map { s|/.git$||; s|^\Q$root\E||; $_ } @dirs;
+    my @bare_dirs = glob "$root/*/objects/pack/*.idx";
+    @bare_dirs = map { s|^\Q$root\E||; s|/objects/pack/.*idx$||; $_ } @bare_dirs;
     return [map { VCI::VCS::Git::Project->new(name => $_, repository => $self) }
-                @directories];
+                (@dirs, @bare_dirs)];
 }
 
 __PACKAGE__->meta->make_immutable;

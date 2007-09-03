@@ -7,6 +7,53 @@ with 'VCI::Abstract::Committable', 'VCI::Abstract::FileContainer';
 # implment Committable.
 sub BUILD { shift->_no_time_without_revision; }
 
+# For helping build directory contents for some VCSes.
+sub _set_contents_from_list {
+    my ($self, $dir_names, $file_names, $strip_root) = @_;
+    
+    # Sorting assures that parent directories will always be in the array
+    # before child directories.
+    my @dir_array = sort {length($a) <=> length($b)} @$dir_names;
+    my $root_path = $self->path->stringify;
+    my %dirs = ("$root_path" => $self);
+    my %dir_contents;
+    
+    # Create objects for the Directories and set their parents appropriately.
+    foreach my $path (@dir_array) {
+        ($path =~ s/^\Q$strip_root\E//) if defined $strip_root;
+        next if !$path;
+        my $path_obj    = Path::Abstract->new($path)->to_branch;
+        my $parent_name = $path_obj->parent->stringify;
+        my $parent      = $dirs{$parent_name};
+        
+        my $directory = $self->project->repository->vci->directory_class->new(
+            path => $path_obj, parent => $parent, project => $self->project);
+        $dirs{$path_obj->stringify} = $directory;
+        
+        $dir_contents{$parent_name} ||= [];
+        push(@{ $dir_contents{$parent_name} }, $directory);
+    }
+
+    # Create File objects and set their parent directories correctly.
+    foreach my $path (@$file_names) {
+        ($path =~ s/^\Q$strip_root\E//) if defined $strip_root;
+        my $path_obj    = Path::Abstract->new($path)->to_branch;
+        my $parent_name = $path_obj->parent->stringify;
+        my $parent      = $parent_name ? $dirs{$parent_name} : $self;
+        
+        my $file = $self->project->repository->vci->file_class->new(
+            parent => $parent, path => $path_obj, project => $self->project);
+        
+        $dir_contents{$parent_name} ||= [];
+        push(@{ $dir_contents{$parent_name} }, $file);
+    }
+    
+    foreach my $dir (keys %dir_contents) {
+        $dirs{$dir}->{contents} = $dir_contents{$dir};
+    }
+}
+
+
 __PACKAGE__->meta->make_immutable;
 
 1;

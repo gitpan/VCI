@@ -45,6 +45,12 @@ sub x_from_xml {
             }
         }
         
+        $log->{message} ||= '';
+        chomp($log->{message});
+        # For some reason bzr adds a single space to the start of messages
+        # in XML format.
+        $log->{message} =~ s/^ //;
+        
         my $commit = VCI::VCS::Bzr::Commit->new(
             revision  => $log->{revno},
             committer => $log->{committer},

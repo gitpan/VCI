@@ -148,7 +148,7 @@ An arrayref that can only contain L<VCI::Abstract::Project> objects.
 
 =over
 
-=item DateTime
+=item C<DateTime>
 
 A L<DateTime> object.
 
@@ -159,7 +159,7 @@ object using L<DateTime/from_epoch>.
 If you pass in a string that's not just an integer, it will be parsed
 by L<DateTime::Format::DateParse>.
 
-=item Path
+=item C<Path>
 
 A L<Path::Abstract> object.
 

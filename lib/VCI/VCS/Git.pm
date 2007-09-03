@@ -3,7 +3,7 @@ use Moose;
 
 extends 'VCI';
 
-our $VERSION = '0.1.0_1';
+our $VERSION = '0.1.0_2';
 
 __PACKAGE__->meta->make_immutable;
 
@@ -54,10 +54,6 @@ repository that have C<.git> directories in them. So if there are projects
 in further down in the directory hierarchy, they won't be found.
 
 =head2 VCI::VCS::Directory
-
-C<contents> will currently always return the contents of that directory
-as it exists in C<HEAD>, instead of the contents of the Directory at its
-specific revision.
 
 Calling C<first_revision> or C<last_revision> on a Directory will fail,
 as Directories are not tracked in any History. (This may be fixed in a

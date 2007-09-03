@@ -8,7 +8,7 @@ use IPC::Cmd;
 
 use VCI::VCS::Cvs::Repository;
 
-our $VERSION = '0.1.0_1';
+our $VERSION = '0.1.0_2';
 
 has 'x_cvsps' => (is => 'ro', isa => 'Str', lazy => 1,
                   default => sub { shift->build_x_cvsps });
@@ -56,8 +56,8 @@ method 'x_do' => named (
     
     my $output = join('', @$all);
     if ($self->debug) {
-        print "Exit Code: $errorcode\n";
-        print "Results: $output\n" if $self->debug > 1;
+        print STDERR "Exit Code: $errorcode\n";
+        (print STERR "Results: $output\n") if $self->debug > 1;
     }
     return $output;
 };
@@ -98,6 +98,17 @@ The path to the "cvsps" binary on your system. If not specified, we will
 search your C<PATH> and throw an error if C<cvsps> isn't found.
 
 =back
+
+=head2 Local Repositories
+
+Though CVS itself doesn't allow relative paths in C<:local:> roots,
+VCI::VCS::Cvs does. So C<:local:path/to/repo> (or just C<path/to/repo>)
+will be interpreted as meaning that you want the CVS repository in the
+directory C<path/to/repo>.
+
+In actuality, VCI::VCS::Cvs converts the relative path to an absolute path
+when creating the Repository object, so using relative paths will fail
+if you are in an environment where L<Cwd/abs_path> fails.
 
 =head1 REQUIREMENTS
 
@@ -177,8 +188,8 @@ general API specified in the C<VCI::Abstract> modules:
 =head2 VCI::VCS::Cvs::Repository
 
 C<get_project> doesn't support modules yet, only directory names in
-the repository. Using a module name might work, but operations on that
-Project are likely to then fail.
+the repository. Using a module name won't throw an error, but operations
+on that Project are likely to then fail.
 
 =head2 VCI::VCS::Cvs::Commit
 

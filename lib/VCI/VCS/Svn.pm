@@ -5,7 +5,7 @@ use SVN::Client;
 
 extends 'VCI';
 
-our $VERSION = '0.1.0_1';
+our $VERSION = '0.1.0_2';
 
 has 'x_client' => (is => 'ro', isa => 'SVN::Client', lazy => 1,
                    default => sub { shift->build_x_client });
@@ -42,6 +42,16 @@ For example, if I have a project called Foo that I store in
 C<svn.domain.com/svn/repo/Foo> then the C<repo> would be
 C<svn://svn.domain.com/svn/repo/>.
 
+=head2 Local Repositories
+
+Though Subversion itself doesn't allow relative paths in C<file://>
+URLs, VCI::VCS::Svn does. So C<file://path/to/repo> will be interpreted
+as meaning that you want the repo in the directory C<path/to/repo>.
+
+In actuality, VCI::VCS::Svn converts that to an absolute path when
+creating the Repository object, so using relative paths will fail
+if you are in an environment where L<Cwd/abs_path> fails.
+
 =head1 REQUIREMENTS
 
 VCI::VCS::Svn requires at least Subversion 1.1, and the SVN::Client
@@ -54,11 +64,33 @@ in the C<VCI::Abstract> modules.
 
 =head2 VCI::VCS::Svn::Commit
 
+=over
+
+=item *
+
 For C<added>, C<removed>, C<modified> and C<copied>, objects only
 implement L<Committable|VCI::Abstract::Committable> without actually
 being L<File|VCI::Abstract::File> or L<Directory|VCI::Abstract::Directory>
 objects. This is due to a limitation in the current Subversion API.
 (See L<http://subversion.tigris.org/issues/show_bug.cgi?id=1967>.)
+
+=item *
+
+C<copied> files always show up in C<added>, they never show up in C<modified>,
+even if they were changed after they were copied. This is because
+Subversion doesn't track that a copied file was modified after you copied
+it.
+
+This is also consitent with how they show up in C<as_diff> -- it looks like
+a whole new file was added.
+
+=item *
+
+Subversion doesn't track if a moved file was modified after it was moved, only
+that you copied a file and then deleted the old file. So moved files
+show up in C<copied>, C<added>, and C<removed>.
+
+=back
 
 =head1 PERFORMANCE
 

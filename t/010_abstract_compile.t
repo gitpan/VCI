@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use lib 't/lib';
 use Test::More;
-use AllModules;
+use Support;
 
 my @modules = all_modules('lib/VCI/Abstract');
 push(@modules, 'VCI', 'VCI::Util');

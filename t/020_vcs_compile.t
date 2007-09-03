@@ -4,12 +4,7 @@ use warnings;
 
 use lib 't/lib';
 use Test::More;
-use AllModules;
-
-BEGIN {
-    eval "use Module::Build 0.26";
-    plan skip_all => "This test requires Module::Build 0.26." if $@;
-}
+use Support;
 
 my @features = qw(bzr svn hg git cvs);
 
@@ -29,20 +24,11 @@ plan tests => $tests;
 # disabled.
 eval { require SVN::Core };
 
-my %feature_enabled;
-if(my $build = eval { Module::Build->current; }) {
-    $feature_enabled{$_} = $build->feature($_) foreach @features;
-}
-else {
-    diag("Not inside a build, assuming all features are enabled.");
-    $feature_enabled{$_} = 1 foreach @features;
-}
-
 foreach my $vcs (@features) {
     my $vcs_modules = $modules{$vcs};
     SKIP: {
         skip "$vcs not enabled", scalar(@$vcs_modules)
-            if !$feature_enabled{$vcs};
+            if !feature_enabled($vcs);
         use_ok($_) foreach @$vcs_modules;
     }
 }

@@ -7,7 +7,7 @@ use VCI::VCS::Bzr::Repository;
 
 extends 'VCI';
 
-our $VERSION = '0.1.0_1';
+our $VERSION = '0.1.0_2';
 
 # The path to the bzr binary.
 has 'x_bzr' => (is => 'ro', isa => 'Str', default => sub { shift->build_x_bzr });
@@ -130,7 +130,7 @@ in the C<VCI::Abstract> modules.
 
 =item C<projects>
 
-On some repositories, L<-E<gt>projects|VCI::Abstract::Repository/projects>
+On some repositories, L<"projects"|VCI::Abstract::Repository/projects>
 will return an empty array, even though there are branches there. This only
 happens for repositories where we can't list the directories. For example,
 HTTP repositories without a directory listing.

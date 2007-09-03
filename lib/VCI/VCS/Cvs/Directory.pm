@@ -28,9 +28,9 @@ sub build_contents {
         args    => ['-n', 'update', '-d'],
         fromdir => $self->x_cvs_dir);
     my @lines = split("\n", $output);
-    shift @lines; # First line is "cvs update: Updating ."
     my @contents;
     foreach my $line (@lines) {
+        next if  $line =~ /^cvs update: Updating \.$/;
         if ($line =~ /^U (.*)$/) {
             my $path = Path::Abstract->new($self->path, $1);
             push(@contents, VCI::VCS::Cvs::File->new(
@@ -59,14 +59,24 @@ sub build_x_cvs_dir {
     if (!-d $cvsdir) {
         mkpath($cvsdir);
     
-        open(my $root, ">$cvsdir/Root");
+        open(my $root, ">$cvsdir/Root")
+            || confess "Failed to open $cvsdir/Root: $!";
         print $root $self->project->repository->root;
         close($root);
-        open(my $repository, ">$cvsdir/Repository");
-        print $repository $self->project->name . '/' . $self->path->stringify;
+        
+        my $repo_name = $self->project->name . '/' . $self->path->stringify;
+        # For local repos, you have to specify the full absolute path.
+        if ($self->project->repository->x_is_local) {
+            $repo_name = $self->project->repository->x_dir_part . '/' . $repo_name;
+        }
+        open(my $repository, ">$cvsdir/Repository")
+            || confess "Failed to open $cvsdir/Repository: $!";
+        print $repository $repo_name;
         close($repository);
+        
         # Create a blank Entries file, or CVS complains.
-        open(my $entries, ">$cvsdir/Entries");
+        open(my $entries, ">$cvsdir/Entries")
+            || confess "Failed to create $cvsdir/Entries: $!";;
         close($entries);
     }
     return $dir->stringify;

@@ -27,12 +27,13 @@ sub build_revision {
     return $info->created_rev;
 }
 
+# SVN Returns times in microseconds.
 sub build_time {
     my $info = shift->x_info;
     if ($info->isa('_p_svn_info_t')) {
-        return $info->last_changed_date;
+        return $info->last_changed_date / 1000000.0;
     }
-    return $info->time;
+    return $info->time / 1000000.0;
 }
 
 # This is mostly used to build "time" if you don't specify it during

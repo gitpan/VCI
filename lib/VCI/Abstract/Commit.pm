@@ -178,6 +178,13 @@ The message that was entered by the committer, describing this commit.
 Returns a representation of the changes made to files in this commit,
 as a L<VCI::Abstract::Diff> object.
 
+If the VCS provides a diff format that tracks renames and copies, the
+diff will be in that format. In other words, it will represent the changes
+in the same way the Commit represents them. For example, if a file has
+been moved and then modified, in a normal diff you'd see one entire
+file removed and then another added. In this diff you will only see
+that a file was modified, and that file will have the new name.
+
 =back
 
 =head1 CLASS METHODS

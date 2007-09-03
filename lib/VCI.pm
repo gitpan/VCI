@@ -1,7 +1,6 @@
 package VCI;
 use Moose;
-
-our $VERSION = '0.1.0_1';
+our $VERSION = '0.1.0_2';
 
 # Will also need a write_repo in the future, if we add commit support,
 # for things like Hg that read from hgweb but have to write through the
@@ -120,7 +119,7 @@ modules, and those contain the documentation you should read in order to
 find out how VCI works.
 
 "Drivers" for different VCSes are in modules whose names start with
-L<VCI::VCS>. For example, L<VCI::VCS::Cvs> is the "CVS support" for
+C<VCI::VCS>. For example, L<VCI::VCS::Cvs> is the "CVS support" for
 VCI. You only have to read L<VCI::VCS::Cvs> or the manual of any other
 driver if you want to know:
 
@@ -183,7 +182,7 @@ to find out if an object is a File, you would do:
 
 VCI has three-number version numbers, like this:
 
-C<MAJOR>.C<API>.C<MINOR>_C<DEVEL>
+C<MAJOR.API.MINOR>_C<DEVEL>
 
 Here's what each number means:
 
@@ -240,7 +239,7 @@ In this case, the C<MINOR> number should almost always be C<0>.
 
 =item B<Description>
 
-Returns a L<VCI::Repository> object based on your parameters. This is
+Returns a L<VCI::Abstract::Repository> object based on your parameters. This is
 how you "start" using VCI.
 
 Note that you cannot currently connect to repositories that require
@@ -284,7 +283,7 @@ values than C<1>.
 =item C<new>
 
 This has the same parameters as L</connect>, but actually returns a
-C<VCI> object, not a L<VCI::Repository>.
+C<VCI> object, not a L<VCI::Abstract::Repository>.
 
 You'll generally want use L</connect> instead of this.
 
@@ -338,8 +337,15 @@ development version by doing:
 
  bzr co http://bzr.everythingsolved.com/vci/trunk
 
-Note that if you check out code from my repository, it may be unstable or
+Note that if you check out code from trunk repository, it may be unstable or
 completely broken.
+ 
+You can get the latest stable version by doing:
+
+ bzr co http://bzr.everythingsolved.com/vci/stable
+
+You have to do C<perl Build.PL> and C<./Build manifest> on any checked-
+out code before you can install it.
 
 =head1 PERFORMANCE
 
@@ -349,6 +355,15 @@ itself, but just because many performance optimizations haven't been
 implemented yet in the various drivers.
 
 As time goes on, performance should improve significantly.
+
+=head1 SUPPORT
+
+Currently, the best way to get support for VCI is just to email
+the author at C<mkanat@cpan.org>.
+
+VCI also has a (currently minimal) home page at:
+
+L<http://vci.everythingsolved.com/>
 
 =head1 GENERAL NOTES FOR VCI::VCS IMPLEMENTORS
 
@@ -440,6 +455,8 @@ this is the "HEAD" revision).
 =item C<build_time> for L<VCI::Abstract::Committable> objects that have
 a revision but no time specified.
 
+=item C<build_as_diff> in L<VCI::Abstract::Commit>
+
 =back
 
 That's basically the I<minimum> you have to implement. The more you implement,
@@ -524,8 +541,6 @@ B<Drivers>: L<VCI::VCS::Svn>, L<VCI::VCS::Bzr>, L<VCI::VCS::Hg>,
 L<VCI::VCS::Git>, and L<VCI::VCS::Cvs>
 
 =head1 TODO
-
-Far more tests need to be written.
 
 Eventually the drivers will be split into their own packages.
 

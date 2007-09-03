@@ -25,10 +25,10 @@ method 'get_project' => named (
 # For use in BUILD
 sub _root_always_ends_with_slash {
     my $self = shift;
-    $self->_name_never_ends_with_slash;
-    $self->{name} .= '/';
+    $self->_root_never_ends_with_slash;
+    $self->{root} .= '/';
 }
-sub _root_never_ends_with_slash  { $_[0]->{name} =~ s|/\s*$|| }
+sub _root_never_ends_with_slash  { $_[0]->{root} =~ s|/\s*$|| }
 
 __PACKAGE__->meta->make_immutable;
 

@@ -79,13 +79,15 @@ All accessors are read-only.
 An arrayref of L<VCI::Abstract::Diff::File> objects, which each represent
 the changes made to that particular file.
 
+Files that were added but have no contents aren't tracked in the Diff.
+
 Note that changes to binary files aren't tracked.
 
 =item C<raw>
 
 The exact text of the diff, as it would be returned by the version-control
-system. If will be in unified diff format, but any other formatting details
-depends on the VCS in use.
+system. If will be in unified diff format, but other details of the format
+of the patch may be specific to the VCS.
 
 =item C<project>
 

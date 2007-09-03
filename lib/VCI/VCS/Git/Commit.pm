@@ -8,13 +8,18 @@ extends 'VCI::Abstract::Commit';
 
 has 'x_changes' => (is => 'ro', lazy => 1,
                     default => sub { shift->build_x_changes });
-has+ 'message' => (lazy => 1, default => sub { shift->build_message });
+has '+message' => (lazy => 1, default => sub { shift->build_message });
 
 
 sub build_message {
     my $self = shift;
-    return $self->project->x_do('log', ['-1', '--pretty=format:%b',
-                                        $self->revision], 1);
+    my $text = $self->project->x_do('log', ['-1', '--pretty=format:%s%n%b',
+                                            $self->revision], 1);
+    # If Git's "subject" or "body" are empty, it prints "<unknown>"
+    $text =~ s/^<unknown>\n//s;
+    $text =~ s/\n<unknown>$//s;
+    chomp($text);
+    return $text;
 }
 
 sub build_added    { return shift->_x_files_from_changes('A') }
@@ -37,7 +42,7 @@ sub build_copied {
 sub build_as_diff {
     my $self = shift;
     my $diff = $self->project->x_do('whatchanged',
-        ['-m', '-p', '-1', '--pretty=format:', $self->revision], 1);
+        ['-m', '-p', '-1', '-C', '--pretty=format:', $self->revision], 1);
     return VCI::VCS::Git::Diff->new(raw => $diff, project => $self->project);
 }
 
