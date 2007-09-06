@@ -6,6 +6,8 @@ use Cwd qw(cwd);
 use Test::More;
 use VCI;
 use Support qw(test_vcs feature_enabled);
+BEGIN { plan skip_all => "cvs not enabled" if !feature_enabled('cvs'); }
+use IPC::Cmd;
 
 #############################
 # Constants and Subroutines #
@@ -85,6 +87,11 @@ sub setup_repo {
 # Tests #
 #########
 
+IPC::Cmd::can_run('cvs')
+    || plan skip_all => 'cvs not installed or in the path';
+IPC::Cmd::can_run('cvsps')
+    || plan skip_all => 'cvsps not installed or in the path';
+
 my $repo_success = eval {
     my $cwd = cwd();
     chdir 't/repos/cvs/' || die $!;
@@ -92,8 +99,6 @@ my $repo_success = eval {
     chdir $cwd || die "$cwd: $!"; 
 };
 $repo_success || plan skip_all => "Unable to create cvs testing repo: $@";
-
-plan skip_all => "cvs not enabled" if !feature_enabled('cvs');
 
 plan tests => 28;
 

@@ -5,7 +5,7 @@ use SVN::Client;
 
 extends 'VCI';
 
-our $VERSION = '0.1.0_2';
+our $VERSION = '0.1.0_3';
 
 has 'x_client' => (is => 'ro', isa => 'SVN::Client', lazy => 1,
                    default => sub { shift->build_x_client });
@@ -103,3 +103,25 @@ Some optimizations are not implemented yet, though, so certain operations
 may be slow, such as searching commits by time. This should be easy to rectify
 in a future version, particularly as I get some idea from users about how
 they most commonly use L<VCI>.
+
+=head1 SEE ALSO
+
+L<VCI>
+
+=head1 BUGS
+
+VCI::VCS::Svn is very new, and may have significant bugs. The code is
+alpha-quality at this point.
+
+=head1 AUTHOR
+
+Max Kanat-Alexander <mkanat@cpan.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright 2007 by Everything Solved, Inc.
+
+L<http://www.everythingsolved.com>
+
+This library is free software; you can redistribute it and/or modify it under
+the same terms as Perl itself.

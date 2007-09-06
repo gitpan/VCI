@@ -3,7 +3,7 @@ use Moose;
 
 extends 'VCI';
 
-our $VERSION = '0.1.0_2';
+our $VERSION = '0.1.0_3';
 
 __PACKAGE__->meta->make_immutable;
 
@@ -77,7 +77,7 @@ alpha-quality at this point.
 
 =head1 AUTHOR
 
-Max Kanat-Alexander E<lt>mkanatE<64>everythingsolved.comE<gt>
+Max Kanat-Alexander <mkanat@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 

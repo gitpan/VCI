@@ -7,7 +7,7 @@ use VCI::Util;
 
 extends 'VCI';
 
-our $VERSION = '0.1.0_2';
+our $VERSION = '0.1.0_3';
 
 has 'x_ua' => (is => 'ro', isa => 'LWP::UserAgent', lazy => 1,
                default => sub { shift->build_x_ua });
@@ -108,3 +108,25 @@ with the history of a Project.
 
 Getting the contents (or added/removed/modified) of a Commit can be
 slow, as it has to access the web interface.
+
+=head1 SEE ALSO
+
+L<VCI>
+
+=head1 BUGS
+
+VCI::VCS::Hg is very new, and may have significant bugs. The code is
+alpha-quality at this point.
+
+=head1 AUTHOR
+
+Max Kanat-Alexander <mkanat@cpan.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright 2007 by Everything Solved, Inc.
+
+L<http://www.everythingsolved.com>
+
+This library is free software; you can redistribute it and/or modify it under
+the same terms as Perl itself.

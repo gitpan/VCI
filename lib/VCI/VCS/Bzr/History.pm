@@ -16,20 +16,23 @@ sub x_from_xml {
     
     my @commits;
     foreach my $log (@{$xml->{log}}) {
+        # The format of the XML changed in xmloutput Revision 17.
+        my $files = exists $log->{'affected-files'} ? $log->{'affected-files'}
+                                                    : $log;
         my (@added, @removed, @modified);
-        if (exists $log->{added}) {
-            @added = _x_parse_items($log->{added}, $log, $project);
+        if (exists $files->{added}) {
+            @added = _x_parse_items($files->{added}, $log, $project);
         }
-        if (exists $log->{removed}) {
+        if (exists $files->{removed}) {
             # XXX Is this the right XML?
-            @removed = _x_parse_items($log->{removed}, $log, $project);
+            @removed = _x_parse_items($files->{removed}, $log, $project);
         }
-        if (exists $log->{modified}) {
-            @modified = _x_parse_items($log->{modified}, $log, $project);
+        if (exists $files->{modified}) {
+            @modified = _x_parse_items($files->{modified}, $log, $project);
         }
         
         my %moved;
-        if (my $renamed = $log->{renamed}) {
+        if (my $renamed = $files->{renamed}) {
             my @items;
             if (exists $renamed->{file}) {
                 push(@items, @{$renamed->{file}});

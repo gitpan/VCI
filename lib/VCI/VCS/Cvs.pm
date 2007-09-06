@@ -8,7 +8,7 @@ use IPC::Cmd;
 
 use VCI::VCS::Cvs::Repository;
 
-our $VERSION = '0.1.0_2';
+our $VERSION = '0.1.0_3';
 
 has 'x_cvsps' => (is => 'ro', isa => 'Str', lazy => 1,
                   default => sub { shift->build_x_cvsps });
@@ -229,3 +229,25 @@ Working with a local repository will always be faster than working with
 a remote repository. For most operations, the latency between you and
 the repository is far more important than the bandwidth between you and
 the repository.
+
+=head1 SEE ALSO
+
+L<VCI>
+
+=head1 BUGS
+
+VCI::VCS::Cvs is very new, and may have significant bugs. The code is
+alpha-quality at this point.
+
+=head1 AUTHOR
+
+Max Kanat-Alexander <mkanat@cpan.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright 2007 by Everything Solved, Inc.
+
+L<http://www.everythingsolved.com>
+
+This library is free software; you can redistribute it and/or modify it under
+the same terms as Perl itself.

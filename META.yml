@@ -1,12 +1,14 @@
 ---
 name: VCI
-version: 0.1.0_2
+version: 0.1.0_3
 author:
   - 'Max Kanat-Alexander <mkanat@cpan.org>'
 abstract: A generic interface for interacting with various version-control systems.
 license: perl
 resources:
+  homepage: http://vci.everythingsolved.com/
   license: http://dev.perl.org/licenses/
+  repository: http://bzr.everythingsolved.com/vci/
 requires:
   Carp: 0
   DateTime: 0
@@ -16,13 +18,23 @@ requires:
   Path::Abstract: 0
   Text::Diff::Parser: 0
 build_requires:
+  File::Spec: 0
   Test::Exception: 0
   Test::More: 0
   Test::Warn: 0
+recommends:
+  Cwd: 0
+  File::Path: 0
+  File::Temp: 0
+  IPC::Cmd: 0
+  IPC::Open3: 0
+  LWP::UserAgent: 0
+  List::Util: 0
+  XML::Simple: 0
 provides:
   VCI:
     file: lib/VCI.pm
-    version: 0.1.0_2
+    version: 0.1.0_3
   VCI::Abstract::Commit:
     file: lib/VCI/Abstract/Commit.pm
   VCI::Abstract::Committable:
@@ -47,7 +59,7 @@ provides:
     file: lib/VCI/Util.pm
   VCI::VCS::Bzr:
     file: lib/VCI/VCS/Bzr.pm
-    version: 0.1.0_2
+    version: 0.1.0_3
   VCI::VCS::Bzr::Commit:
     file: lib/VCI/VCS/Bzr/Commit.pm
   VCI::VCS::Bzr::Committable:
@@ -64,7 +76,7 @@ provides:
     file: lib/VCI/VCS/Bzr/Repository.pm
   VCI::VCS::Cvs:
     file: lib/VCI/VCS/Cvs.pm
-    version: 0.1.0_2
+    version: 0.1.0_3
   VCI::VCS::Cvs::Commit:
     file: lib/VCI/VCS/Cvs/Commit.pm
   VCI::VCS::Cvs::Diff:
@@ -81,7 +93,7 @@ provides:
     file: lib/VCI/VCS/Cvs/Repository.pm
   VCI::VCS::Git:
     file: lib/VCI/VCS/Git.pm
-    version: 0.1.0_2
+    version: 0.1.0_3
   VCI::VCS::Git::Commit:
     file: lib/VCI/VCS/Git/Commit.pm
   VCI::VCS::Git::Committable:
@@ -100,7 +112,7 @@ provides:
     file: lib/VCI/VCS/Git/Repository.pm
   VCI::VCS::Hg:
     file: lib/VCI/VCS/Hg.pm
-    version: 0.1.0_2
+    version: 0.1.0_3
   VCI::VCS::Hg::Commit:
     file: lib/VCI/VCS/Hg/Commit.pm
   VCI::VCS::Hg::Committable:
@@ -119,7 +131,7 @@ provides:
     file: lib/VCI/VCS/Hg/Repository.pm
   VCI::VCS::Svn:
     file: lib/VCI/VCS/Svn.pm
-    version: 0.1.0_2
+    version: 0.1.0_3
   VCI::VCS::Svn::Commit:
     file: lib/VCI/VCS/Svn/Commit.pm
   VCI::VCS::Svn::Committable:

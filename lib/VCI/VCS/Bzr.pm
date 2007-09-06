@@ -7,7 +7,7 @@ use VCI::VCS::Bzr::Repository;
 
 extends 'VCI';
 
-our $VERSION = '0.1.0_2';
+our $VERSION = '0.1.0_3';
 
 # The path to the bzr binary.
 has 'x_bzr' => (is => 'ro', isa => 'Str', default => sub { shift->build_x_bzr });
@@ -152,3 +152,25 @@ your own objects for some reason.
 With local repositories, VCI::VCS::Bzr should be very fast. With
 remote repositories, certain operations may be slow, such as
 calling C<projects> on a Repository.
+
+=head1 SEE ALSO
+
+L<VCI>
+
+=head1 BUGS
+
+VCI::VCS::Bzr is very new, and may have significant bugs. The code is
+alpha-quality at this point.
+
+=head1 AUTHOR
+
+Max Kanat-Alexander <mkanat@cpan.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright 2007 by Everything Solved, Inc.
+
+L<http://www.everythingsolved.com>
+
+This library is free software; you can redistribute it and/or modify it under
+the same terms as Perl itself.

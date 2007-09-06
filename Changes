@@ -1,3 +1,12 @@
+0.1.0_3 Wed, Sep 3, 2007
+    - The XML output format of bzr-xmloutput changed as of revision 18 of
+      that plugin. The Bzr driver now supports both the old and the new
+      format.
+    - Calling Bzr::Repository->projects would sometimes fail because
+      Repository.pm wasn't using VCI::VCS::Bzr::Project.
+    - Tests were always failing because they weren't properly checking
+      for non-perl-module prerequisites.
+
 0.1.0_2 Mon, Sep 3, 2007
     - 0.1.0_1 was completely broken for several drivers (couldn't connect
       to a Repository).
@@ -58,6 +67,9 @@
       already) on most VCSes, and fix it to *not* end with a slash on
       CVS.
     - Slightly improved debug output for Bzr.
+
+0.0.3 Fri, Aug 31, 2007
+    - Svn history was broken when the repo history contained copied items.
 
 0.0.2 Fri, Aug 31, 2007
     - Bzr's history and contents were broken.

@@ -4,8 +4,7 @@ use File::Spec;
 use Test::More;
 use Test::Exception;
 use base qw(Exporter);
-our @EXPORT = qw(all_modules feature_enabled);
-our @EXPORT_OK = qw(test_vcs);
+our @EXPORT_OK = qw(test_vcs all_modules feature_enabled);
 
 sub test_vcs {
     my $params = shift;
@@ -38,14 +37,18 @@ sub test_vcs {
     isa_ok($project2 = $repo->get_project(name => $mangled_name),
            "${class}::Project", "$mangled_name");
     is($project2->name, $project->name, '$project->name eq $project2->name');
+
     # Make sure that ->projects works correctly on this test repo.
     my $projects;
     isa_ok($projects = $repo->projects, 'ARRAY', '$repo->projects');
-    cmp_ok(scalar(@$projects), '==', $num_projects,
-           "Only $num_projects project returned");
-    is($project->name, $projects->[0]->name,
-       '$repo->projects returns same Project');
-    
+    SKIP: {
+        skip 'no projects returned', 1
+            unless cmp_ok(scalar(@$projects), '==', $num_projects,
+                          "Only $num_projects project returned");
+        is($project->name, $projects->[0]->name,
+           '$repo->projects returns same Project');
+    }
+        
     # Project
     my $history;
     lives_and { isa_ok($history = $project->history, "${class}::History") }
@@ -186,3 +189,4 @@ sub all_modules {
 
     return @modules;
 }
+

@@ -2,6 +2,8 @@ package VCI::VCS::Bzr::Repository;
 use Moose;
 use MooseX::Method;
 
+use VCI::VCS::Bzr::Project;
+
 extends 'VCI::Abstract::Repository';
 
 sub BUILD { shift->_root_always_ends_with_slash }

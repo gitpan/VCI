@@ -3,8 +3,10 @@ use strict;
 use warnings;
 use lib 't/lib';
 use Test::More;
-use VCI;
 use Support qw(test_vcs feature_enabled);
+use VCI;
+BEGIN { plan skip_all => "bzr not enabled" if !feature_enabled('bzr'); }
+use IPC::Cmd;
 
 #############################
 # Constants and Subroutines #
@@ -56,11 +58,35 @@ sub setup_repo {
            . " t/repos/bzr/vci");
 }
 
+my $python;
+sub check_plugin {
+    my $plugin = shift;
+    if (!$python) {
+        my $output;
+        IPC::Cmd::run(command => [qw(bzr --version)], buffer => \$output);
+        if ($output =~ /^Using Python interpreter: (.+?)$/ms) {
+            $python = $1;
+        }
+        else {
+            plan skip_all => "Couldn't determine python interpreter from"
+                             . "output:\n$output";
+        }
+    }
+    
+    return scalar IPC::Cmd::run(
+        command => [$python, "-c 'import bzrlib.plugins.$plugin'"]);
+}
+
 #########
 # Tests #
 #########
 
-plan skip_all => "bzr not enabled" if !feature_enabled('bzr');
+IPC::Cmd::can_run('bzr')
+    || plan skip_all => 'bzr not installed or in the path';
+check_plugin('bzrtools')
+    || plan skip_all => 'bzrtools not installed';
+check_plugin('xmloutput')
+    || plan skip_all => 'xmloutput not installed';
 
 eval { setup_repo() if !-d 't/repos/bzr/.bzr'; 1; }
     || plan skip_all => "Unable to create bzr testing repo: $@";

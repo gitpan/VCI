@@ -36,10 +36,24 @@ my $build = $class->new(
         'Text::Diff::Parser' => '0',
         'Carp'           => '0',
     },
+    # For right now I added all the auto_features to recommends that are
+    # on CPAN, in the hope that CPAN-Testers will now be more likely to
+    # run all the test code.
+    recommends => {
+        'IPC::Cmd'       => 0,
+        $ipc_support     => 0,
+        'XML::Simple'    => 0,
+        'LWP::UserAgent' => 0,
+        'Cwd'        => 0,
+        'File::Path' => 0,
+        'File::Temp' => 0,
+        'List::Util' => 0,        
+    },
     build_requires => {
         'Test::More'      => '0',
         'Test::Exception' => '0',
         'Test::Warn'      => '0',
+        'File::Spec'      => '0',
     },
     auto_features => {
         bzr => {
@@ -53,6 +67,7 @@ my $build = $class->new(
         svn => {
             description => 'Subversion Support',
             requires => {
+                'Cwd' => 0,
                 'SVN::Core' => '1.1.0',
             }
         },
@@ -66,6 +81,7 @@ my $build = $class->new(
         git => {
             description => 'Git Support',
             requires => {
+                'Cwd' => '0',
                 'Git' => '0',
             }
         },
@@ -79,6 +95,12 @@ my $build = $class->new(
                 'File::Temp' => 0,
                 'List::Util' => 0,
             }
+        },
+    },
+   meta_merge => {
+        resources => {
+            homepage   => 'http://vci.everythingsolved.com/',
+            repository => 'http://bzr.everythingsolved.com/vci/'
         },
     },
 );
