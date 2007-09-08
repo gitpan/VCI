@@ -7,7 +7,7 @@ use VCI::Util;
 
 extends 'VCI';
 
-our $VERSION = '0.1.0_3';
+our $VERSION = '0.1.0_4';
 
 has 'x_ua' => (is => 'ro', isa => 'LWP::UserAgent', lazy => 1,
                default => sub { shift->build_x_ua });
@@ -86,13 +86,30 @@ Directory objects never show up in a History.
 
 =head2 VCI::VCS::Hg::Commit
 
+=over
+
+=item *
+
 Although Mercurial supports renames and copies of files, the hgweb
 interface doesn't track renames and copies. So renames just look like
 a file was deleted and then a file was added. Copies are simply
 added files.
 
+=item *
+
 Mercurial doesn't track when directories were added or removed, so
 Directory objects never show up in the contents of a Commit.
+
+=item *
+
+If a File is added but has no content (that is, it's an empty file),
+it will not show up as "added" in the Commit where it was added. (It will
+show up in some later commit as "modified" if somebody adds contents,
+though.)
+
+Similarly, empty files that are removed will not show up in "removed".
+
+=back
 
 =head1 PERFORMANCE
 

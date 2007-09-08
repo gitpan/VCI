@@ -33,7 +33,9 @@ my $build = $class->new(
         'DateTime'       => '0',
         'Path::Abstract' => '0',
         'DateTime::Format::DateParse' => '0',
-        'Text::Diff::Parser' => '0',
+        # 0.06 has a bug with diff formats that lack a "diff file1 file2"
+        # header.
+        'Text::Diff::Parser' => '0.07',
         'Carp'           => '0',
     },
     # For right now I added all the auto_features to recommends that are

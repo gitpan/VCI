@@ -1,6 +1,6 @@
 package VCI;
 use Moose;
-our $VERSION = '0.1.0_3';
+our $VERSION = '0.1.0_4';
 
 # Will also need a write_repo in the future, if we add commit support,
 # for things like Hg that read from hgweb but have to write through the
@@ -29,7 +29,7 @@ sub api_version {
     my $invocant = shift;
     my $version = $invocant->VERSION;
     $version =~ /^(\d+)\.(\d+)/;
-    return { major => $1, api => $2 };
+    return { major => int($1), api => int($2) };
 }
 
 # Note that this default build_repository doesn't do anything about
@@ -358,7 +358,10 @@ As time goes on, performance should improve significantly.
 
 =head1 SUPPORT
 
-Currently, the best way to get support for VCI is just to email
+VCI has an IRC channel on irc.perl.org called #vci. If the author
+of VCI is awake and on the computer, he's usually there.
+
+Otherwise, the best way to get support for VCI is just to email
 the author at C<mkanat@cpan.org>.
 
 VCI also has a (currently minimal) home page at:

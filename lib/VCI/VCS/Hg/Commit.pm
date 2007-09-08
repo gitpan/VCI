@@ -1,6 +1,7 @@
 package VCI::VCS::Hg::Commit;
 use Moose;
 use VCI::VCS::Hg::Diff;
+use VCI::VCS::Hg::File;
 
 extends 'VCI::Abstract::Commit';
 
@@ -9,6 +10,28 @@ has 'x_changes' => (is => 'ro', isa => 'HashRef', lazy => 1,
 
 use constant DIFF_HEADER => qr/^([\-\+]{3}) (\S+)\t\w{3} \w{3} \d\d \d\d:\d\d:\d\d \d{4} [\+\-]\d{4}$/;
 
+sub build_added {
+    my $self = shift;
+    my $files = $self->x_changes->{added};
+    return [map { VCI::VCS::Hg::File->new(path => $_, project => $self->project) }
+               @$files];
+}
+
+sub build_removed {
+    my $self = shift;
+    my $files = $self->x_changes->{removed};
+    return [map { VCI::VCS::Hg::File->new(path => $_, project => $self->project) }
+               @$files];
+}
+
+sub build_modified {
+    my $self = shift;
+    my $files = $self->x_changes->{modified};
+    return [map { VCI::VCS::Hg::File->new(path => $_, project => $self->project) }
+               @$files];
+}
+
+
 sub x_from_rss_item {
     my ($class, $item, $project) = @_;
     my $project_path = $project->repository->root . $project->name;
@@ -16,8 +39,12 @@ sub x_from_rss_item {
     $revision =~ s|^\Q$project_path\E/rev/||;
     my $time = $item->{pubDate};
     
+    my $message = $item->{description};
+    # As far as I know, this is the only HTML that hgweb adds here.
+    $message =~ s/<br\/>//g;
+    
     return $class->new(
-        messsage  => $item->{description},
+        message   => $message,
         revision  => $revision,
         time      => $time,
         committer => $item->{author},
@@ -34,7 +61,7 @@ sub build_as_diff {
     while ($line !~ DIFF_HEADER) {$line = shift @lines}
     unshift(@lines, $line);
     return VCI::VCS::Hg::Diff->new(raw => join("\n", @lines),
-                                    project => $self->project);
+                                   project => $self->project);
 }
 
 # Mercurial doesn't say anything about directories in its logs, so we have
@@ -85,12 +112,6 @@ sub _diff_files {
         }
     }
     return \@files;
-}
-
-sub build_added {
-    my $self = shift;
-    my $added_files = $self->x_changes->{added};
-    return map { VCI::VCS::Hg::File->new() } @$added_files;
 }
 
 __PACKAGE__->meta->make_immutable;

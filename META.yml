@@ -1,6 +1,6 @@
 ---
 name: VCI
-version: 0.1.0_3
+version: 0.1.0_4
 author:
   - 'Max Kanat-Alexander <mkanat@cpan.org>'
 abstract: A generic interface for interacting with various version-control systems.
@@ -16,7 +16,7 @@ requires:
   Moose: 0
   MooseX::Method: 0
   Path::Abstract: 0
-  Text::Diff::Parser: 0
+  Text::Diff::Parser: 0.07
 build_requires:
   File::Spec: 0
   Test::Exception: 0
@@ -34,7 +34,7 @@ recommends:
 provides:
   VCI:
     file: lib/VCI.pm
-    version: 0.1.0_3
+    version: 0.1.0_4
   VCI::Abstract::Commit:
     file: lib/VCI/Abstract/Commit.pm
   VCI::Abstract::Committable:
@@ -59,7 +59,7 @@ provides:
     file: lib/VCI/Util.pm
   VCI::VCS::Bzr:
     file: lib/VCI/VCS/Bzr.pm
-    version: 0.1.0_3
+    version: 0.1.0_4
   VCI::VCS::Bzr::Commit:
     file: lib/VCI/VCS/Bzr/Commit.pm
   VCI::VCS::Bzr::Committable:
@@ -76,7 +76,7 @@ provides:
     file: lib/VCI/VCS/Bzr/Repository.pm
   VCI::VCS::Cvs:
     file: lib/VCI/VCS/Cvs.pm
-    version: 0.1.0_3
+    version: 0.1.0_4
   VCI::VCS::Cvs::Commit:
     file: lib/VCI/VCS/Cvs/Commit.pm
   VCI::VCS::Cvs::Diff:
@@ -93,7 +93,7 @@ provides:
     file: lib/VCI/VCS/Cvs/Repository.pm
   VCI::VCS::Git:
     file: lib/VCI/VCS/Git.pm
-    version: 0.1.0_3
+    version: 0.1.0_4
   VCI::VCS::Git::Commit:
     file: lib/VCI/VCS/Git/Commit.pm
   VCI::VCS::Git::Committable:
@@ -112,7 +112,7 @@ provides:
     file: lib/VCI/VCS/Git/Repository.pm
   VCI::VCS::Hg:
     file: lib/VCI/VCS/Hg.pm
-    version: 0.1.0_3
+    version: 0.1.0_4
   VCI::VCS::Hg::Commit:
     file: lib/VCI/VCS/Hg/Commit.pm
   VCI::VCS::Hg::Committable:
@@ -131,7 +131,7 @@ provides:
     file: lib/VCI/VCS/Hg/Repository.pm
   VCI::VCS::Svn:
     file: lib/VCI/VCS/Svn.pm
-    version: 0.1.0_3
+    version: 0.1.0_4
   VCI::VCS::Svn::Commit:
     file: lib/VCI/VCS/Svn/Commit.pm
   VCI::VCS::Svn::Committable:

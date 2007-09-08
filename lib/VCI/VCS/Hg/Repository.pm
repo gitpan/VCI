@@ -30,10 +30,13 @@ sub build_projects {
     my $self = shift;
     my $list = $self->x_get('?style=raw');
     my @lines = split("\n", $list);
+    # Get the root so that we can trim the directory part from project names.
+    my $root = $self->root;
+    $root =~ s|^http://[^/]+||;
     my @projects;
     foreach my $dir (@lines) {
-        $dir =~ s|^/||;
-        $dir =~ s|/$||;
+        next if $dir eq '';
+        $dir =~ s|^\Q$root\E||;
         push(@projects, VCI::VCS::Hg::Project->new(name => $dir,
                                                    repository => $self));
     }

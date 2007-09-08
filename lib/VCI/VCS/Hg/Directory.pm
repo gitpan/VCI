@@ -8,8 +8,8 @@ with 'VCI::VCS::Hg::Committable';
 
 sub build_contents {
     my $self = shift;
-    my $ls_out = $self->project->x_get([$self->path, 'raw-file/', $self->revision]);
-    my @lines = split("\n", $ls_out);
+    my $ls = $self->project->x_get(['raw-file/', $self->revision, $self->path]);
+    my @lines = split("\n", $ls);
     my @dir_lines = grep(/^d/, @lines);
     my @file_lines = grep(/^-/, @lines);
     
@@ -18,7 +18,8 @@ sub build_contents {
         $dir_line =~ /^\S+ (.*)$/;
         push(@contents, VCI::VCS::Hg::Directory->new(path => [$self->path, $1],
                                                      project => $self->project,
-                                                     revision => $self->revision));
+                                                     revision => $self->revision,
+                                                     parent => $self));
     }
     foreach my $file_line (@file_lines) {
         $file_line =~ /^(\S+) \d+ (.*)$/;
@@ -28,6 +29,7 @@ sub build_contents {
         push(@contents, VCI::VCS::Hg::File->new(path => [$self->path, $name],
                                                 is_executable => $executable,
                                                 project => $self->project,
+                                                parent => $self,
                                                 # XXX This isn't really right.
                                                 revision => $self->revision));
     }

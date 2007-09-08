@@ -1,3 +1,35 @@
+0.1.0_4 Fri, Sep 7, 2007
+    - This release will probably be released as 0.1.1 in a few days,
+      with a few POD improvements, unless there are terrible test failures
+      that I don't know about.
+    - Added tests for Hg, which found and fixed several bugs, listed lower
+      in these notes.
+    - We now require Text::Diff::Parser 0.07 which fixes bugs that affect us.
+    - In Project, get_path, get_file, and get_directory now take named
+      parameters instead of positional parameters, to prepare for future
+      API improvements.
+
+    Tests:
+        - You can set VCI_TEST_DEBUG = 1 in the environment to have VCI
+          connect with "debug" turned on during tests.
+        - Set VCI_REMOTE_TESTS to 1 in the environment to run tests that
+          involve accessing things across the Internet.
+          
+    Hg:
+        - If you had a url like http://domain.com/repos/ for your Hg repo,
+          Project names would look like "repos/project" instead of just
+          "project".
+        - Repository::projects returned an extra project that had an
+          empty name.
+        - Slashes at the start of a project name will be stripped, now.
+        - Getting the contents of any directory other than the root_directory
+          wasn't working.
+        - Sometimes Committable objects would die when asked for their time,
+          in certain timezones.
+        - Commit::added, Commit::modified, and Commit::removed didn't work
+          at all.
+        - Messages had "<br/>" included in them, often.
+
 0.1.0_3 Wed, Sep 3, 2007
     - The XML output format of bzr-xmloutput changed as of revision 18 of
       that plugin. The Bzr driver now supports both the old and the new

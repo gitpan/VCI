@@ -89,7 +89,7 @@ sub build_parent {
     return undef if $path->is_empty;
 
     my $parent_path = $self->path->parent;
-    return $self->project->get_path($parent_path);
+    return $self->project->get_path(path => $parent_path);
 }
 
 #######################

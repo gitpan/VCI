@@ -9,7 +9,7 @@ sub build_revision { return 'tip' }
 sub build_time {
     my $self = shift;
     my $text = $self->project->x_get(['raw-rev', $self->revision]);
-    $text =~ /^# Date (\d+) (-)?(\d{4})$/ms;
+    $text =~ /^# Date (\d+) (-)?(\d+)$/ms;
     my ($time, $minus, $offset_seconds) = ($1, $2, $3);
     my $offset_hours    = $offset_seconds / 3600;
     my $offset_fraction = $offset_hours - int($offset_hours);

@@ -55,10 +55,11 @@ method 'get_history_by_time' => named (
 
 # XXX All these methods will need "revision" and "as_of".
 
-method 'get_directory' => positional (
-    { isa => 'Path', coerce => 1, required => 1 },
+method 'get_directory' => named (
+    path => { isa => 'Path', coerce => 1, required => 1 },
 ) => sub {
-    my ($self, $path) = @_;
+    my ($self, $params) = @_;
+    my $path = $params->{path};
     
     my $root = $self->root_directory;
     return $root if $path->is_empty;
@@ -79,14 +80,15 @@ method 'get_directory' => positional (
     return $current_dir;
 };
 
-method 'get_file' => positional (
-    { isa => 'Path', coerce => 1, required => 1 },
+method 'get_file' => named (
+    path => { isa => 'Path', coerce => 1, required => 1 },
 ) => sub {
-    my ($self, $path) = @_;
+    my ($self, $params) = @_;
+    my $path = $params->{path};
     
     confess("Empty path name passed to get_file.") if $path->is_empty;
 
-    my $dir = $self->get_directory($path->parent);
+    my $dir = $self->get_directory(path => $path->parent);
     confess("No directory named " . $path->parent) if !$dir;
     
     my $filename = $path->last;
@@ -100,14 +102,15 @@ method 'get_file' => positional (
     return $matches[0];
 };
 
-method 'get_path' => positional (
-    { isa => 'Path', coerce => 1, required => 1 },
+method 'get_path' => named (
+    path => { isa => 'Path', coerce => 1, required => 1 },
 ) => sub {
-    my ($self, $path) = @_;
+    my ($self, $params) = @_;
+    my $path = $params->{path};
 
     return $self->root_directory if $path->is_empty;
 
-    my $dir = $self->get_directory($path->parent);
+    my $dir = $self->get_directory(path => $path->parent);
     confess("No directory named " . $path->parent) if !$dir;
 
     my $name = $path->last;
@@ -144,15 +147,15 @@ VCI::Abstract::Project - A particular project in the Repository
 
 =head1 SYNOPSIS
 
- my $project = $repository->get_project('Foo');
+ my $project = $repository->get_project(name => 'Foo');
 
  # Getting information about individual files/directories.
 
- my $file = $project->get_file('path/to/file.c');
- my $directory = $project->get_file('path/to/directory/');
+ my $file = $project->get_file(path => 'path/to/file.c');
+ my $directory = $project->get_file(path => 'path/to/directory/');
 
- my $file = $project->get_path('path/to/file.c');
- my $directory = $project->get_path('path/to/directory/');
+ my $file = $project->get_path(path => 'path/to/file.c');
+ my $directory = $project->get_path(path => 'path/to/directory/');
 
  # Commits
 
@@ -233,11 +236,11 @@ instead.
 
 =item B<Parameters>
 
-Takes one parameter:
+Takes one named parameter:
 
 =over
 
-=item C<$path>
+=item C<path>
 
 A L<Path|VCI::Util/Path> to the file or directory that you want, relative to
 the base of the project.
@@ -274,11 +277,11 @@ Gets a L<directory|VCI::Abstract::Directory> from the repository.
 
 =item B<Parameters>
 
-Takes one parameter:
+Takes one named parameter:
 
 =over
 
-=item C<$path>
+=item C<path>
 
 A L<Path|VCI::Util/Path> to the directory that you want, relative to
 the base of the project.
@@ -310,11 +313,11 @@ Gets a L<file|VCI::Abstract::File> from the repository.
 
 =item B<Parameters>
 
-Takes one parameter:
+Takes one named parameter:
 
 =over
 
-=item C<$path>
+=item C<path>
 
 A L<Path|VCI::Util/Path> to the file that you want, relative to
 the base of the project.

@@ -24,7 +24,8 @@ sub test_vcs {
     my $class = "VCI::VCS::$type";
     # Connecting
     my $repo;
-    isa_ok($repo = VCI->connect(repo => $repo_dir, type => $type),
+    isa_ok($repo = VCI->connect(repo => $repo_dir, type => $type,
+            debug => $ENV{VCI_TEST_DEBUG}),
            "${class}::Repository", 'Repository');
     
     # Repository
@@ -42,7 +43,7 @@ sub test_vcs {
     my $projects;
     isa_ok($projects = $repo->projects, 'ARRAY', '$repo->projects');
     SKIP: {
-        skip 'no projects returned', 1
+        skip 'incorrect projects returned', 1
             unless cmp_ok(scalar(@$projects), '==', $num_projects,
                           "Only $num_projects project returned");
         is($project->name, $projects->[0]->name,
@@ -113,7 +114,7 @@ sub test_vcs {
     
     # VCI::VCS::Bzr::Committable
     my $contents_file;
-    isa_ok($contents_file = $project->get_file($expected_file->{path}),
+    isa_ok($contents_file = $project->get_file(path => $expected_file->{path}),
            "${class}::File", $expected_file->{path});
     is($contents_file->revision, $expected_file->{revision},
        '$contents_file revision');
