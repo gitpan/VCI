@@ -95,7 +95,7 @@ a L<VCI> implementor, you probably don't care about this.
 
 =item B<Description>
 
-Gets a single L<VCI::Abstract::Repository> from the repository, by name.
+Gets a single L<VCI::Abstract::Project> from the repository, by name.
 
 =item B<Parameters>
 
@@ -117,16 +117,13 @@ project inside of the Mozilla CVS Server.)
 
 =item B<Returns>
 
-The L<VCI::Abstract::Project> that you asked for. Some VCI::VCS
+The L<VCI::Abstract::Project> that you asked for. Most VCI::VCS
 implementations will return a valid Project object even if that
 object doesn't exist in the Repository. The only way to know if
 a Project is valid is to perform some operation on it.
 
-Some VCI::VCS implementations will return C<undef> if the Project does not
-exist in the repository.
-
-If there was some other error than that the Project doesn't exist, this
-method will C<die>.
+Some VCI::VCS implementations may C<die> message if you request an
+invalid Project.
 
 =back
 

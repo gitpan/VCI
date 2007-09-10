@@ -3,7 +3,7 @@ use Moose;
 
 extends 'VCI';
 
-our $VERSION = '0.1.0_4';
+our $VERSION = '0.1.1';
 
 __PACKAGE__->meta->make_immutable;
 
@@ -50,8 +50,9 @@ supported.
 =head2 VCI::VCS::Repository
 
 C<projects> generates the list of projects by finding all directories in the
-repository that have C<.git> directories in them. So if there are projects
-in further down in the directory hierarchy, they won't be found.
+repository that have F<.git> directories in them (or directories that are
+a "bare" repository). So if there are projects in further down in the
+directory hierarchy, they won't be found.
 
 =head2 VCI::VCS::Directory
 

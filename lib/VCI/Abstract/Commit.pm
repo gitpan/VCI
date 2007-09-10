@@ -70,8 +70,9 @@ files simultaneously in a single "commit" (also called a "checkin").
 This object represents one of those commits in the history of a project.
 
 Some version-control systems don't actually understand the idea of an
-"atomic commit", but VCI does its best to figure out what files were
-committed together and represent them all as one object.
+"atomic commit" (meaning they don't understand that certain changes
+were all committed simultaneously), but VCI does its best to figure out
+what files were committed together and represent them all as one object.
 
 A L<VCI::Abstract::Commit> implements L<VCI::Abstract::FileContainer>,
 so all of FileContainer's methods are also available here.
@@ -92,7 +93,8 @@ These are all read-only.
 
 =item C<time>
 
-A L<datetime|VCI::Util/DateTime> representing date and time of this commit.
+A L<datetime|VCI::Util/DateTime> representing the date and time of this
+commit.
 
 On VCSes that don't understand atomic commits, this will be the time of
 the I<earliest> commited file in this set.
@@ -105,7 +107,7 @@ similar). The format of this string is not guaranteed.
 
 =item C<contents>
 
-All of the items added, changed, or modified in this commit, as an arrayref
+All of the items added, removed, or modified in this commit, as an arrayref
 of L<VCI::Abstract::Committable> objects.
 
 =item C<added>

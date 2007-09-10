@@ -5,7 +5,7 @@ use SVN::Client;
 
 extends 'VCI';
 
-our $VERSION = '0.1.0_4';
+our $VERSION = '0.1.1';
 
 has 'x_client' => (is => 'ro', isa => 'SVN::Client', lazy => 1,
                    default => sub { shift->build_x_client });
@@ -28,7 +28,7 @@ VCI::VCS::Svn - The Subversion implementation of VCI
 =head1 DESCRIPTION
 
 This is a "driver" for L<VCI> for the Subversion version-control system.
-You can find out more about Subversion at L<http://subversion.tigris.org>.
+You can find out more about Subversion at L<http://subversion.tigris.org/>.
 
 For information on how to use VCI::VCS::Svn, see L<VCI>.
 
@@ -88,7 +88,7 @@ a whole new file was added.
 
 Subversion doesn't track if a moved file was modified after it was moved, only
 that you copied a file and then deleted the old file. So moved files
-show up in C<copied>, C<added>, and C<removed>.
+show up in C<copied>, C<added>, and C<removed> instead of in C<moved>.
 
 =back
 

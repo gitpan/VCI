@@ -8,7 +8,7 @@ use IPC::Cmd;
 
 use VCI::VCS::Cvs::Repository;
 
-our $VERSION = '0.1.0_4';
+our $VERSION = '0.1.1';
 
 has 'x_cvsps' => (is => 'ro', isa => 'Str', lazy => 1,
                   default => sub { shift->build_x_cvsps });

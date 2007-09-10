@@ -7,7 +7,7 @@ use VCI::Util;
 
 extends 'VCI';
 
-our $VERSION = '0.1.0_4';
+our $VERSION = '0.1.1';
 
 has 'x_ua' => (is => 'ro', isa => 'LWP::UserAgent', lazy => 1,
                default => sub { shift->build_x_ua });
@@ -65,7 +65,7 @@ in the C<VCI::Abstract> modules.
 
 =head2 VCI::VCS::Hg
 
-Also, you can only connect to hgweb installations. You cannot use ssh,
+You can only connect to hgweb installations. You cannot use ssh,
 static-http, or local repositories. In the future we plan to support
 local repositories, but ssh and static-http repositories will probably never
 be supported. (Mercurial cannot work with them without cloning them, at which

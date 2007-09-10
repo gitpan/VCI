@@ -112,7 +112,7 @@ L<VCI::Abstract::Project/history>.
 
 =item C<project>
 
-What L<project|VCI::Abstract::Project> this History came from.
+What L<Project|VCI::Abstract::Project> this History came from.
 
 =back
 

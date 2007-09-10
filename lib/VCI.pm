@@ -1,6 +1,6 @@
 package VCI;
 use Moose;
-our $VERSION = '0.1.0_4';
+our $VERSION = '0.1.1';
 
 # Will also need a write_repo in the future, if we add commit support,
 # for things like Hg that read from hgweb but have to write through the
@@ -195,7 +195,7 @@ occur to the API all the time. When this becomes C<1>, the API is
 stable. For numbers greater than C<1>, it means we made a major breaking
 change to the API.
 
-For example, VCI 2.0.0 would have breaking changes for the user or for the
+For example, VCI 2.0.1 would have breaking changes for the user or for the
 drivers, compared to VCI 1.0.1. But VCI 0.1.1 and 0.2.1 could contain
 breaking changes between them, also, because the first number is still C<0>.
 
@@ -206,7 +206,7 @@ features. So, when we add new features that drivers must implement, the
 C<API> number gets incremented.
 
 For example, VCI 0.0.1 doesn't have support for authenticating to repositories,
-but VCI 0.1.1 might support it.
+but VCI 0.2.1 might support it.
 
 Drivers will say which VCI API they support. Using a driver that doesn't
 support the current VCI API will throw a warning if L</debug> mode is on.
@@ -337,7 +337,7 @@ development version by doing:
 
  bzr co http://bzr.everythingsolved.com/vci/trunk
 
-Note that if you check out code from trunk repository, it may be unstable or
+Note that if you check out code from my trunk repository, it may be unstable or
 completely broken.
  
 You can get the latest stable version by doing:

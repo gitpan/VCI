@@ -141,7 +141,7 @@ committables (such as directories) might not I<have> revision identifiers
 of their own in certain types of version-control systems. In this case,
 the revision identifiers will be an empty string or something specified
 by the VCI::VCS implementation, but they will still have revision times.
-(</first_revision> and L</last_revision> might be equal to each other,
+(L</first_revision> and L</last_revision> might be equal to each other,
 though.)
 
 =head3 Information About The History of the Item

@@ -193,6 +193,8 @@ All of these accessors are read-only.
 
 The name of the Project, as a string. This is something that you could
 pass to L<VCI::Abstract::Repository/get_project> to get this Project.
+Usually this is just the path to the Project's directory, relative to
+the root of the Repository.
 
 =item C<repository>
 
@@ -330,7 +332,7 @@ This method will throw an error if you pass in an empty string or just C<"/">.
 
 =item B<Returns>
 
-A L<VCI::Abstract::Directory>, or C<undef> if there is no I<file>
+A L<VCI::Abstract::File>, or C<undef> if there is no I<file>
 with that name. (Even if there's I<something> with that name, if it's not a
 file, we will still return C<undef>.)
 
@@ -420,7 +422,8 @@ time.
 
 A L<VCI::Abstract::History> for the project representing the times that
 you asked for. If there were no commits matching your criteria, the
-History will be empty.
+History's L<"commits"|VCI::Abstract::History/commits> will be an empty
+arrayref.
 
 =back
 

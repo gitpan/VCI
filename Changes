@@ -1,104 +1,24 @@
-0.1.0_4 Fri, Sep 7, 2007
-    - This release will probably be released as 0.1.1 in a few days,
-      with a few POD improvements, unless there are terrible test failures
-      that I don't know about.
-    - Added tests for Hg, which found and fixed several bugs, listed lower
-      in these notes.
-    - We now require Text::Diff::Parser 0.07 which fixes bugs that affect us.
-    - In Project, get_path, get_file, and get_directory now take named
-      parameters instead of positional parameters, to prepare for future
-      API improvements.
-
-    Tests:
-        - You can set VCI_TEST_DEBUG = 1 in the environment to have VCI
-          connect with "debug" turned on during tests.
-        - Set VCI_REMOTE_TESTS to 1 in the environment to run tests that
-          involve accessing things across the Internet.
-          
-    Hg:
-        - If you had a url like http://domain.com/repos/ for your Hg repo,
-          Project names would look like "repos/project" instead of just
-          "project".
-        - Repository::projects returned an extra project that had an
-          empty name.
-        - Slashes at the start of a project name will be stripped, now.
-        - Getting the contents of any directory other than the root_directory
-          wasn't working.
-        - Sometimes Committable objects would die when asked for their time,
-          in certain timezones.
-        - Commit::added, Commit::modified, and Commit::removed didn't work
-          at all.
-        - Messages had "<br/>" included in them, often.
-
-0.1.0_3 Wed, Sep 3, 2007
-    - The XML output format of bzr-xmloutput changed as of revision 18 of
-      that plugin. The Bzr driver now supports both the old and the new
-      format.
-    - Calling Bzr::Repository->projects would sometimes fail because
-      Repository.pm wasn't using VCI::VCS::Bzr::Project.
-    - Tests were always failing because they weren't properly checking
-      for non-perl-module prerequisites.
-
-0.1.0_2 Mon, Sep 3, 2007
-    - 0.1.0_1 was completely broken for several drivers (couldn't connect
-      to a Repository).
-    - Various fixes to Diffs in various drivers (compared to 0.1.0_1).
-    - Project objects now remove trailing and starting forward-slashes
-      from their names when they are initialized. So "/project/" will be the
-      same as "project".
-    - Various POD fixes.
-    - Doing "./Build dist" will now always run tests before building the
-      distribution. This is necessary because running the tests properly
-      sets up t/repos/ for distribution.
-    - Added tests for Cvs, Svn, Git, and Bzr, which caused a lot of re-arch
-      and various bug fixes:
+0.1.1 Mon, Sep 10, 2007
+    New Features:
+        - Commit objects now have an as_diff accessor, which allows you to
+          get that particular commit as a "diff" from the VCS. This adds
+          a requirement of Text::Diff::Parser 0.07.
     
-    Svn:
-        - Support for local repositories, including relative paths.
-        - "time" on objects from get_path, get_file, and get_directory
-          was wrong. (Svn returns microseconds and we were interpreting
-          them as seconds.)
-        - The 'R' action is now interepreted as the file being modified,
-          not added and then deleted.
-        - Properly strip the final newline from Commit::message.
-        - Copied/moved files now handled correctly (and how they are
-          handled is better documented).
-        - File and Directory objects from other Projects won't show up
-          in your Project's Commit objects.
-    
-    Cvs:
-        - Support for local repositories, including relative paths.
-        - Repository now supports "projects".
-        - File and Directory objects now return the correct time if gotten
-          from get_path, get_file, or get_directory.
-        - We weren't passing the "-u" argument to cvsps, so the History
-          wasn't being updated if there was a new commit to the repository
-          since the very first time anybody ever called "history" on this
-          project.
-    
-    Git:
-        - Calling "contents" on a versioned Directory now correctly returns
-          the contents of that Directory at that time in history.
-        - Commit::message was always returning an empty string. It now
-          correctly returns the message.
-        - File objects now return their most recent revision instead of
-          'HEAD' if you got them from get_path or get_file.
-        - Support for relative paths to local repos.
-        - Repository::projects now also detects "bare" repositories.
-    
-    Bzr:
-        - Commit:message no longer has an extra space at the start or an
-          extra newline at the end.
+    API Changes:
+        - get_path, get_file, and get_directory now take a single named
+          argument, "path", instead of a single un-named argument.
 
-0.1.0_1 Fri, Aug 31, 2007
-    - Added "as_diff" to VCI::Abstract::Commit, and implemented it in all
-      drivers. This allows you to get the actual changes done during
-      the commit both as a raw diff from the VCS and as an object
-      representing that diff.
-    - Repository objects now fix "root" to end with a slash (if it doesn't
-      already) on most VCSes, and fix it to *not* end with a slash on
-      CVS.
-    - Slightly improved debug output for Bzr.
+    Bugs Fixed:
+        - Added tests for all the drivers, which fixed a lot of bugs. In short,
+          don't use any version of VCI before this one.
+    
+    For VCI Developers:
+        - If you set the VCI_TEST_DEBUG environment variable, it will be
+          passed as the "debug" argument to VCI->connect, allowing you to
+          see more information from the driver about what's going on in the
+          test.
+        - You can set VCI_REMOTE_TESTS = 1 in your environment to run
+          tests that involve accessing machines over the Internet.
 
 0.0.3 Fri, Aug 31, 2007
     - Svn history was broken when the repo history contained copied items.
