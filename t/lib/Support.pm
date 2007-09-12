@@ -112,7 +112,7 @@ sub test_vcs {
     is_deeply([sort map { $_->path } @{ $diff->files }], [sort @expected_files],
               'Diff files are correct');
     
-    # VCI::VCS::Bzr::Committable
+    # Committable
     my $contents_file;
     isa_ok($contents_file = $project->get_file(path => $expected_file->{path}),
            "${class}::File", $expected_file->{path});
@@ -122,6 +122,23 @@ sub test_vcs {
        '$contents_file time');
     is($contents_file->time->strftime('%z'), $expected_file->{timezone},
        '$contents_file timezone');
+    
+    # Committable History
+    my $item_history;
+    isa_ok($item_history = $contents_file->history, "${class}::History",
+           '$contents_file->history');
+    is(scalar @{$item_history->commits}, $expected_file->{commits},
+       "Item History has " .$expected_file->{commits} . " commits");
+    my $last_revision;
+    isa_ok($last_revision = $contents_file->last_revision,
+           "${class}::File", '$contents_file->last_revision');
+    is($last_revision->revision, $expected_file->{last_revision},
+       "Last revision ID correct");
+    my $first_revision;
+    isa_ok($first_revision = $contents_file->first_revision, "${class}::File",
+           '$contents_file->first_revision');
+    is($first_revision->revision, $expected_file->{first_revision},
+       "First revision ID correct");
 }
 
 sub _get_all_paths {

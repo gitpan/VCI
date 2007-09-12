@@ -17,6 +17,7 @@ sub x_from_rss {
         $last_rev_id = $these_commits->[-1]->revision;
         push(@commits, @$these_commits);
     }
+    @commits = reverse @commits;
     
     return $class->new(commits => \@commits, project => $project);
 }

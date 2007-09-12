@@ -46,10 +46,13 @@ use constant EXPECTED_COMMIT => {
 };
 
 use constant EXPECTED_FILE => {
-    path     => 'tests/aargh-height-good.agh',
+    path     => 'Makefile',
     revision => 'tip',
     time     => '2007-09-07T02:51:36',
     timezone => '-0500',
+    commits  => 4,
+    first_revision => 'd3f1ae8a1444',
+    last_revision  => '626207473726',
 };
 
 #########
@@ -60,7 +63,7 @@ plan skip_all => 'VCI_REMOTE_TESTS environment variable not set to 1'
     if !$ENV{VCI_REMOTE_TESTS};
 plan skip_all => "hg not enabled" if !feature_enabled('hg');
 
-plan tests => 28;
+plan tests => 34;
 
 test_vcs({
     type          => 'Hg',

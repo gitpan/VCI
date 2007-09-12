@@ -64,6 +64,9 @@ use constant EXPECTED_FILE => {
     revision => '1.3',
     time     => '2007-09-03T01:40:30',
     timezone => '+0000',
+    commits  => 3,
+    last_revision  => '1.3',
+    first_revision => '1.1',
 };
 
 sub setup_repo {
@@ -100,7 +103,7 @@ my $repo_success = eval {
 };
 $repo_success || plan skip_all => "Unable to create cvs testing repo: $@";
 
-plan tests => 28;
+plan tests => 34;
 
 test_vcs({
     type          => 'Cvs',

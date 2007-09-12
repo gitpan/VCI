@@ -56,10 +56,15 @@ use constant EXPECTED_COMMIT => {
 };
 
 use constant EXPECTED_FILE => {
-    path     => 't/root/static/1.txt',
-    revision => 'ab08fceac97a75e811f94c2e73b5bece03c9d8d7',
-    time     => '2007-07-24T17:12:16',
-    timezone => '-0400',
+    path     => 'lib/Catalyst/Plugin/Static/TT.pm',
+    revision => '1c94abbdfd2a29c637789324de87d16a97bf7cb8',
+    time     => '2007-09-01T16:31:03',
+    timezone => '-0700',
+    commits  => 4,
+    # XXX Git is a little strange--it doesn't show the latest merge commit
+    # in rev-list, but it does show up in our History object.
+    last_revision  => 'f64932b56175d711a007a4ef933a1b32de6ae9a8',
+    first_revision => 'ab08fceac97a75e811f94c2e73b5bece03c9d8d7',
 };
 
 sub setup_repo {
@@ -78,7 +83,7 @@ plan skip_all => "git not enabled" if !feature_enabled('git');
 eval { setup_repo() if !-d 't/repos/git/test.git'; 1; }
     || plan skip_all => "Unable to create git testing repo: $@";
 
-plan tests => 28;
+plan tests => 34;
 
 test_vcs({
     type          => 'Git',

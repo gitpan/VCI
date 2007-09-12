@@ -13,21 +13,24 @@ use constant DIFF_HEADER => qr/^([\-\+]{3}) (\S+)\t\w{3} \w{3} \d\d \d\d:\d\d:\d
 sub build_added {
     my $self = shift;
     my $files = $self->x_changes->{added};
-    return [map { VCI::VCS::Hg::File->new(path => $_, project => $self->project) }
+    return [map { VCI::VCS::Hg::File->new(path => $_, project => $self->project,
+                      revision => $self->revision, time => $self->time) }
                @$files];
 }
 
 sub build_removed {
     my $self = shift;
     my $files = $self->x_changes->{removed};
-    return [map { VCI::VCS::Hg::File->new(path => $_, project => $self->project) }
+    return [map { VCI::VCS::Hg::File->new(path => $_, project => $self->project,
+                      revision => $self->revision, time => $self->time) }
                @$files];
 }
 
 sub build_modified {
     my $self = shift;
     my $files = $self->x_changes->{modified};
-    return [map { VCI::VCS::Hg::File->new(path => $_, project => $self->project) }
+    return [map { VCI::VCS::Hg::File->new(path => $_, project => $self->project,
+                      revision => $self->revision, time => $self->time) }
                @$files];
 }
 
@@ -58,8 +61,11 @@ sub build_as_diff {
     my $line = shift @lines;
     # XXX This may break if there's a line identical to DIFF_HEADER
     #     in the log message.
-    while ($line !~ DIFF_HEADER) {$line = shift @lines}
-    unshift(@lines, $line);
+    while ($line !~ DIFF_HEADER) {
+        $line = shift @lines;
+        last if (!defined $line);
+    }
+    unshift(@lines, $line) if defined $line;
     return VCI::VCS::Hg::Diff->new(raw => join("\n", @lines),
                                    project => $self->project);
 }

@@ -58,6 +58,9 @@ use constant EXPECTED_FILE => {
     revision => 11,
     time     => '2007-08-13T04:54:44',
     timezone => '+0000',
+    commits  => 3,
+    last_revision  => '11',
+    first_revision => '4',
 };
 
 sub setup_repo {
@@ -95,7 +98,7 @@ eval { require SVN::Core };
 
 plan skip_all => "svn not enabled" if !feature_enabled('svn');
 
-plan tests => 28;
+plan tests => 34;
 
 test_vcs({
     type          => 'Svn',

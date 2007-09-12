@@ -1,3 +1,19 @@
+0.1.2 Tue, Sep 11, 2007
+    - Added tests for Committable ::history, ::first_revision,
+      and ::last_revision.
+    - Committable was always returning a Bzr::History instead of the
+      correct History object.
+    
+    Hg:
+        - History was in reverse order.
+        - Commit::contents would fail if there were no changes to any files
+          in the commit.
+        - Files in Commit ::added, ::modified, ::removed, and ::contents
+          didn't have their "revision" and "time" set.
+    
+    Svn:
+        -Commit ::last_revision and ::first_revision were broken.
+
 0.1.1 Mon, Sep 10, 2007
     New Features:
         - Commit objects now have an as_diff accessor, which allows you to

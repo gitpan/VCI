@@ -7,7 +7,7 @@ use VCI::Util;
 
 extends 'VCI';
 
-our $VERSION = '0.1.1';
+our $VERSION = '0.1.2';
 
 has 'x_ua' => (is => 'ro', isa => 'LWP::UserAgent', lazy => 1,
                default => sub { shift->build_x_ua });
@@ -70,6 +70,16 @@ static-http, or local repositories. In the future we plan to support
 local repositories, but ssh and static-http repositories will probably never
 be supported. (Mercurial cannot work with them without cloning them, at which
 point they are just a local repository.)
+
+=head2 VCI::VCS::Hg::Committable
+
+Committable objects without a revision specified (such as those that you
+get through VCI::Abstract::Project::get_path, get_directory, and get_file)
+will always have the revision "tip", even if this wasn't the revision
+they were modified most recently in.
+
+This also means that their C<time> will be the time of the C<tip> revision,
+not the time they were last modified.
 
 =head2 VCI::VCS::Hg::Directory
 

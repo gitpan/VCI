@@ -68,16 +68,16 @@ sub build_history {
     my $current_path = $self->path->stringify;
     my @commits;
     # We go backwards in time to catch renames.
-    foreach my $item (reverse @{ $self->project->history->commits }) {
+    foreach my $commit (reverse @{ $self->project->history->commits }) {
         my $in_contents = grep {$_->path->stringify eq $current_path}
-                               @{$item->contents};
-        push(@commits, $item) if $in_contents;
-        if (exists $item->moved->{$current_path}) {
-            $current_path = $item->moved->{$current_path};
+                               @{$commit->contents};
+        push(@commits, $commit) if $in_contents;
+        if (exists $commit->moved->{$current_path}) {
+            $current_path = $commit->moved->{$current_path};
         }
     }
     
-    return VCI::VCS::Bzr::History->new(
+    return $self->project->repository->vci->history_class->new(
         commits => [reverse @commits],
         project => $self->project,
     );

@@ -1,6 +1,6 @@
 package VCI;
 use Moose;
-our $VERSION = '0.1.1';
+our $VERSION = '0.1.2';
 
 # Will also need a write_repo in the future, if we add commit support,
 # for things like Hg that read from hgweb but have to write through the
