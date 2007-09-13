@@ -157,7 +157,8 @@ a Unix epoch (seconds since January 1, 1970) and converted to a DateTime
 object using L<DateTime/from_epoch>.
 
 If you pass in a string that's not just an integer, it will be parsed
-by L<DateTime::Format::DateParse>.
+by L<DateTime::Format::DateParse>. (B<Note>: If you don't specify a time
+zone in your string, it will be assumed your time is in the local time zone.)
 
 =item C<Path>
 

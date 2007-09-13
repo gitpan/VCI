@@ -1,6 +1,6 @@
 package VCI;
 use Moose;
-our $VERSION = '0.1.2';
+our $VERSION = '0.2.0_1';
 
 # Will also need a write_repo in the future, if we add commit support,
 # for things like Hg that read from hgweb but have to write through the
@@ -460,6 +460,8 @@ a revision but no time specified.
 
 =item C<build_as_diff> in L<VCI::Abstract::Commit>
 
+=item  C<build_content> in L<VCI::Abstract::File>
+
 =back
 
 That's basically the I<minimum> you have to implement. The more you implement,
@@ -550,6 +552,8 @@ Eventually the drivers will be split into their own packages.
 Need C<user> and C<pass> support for L</connect>.
 
 Come up with a meaningful "branch" abstraction.
+
+Nearly all VCI drivers are not currently Taint-safe, and need to be.
 
 =head1 BUGS
 

@@ -5,7 +5,7 @@ use SVN::Client;
 
 extends 'VCI';
 
-our $VERSION = '0.1.2';
+our $VERSION = '0.2.0_1';
 
 has 'x_client' => (is => 'ro', isa => 'SVN::Client', lazy => 1,
                    default => sub { shift->build_x_client });
@@ -59,8 +59,14 @@ perl modules that ship with Subversion must be installed.
 
 =head1 LIMITATIONS AND EXTENSIONS
 
-These are limitations of VCI::VCS::Svn compared to the general API specified
-in the C<VCI::Abstract> modules.
+The Subversion API requires that certain output be written to a real
+file on the filesystem. So, for certain operations (such as getting a
+diff or the contents of a file), we need to be able to write to the
+system's temporary directory.
+
+Listed here are other limitations of VCI::VCS::Svn compared to the general
+API specified in the C<VCI::Abstract> modules (or compared to how you might
+expect the driver to function):
 
 =head2 VCI::VCS::Svn::Commit
 

@@ -23,6 +23,18 @@ sub build_time {
     return "$1 UTC";
 }
 
+sub build_content {
+    my $self = shift;
+    my $rev = $self->revision;
+    my $output = $self->project->repository->vci->x_do(
+        args    => ['update', '-p', "-r$rev", $self->name],
+        fromdir => $self->parent->x_cvs_dir);
+    # CVS puts a header at the top of each file it checks out, when using
+    # the -p argument.
+    $output =~ s/^=+\n.+?\nRCS:\s+.+?,v\nVERS: [\.\d]+\n\*+\n//s;
+    return $output;
+}
+
 __PACKAGE__->meta->make_immutable;
 
 1;

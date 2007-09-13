@@ -13,18 +13,54 @@ has 'root_directory' => (is => 'ro', isa => 'VCI::Abstract::Directory',
                          lazy => 1,
                          default => sub { shift->build_root_directory });
 
-sub get_commit {
-    my ($self, $revision) = @_;
-    my @items = grep { $_->revision eq $revision } @{$self->history->commits};
-    warn "More that one commit found with revision $revision"
-        if scalar @items > 1;
+method 'get_commit' => named (
+    revision => { isa => 'Str' },
+    time     => { isa => 'DateTime', coerce => 1 },
+    as_of    => { isa => 'DateTime', coerce => 1 },
+) => sub {
+    my ($self, $params) = @_;
+
+    # MooseX::Method always has a hash key for each parameter, even if they
+    # weren't passed by the caller.
+    delete $params->{$_} foreach (grep { !defined $params->{$_} } keys %$params);
+    
+    if (!keys %$params) {
+        confess("You must specify at least one argument for get_commit");
+    }
+    elsif (scalar(keys %$params) > 1) {
+        confess("You must specify only one argument to get_commit."
+                . " You specified the following arguments: "
+                . join(', ', keys %$params));
+    }
+    
+    my ($key) = keys %$params;
+    my $value = $params->{$key};
+
+    if ($key eq 'as_of') {
+        my @commits = @{$self->history->commits};
+        # If there are no commits, or the first commit is later than our
+        # as_of, we return undef.
+        return undef if !@commits || $commits[0]->time > $value;
+        my $last_commit;
+        
+        # Cycle through the commits until we find a commit whose time
+        # is too late. That means the commit before that one is the one
+        # we want.
+        foreach my $commit (@commits) {
+            last if $commit->time > $value;
+            $last_commit = $commit;
+        }
+        return $last_commit;
+    }
+
+    my @items = grep { $_->$key eq $value } @{$self->history->commits};
+    warn "More than one commit found with $key '$value'" if scalar @items > 1;
     return $items[0];
-}
+};
 
 method 'get_history_by_time' => named (
     start => { isa => 'DateTime', coerce => 1 },
     end   => { isa => 'DateTime', coerce => 1 },
-    at    => { isa => 'DateTime', coerce => 1 },
 ) => sub {
     my ($self, $params) = @_;
     my $start = $params->{start};
@@ -32,22 +68,13 @@ method 'get_history_by_time' => named (
     my $at    = $params->{at};
     
     if ( !(defined $start || defined $end || defined $at) ) {
-        confess("Either 'start', 'end', or 'at' must be passed to"
-                . " get_commits_by_time");
-    }
-    if ( defined $at && (defined $start || defined $end) ) {
-        confess("You cannot specify 'start' and 'end' with 'at'");
+        confess("Either 'start' or 'end', must be passed to"
+                . " get_history_by_time");
     }
     
-    my @commits;
-    if (defined $at) {
-        @commits = grep { $_->time == $at } @{$self->history->commits};
-    }
-    else {
-        @commits = grep { (!$start || $_->time >= $start)
-                           && (!$end || $_->time <= $end) }
-                        @{$self->history->commits};
-    }
+    my @commits = grep { (!$start || $_->time >= $start)
+                         && (!$end || $_->time <= $end) }
+                       @{$self->history->commits};
 
     my $vci = $self->repository->vci;
     return $vci->history_class->new(commits => \@commits, project => $self);
@@ -159,12 +186,11 @@ VCI::Abstract::Project - A particular project in the Repository
 
  # Commits
 
- my $commit = $project->get_commit('123');
+ my $commit = $project->get_commit(revision => '123');
+ my $commit = $project->get_commit(time => 'July 7, 2007 12:01:22 UTC');
+ my $commit = $project->get_commit(as_of => 'July 7, 2007 13:00:00 UTC');
  my $commits = $project->get_history_by_time(start => 'January 1, 1970',
                                              end   => '2007-01-01');
- my ($commit) =
-     @{ $project->get_history_by_time(at => 'July 7, 2007 12:01:22 UTC') };
-
  # Other information
 
  my $root_directory = $project->root_directory;
@@ -358,11 +384,40 @@ its unique identifier.
 
 =item B<Parameters>
 
-Takes a single parameter: C<$revision>, the unique identifier of the commit
-that you want, as a string.
+Takes B<one> (and only one) of the following named parameters:
+
+=over
+
+=item C<revision>
+
+The unique identifier of the commit that you want, as a string.
 
 See L<VCI::Abstract::Commit/revision> for a discussion of exactly what a
 revision identifier is.
+
+=item C<time>
+
+A L<datetime|VCI::Util/DateTime>.
+
+Specifies that you want the commit that happened at an exact moment in
+time. Note that some VCSes may track commits down to the microsecond, and
+in this case, your time must be accurate down to the same microsecond.
+
+(If you want to be less accurate, use L</get_history_by_time> or the
+L</as_of> argument instead.)
+
+In extremely rare cases, VCSes may have two commits that happen at the exact
+same time. In this case VCI will print a warning and you will get the commit
+that the VCS considers to have happened "first" (that is, it will
+have the lower revision number or come "logically" before the other commit).
+
+=item C<as_of>
+
+A L<datetime|VCI::Util/DateTime>.
+
+Specifies that you want the commit I<right before> or exactly at this time.
+
+=back
 
 =item B<Returns>
 
@@ -383,9 +438,6 @@ Get a section of the Project's history based on times.
 
 Takes the following named parameters. At least I<one> of them must be
 specified.
-
-You can either search a range of times using C<start> and C<end>, or
-you can ask for a specific time using C<at>.
 
 =over
 
@@ -408,13 +460,6 @@ the time of the commit matches C<end> exactly, it I<will> be returned.)
 
 If you specify C<end> without C<start>, we search from the beginning of time
 to C<end>.
-
-=item C<at>
-
-A L<datetime|VCI::Util/DateTime>.
-
-Specifies that you want the commits that happened at an exact moment in
-time.
 
 =back
 

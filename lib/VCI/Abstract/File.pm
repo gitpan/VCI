@@ -3,12 +3,18 @@ use Moose;
 
 with 'VCI::Abstract::Committable';
 
-has 'is_executable' => (is => 'ro', lazy => 1,
+has 'is_executable' => (is => 'ro', isa => 'Bool', lazy => 1,
                         default => sub { shift->build_is_executable });
+has 'content' => (is => 'ro', isa => 'Str', lazy => 1,
+                  default => sub { shift->build_content });
+has 'content_size' => (is => 'ro', isa => 'Int', lazy => 1,
+                       default => sub { shift->build_content_size });
 
 # Because composed roles don't call BUILD, this is in all objects that
 # implment Committable.
 sub BUILD { shift->_no_time_without_revision; }
+
+sub build_content_size { return length(shift->content) }
 
 __PACKAGE__->meta->make_immutable;
 
@@ -34,6 +40,15 @@ These are methods you call to get information about a File. They are all
 read-only--you cannot update a File's information using this interface.
 
 =over
+
+=item C<content>
+
+Returns the content of this file as a string, according to its specified
+L<"revision"|VCI::Abstract::Committable/revision>.
+
+=item C<content_size>
+
+The size of the File's L</content>, in bytes.
 
 =item C<is_executable>
 

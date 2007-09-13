@@ -50,6 +50,7 @@ use constant EXPECTED_FILE => {
     revision => 6,
     time     => '2007-08-07T00:07:43',
     timezone => '-0700',
+    size     => 2772,
     commits  => 4,
     first_revision => 1,
     last_revision  => 6,
@@ -94,7 +95,7 @@ check_plugin('xmloutput')
 eval { setup_repo() if !-d 't/repos/bzr/.bzr'; 1; }
     || plan skip_all => "Unable to create bzr testing repo: $@";
     
-plan tests => 34;
+plan tests => 39;
 
 test_vcs({
     type          => 'Bzr',

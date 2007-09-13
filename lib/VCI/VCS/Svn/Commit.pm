@@ -1,7 +1,7 @@
 package VCI::VCS::Svn::Commit;
 use Moose;
 
-use File::Temp qw(tempfile);
+use File::Temp;
 
 use VCI::Abstract::Diff;
 use VCI::VCS::Svn::FileOrDirectory;
@@ -102,9 +102,10 @@ sub build_as_diff {
     my $previous_rev = $self->revision - 1;
     my $ctx = $self->project->repository->vci->x_client;
     # Diff doesn't work unless these have filenames, for some reason.
-    my ($out, $oname) = tempfile();
-    my ($err, $ename) = tempfile();
-    $ctx->diff([], $path, $previous_rev, $path, $rev, 1, 0, 0, $oname, $ename);
+    my $out = File::Temp->new;
+    my $err = File::Temp->new;
+    $ctx->diff([], $path, $previous_rev, $path, $rev, 1, 0, 0,
+               $out->filename, $err->filename);
     { local $/ = undef; $err = <$err>; $out = <$out> }
     confess($err) if $err;
     return VCI::Abstract::Diff->new(raw => $out, project => $self->project);

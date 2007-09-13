@@ -68,14 +68,27 @@ sub test_vcs {
     
     # History and Commits
     my $commit;
-    isa_ok($commit = $project->get_commit($expected_commit->{revision}),
+    my $expected_rev = $expected_commit->{revision};
+    isa_ok($commit = $project->get_commit(revision => $expected_rev),
            "${class}::Commit",
-           '$project->get_commit('. $expected_commit->{revision} . ')');
+           '$project->get_commit(revision => ' . "$expected_rev)");
     is($commit->message, $expected_commit->{message}, 'Commit message');
     is($commit->committer, $expected_commit->{committer}, 'Commit committer');
     is($commit->time->iso8601, $expected_commit->{time}, 'Commit time');
     is($commit->time->strftime('%z'), $expected_commit->{timezone},
        'Commit timezone');
+    my $commit_at;
+    isa_ok($commit_at = $project->get_commit(time => $commit->time),
+           "${class}::Commit",
+           '$project->get_commit(time => ' . $commit->time . ')');
+    is($commit_at->revision, $commit->revision,
+       "'time' and 'revision' return the same Commit");
+    my $as_of = $commit->time->clone->add(seconds => 1);
+    my $commit_asof;
+    isa_ok($commit_asof = $project->get_commit(as_of => $as_of),
+           "${class}::Commit", '$project->get_commit(as_of => ' . "$as_of)");
+    is($commit_asof->revision, $commit->revision,
+       "'as_of' and 'revision' return the same Commit");
     is_deeply($commit->moved, $expected_commit->{moved}, 'Commit moved');
     is_deeply([sort map { $_->path->stringify } @{ $commit->modified }],
               [sort @{$expected_commit->{modified}}], 'Commit modified');
@@ -112,7 +125,7 @@ sub test_vcs {
     is_deeply([sort map { $_->path } @{ $diff->files }], [sort @expected_files],
               'Diff files are correct');
     
-    # Committable
+    # Committable/File
     my $contents_file;
     isa_ok($contents_file = $project->get_file(path => $expected_file->{path}),
            "${class}::File", $expected_file->{path});
@@ -122,6 +135,8 @@ sub test_vcs {
        '$contents_file time');
     is($contents_file->time->strftime('%z'), $expected_file->{timezone},
        '$contents_file timezone');
+    is(length($contents_file->content), $expected_file->{size},
+       '$expected_file->content size');
     
     # Committable History
     my $item_history;

@@ -22,12 +22,13 @@ sub build_contents {
                                                      parent => $self));
     }
     foreach my $file_line (@file_lines) {
-        $file_line =~ /^(\S+) \d+ (.*)$/;
-        my ($properties, $name) = ($1, $2);
+        $file_line =~ /^(\S+) (\d+) (.*)$/;
+        my ($properties, $size, $name) = ($1, $2, $3);
         my $executable = 0;
         $executable = 1 if $properties =~ /x/;
         push(@contents, VCI::VCS::Hg::File->new(path => [$self->path, $name],
                                                 is_executable => $executable,
+                                                content_size => $size,
                                                 project => $self->project,
                                                 parent => $self,
                                                 # XXX This isn't really right.
