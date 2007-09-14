@@ -2,6 +2,7 @@ package VCI::VCS::Hg::Repository;
 use Moose;
 use MooseX::Method;
 
+use VCI::Util;
 use VCI::VCS::Hg::Project;
 
 extends 'VCI::Abstract::Repository';

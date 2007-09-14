@@ -7,7 +7,7 @@ use VCI::Util;
 
 extends 'VCI';
 
-our $VERSION = '0.2.0_1';
+our $VERSION = '0.2.0_2';
 
 has 'x_ua' => (is => 'ro', isa => 'LWP::UserAgent', lazy => 1,
                default => sub { shift->build_x_ua });
@@ -71,9 +71,13 @@ local repositories, but ssh and static-http repositories will probably never
 be supported. (Mercurial cannot work with them without cloning them, at which
 point they are just a local repository.)
 
-=head2 VCI::VCS::Hg::Committable
+=head2 VCI::VCS::Hg::Directory
 
-Committable objects without a revision specified (such as those that you
+=over
+
+=item *
+
+Directory objects without a revision specified (such as those that you
 get through VCI::Abstract::Project::get_path, get_directory, and get_file)
 will always have the revision "tip", even if this wasn't the revision
 they were modified most recently in.
@@ -81,13 +85,16 @@ they were modified most recently in.
 This also means that their C<time> will be the time of the C<tip> revision,
 not the time they were last modified.
 
-=head2 VCI::VCS::Hg::Directory
+=item *
 
-Specifying a revision for a directory will make C<contents> return
-the contents of the directory at that time. However, all File and
-Directory objects in those contents will have the revision identifier
-of the parent Directory, regardless of whether they were actually modified
-in that revision.
+File objects in a Directory's C<contents> will always have their latest
+revision ID, instead of the correct revision ID for that revision of the
+Directory.
+
+Directory objects in C<contents> will have the revision identifier of
+the parent directory.
+
+=back
 
 =head2 VCI::VCS::Hg::History
 

@@ -1,4 +1,27 @@
-0.2.0_1 Wed, Sep 13, 2007
+0.2.0_2 Fri, Sep 14, 2007
+    New Features:
+        - Added Project::head_revision, which returns the revision identifier
+          that represents "head" in the Project.
+        - You can now specify "revision" to get_file to get a particular
+          revision of that file.
+    
+    API Changes:
+        - Renamed get_commit's "as_of" to "at_or_before", which is more
+          correct English-wise. (Thanks to LTJake on IRC.)
+    
+    Optimizations:
+        - Hg's File::history should now be much faster, as gets the
+          information directly from Hg instead of building it from the
+          Project's History.
+    
+    Bug Fixes:
+        - Sometimes Cvs's File::content was including CVS's header at the
+          end of the content.
+        - Specifying a value greater than 1 for "debug" in VCI->connect
+          was throwing an error.
+        - Cvs wasn't dying correctly when a command failed.
+
+0.2.0_1 Thu, Sep 13, 2007
     New Features:
         - Added File::content, which allows you to get the actual raw content
           of a file at its particular revision.

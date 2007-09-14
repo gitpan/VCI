@@ -1,12 +1,11 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
-use lib 't/lib';
 use Test::More;
+use Test::Exception;
 use VCI;
+use lib 't/lib';
 use Support qw(test_vcs feature_enabled);
-
-use Carp; local $SIG{__DIE__} = \&Carp::confess;
 
 #############################
 # Constants and Subroutines #
@@ -42,14 +41,14 @@ use constant EXPECTED_COMMIT => {
     modified  => [qw(Argh-Spec.txt)],
     moved     => {},
     copied    => {},
-    added_empty => {}
+    added_empty => {},
 };
 
 use constant EXPECTED_FILE => {
     path     => 'Makefile',
-    revision => 'tip',
-    time     => '2007-09-07T02:51:36',
-    timezone => '-0500',
+    revision => '626207473726',
+    time     => '2007-02-01T09:59:44',
+    timezone => '+0100',
     size     => 865,
     commits  => 4,
     first_revision => 'd3f1ae8a1444',
@@ -64,13 +63,14 @@ plan skip_all => 'VCI_REMOTE_TESTS environment variable not set to 1'
     if !$ENV{VCI_REMOTE_TESTS};
 plan skip_all => "hg not enabled" if !feature_enabled('hg');
 
-plan tests => 39;
+plan tests => 43;
 
 test_vcs({
-    type          => 'Hg',
-    repo_dir      => 'http://hg-test.vci.everythingsolved.com/2007-09-07/',
-    project_name  => 'test-repo',
+    type         => 'Hg',
+    repo_dir     => 'http://hg-test.vci.everythingsolved.com/2007-09-07/',
+    project_name => 'test-repo',          
     mangled_name  => '/test-repo/',
+    head_revision => 'e34b54e34f30',
     num_commits   => 23,
     expected_contents => EXPECTED_CONTENTS,
     expected_commit   => EXPECTED_COMMIT,

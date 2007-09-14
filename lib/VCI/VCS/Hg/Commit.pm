@@ -39,7 +39,10 @@ sub x_from_rss_item {
     my ($class, $item, $project) = @_;
     my $project_path = $project->repository->root . $project->name;
     my $revision = $item->{link};
-    $revision =~ s|^\Q$project_path\E/rev/||;
+    # Sometimes revisions come to us with log{$rev}. We also include
+    # log/$rev/File as an option in case they fix the bug in Hg.
+    $revision =~ s#^\Q$project_path\E(/rev/|/log[{/])##;
+    $revision =~ s#}?/.+$##;
     my $time = $item->{pubDate};
     
     my $message = $item->{description};

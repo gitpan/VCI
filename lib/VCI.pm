@@ -1,6 +1,6 @@
 package VCI;
 use Moose;
-our $VERSION = '0.2.0_1';
+our $VERSION = '0.2.0_2';
 
 # Will also need a write_repo in the future, if we add commit support,
 # for things like Hg that read from hgweb but have to write through the
@@ -8,7 +8,7 @@ our $VERSION = '0.2.0_1';
 
 has 'repo' => (is => 'ro', isa => 'Str', required => 1);
 has 'type' => (is => 'ro', isa => 'Str', required => 1);
-has 'debug' => (is => 'ro', isa => 'Bool', default => sub { 0 });
+has 'debug' => (is => 'ro', isa => 'Int | Bool', default => sub { 0 });
 
 has 'repository' => (is => 'ro', isa => 'VCI::Abstract::Repository',
                      lazy => 1, default => sub { shift->build_repository });
@@ -339,7 +339,7 @@ development version by doing:
 
 Note that if you check out code from my trunk repository, it may be unstable or
 completely broken.
- 
+
 You can get the latest stable version by doing:
 
  bzr co http://bzr.everythingsolved.com/vci/stable

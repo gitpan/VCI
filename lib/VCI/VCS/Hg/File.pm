@@ -7,9 +7,26 @@ with 'VCI::VCS::Hg::Committable';
 # XXX From a Commit, we don't currently track if a file is executable or not.
 sub build_is_executable { undef }
 
+sub build_revision {
+    my $self = shift;
+    return $self->history->commits->[-1]->revision;
+}
+
 sub build_content {
     my $self = shift;
     return $self->project->x_get(['raw-file', $self->revision, $self->path])
+}
+
+# Theoretically we could avoid this VCS interaction in situations where
+# the Project history is already built and every single commit has "contents"
+# populated, but that situation is rare enough that I don't think we need to
+# optimize for it.
+sub build_history {
+    my $self = shift;
+
+    # Have to "require" to avoid dependency loops.
+    require VCI::VCS::Hg::History;
+    return VCI::VCS::Hg::History->x_from_rss($self->path, $self->project);
 }
 
 __PACKAGE__->meta->make_immutable;

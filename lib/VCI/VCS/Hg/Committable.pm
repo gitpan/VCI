@@ -3,9 +3,6 @@ use Moose::Role;
 
 use DateTime;
 
-# Anything without a revision specified is "tip".
-sub build_revision { return 'tip' }
-
 sub build_time {
     my $self = shift;
     my $text = $self->project->x_get(['raw-rev', $self->revision]);

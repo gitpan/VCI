@@ -99,7 +99,7 @@ eval { require SVN::Core };
 
 plan skip_all => "svn not enabled" if !feature_enabled('svn');
 
-plan tests => 39;
+plan tests => 43;
 
 test_vcs({
     type          => 'Svn',
@@ -107,6 +107,7 @@ test_vcs({
     num_projects  => 3,
     project_name  => 'trunk',
     mangled_name  => '/trunk/',
+    head_revision => 12,
     num_commits   => 8,
     expected_contents => EXPECTED_CONTENTS,
     expected_commit   => EXPECTED_COMMIT,

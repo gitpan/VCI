@@ -9,6 +9,8 @@ has 'repository' => (is => 'ro', isa => 'VCI::Abstract::Repository',
                      required => 1);
 has 'history'    => (is => 'ro', isa => 'VCI::Abstract::History', lazy => 1,
                      default => sub { shift->build_history });
+has 'head_revision' => (is => 'ro', isa => 'Str', lazy => 1,
+                        default => sub { shift->build_head_revision });
 has 'root_directory' => (is => 'ro', isa => 'VCI::Abstract::Directory',
                          lazy => 1,
                          default => sub { shift->build_root_directory });
@@ -16,7 +18,7 @@ has 'root_directory' => (is => 'ro', isa => 'VCI::Abstract::Directory',
 method 'get_commit' => named (
     revision => { isa => 'Str' },
     time     => { isa => 'DateTime', coerce => 1 },
-    as_of    => { isa => 'DateTime', coerce => 1 },
+    at_or_before => { isa => 'DateTime', coerce => 1 },
 ) => sub {
     my ($self, $params) = @_;
 
@@ -36,10 +38,10 @@ method 'get_commit' => named (
     my ($key) = keys %$params;
     my $value = $params->{$key};
 
-    if ($key eq 'as_of') {
+    if ($key eq 'at_or_before') {
         my @commits = @{$self->history->commits};
         # If there are no commits, or the first commit is later than our
-        # as_of, we return undef.
+        # at_or_before, we return undef.
         return undef if !@commits || $commits[0]->time > $value;
         my $last_commit;
         
@@ -80,7 +82,7 @@ method 'get_history_by_time' => named (
     return $vci->history_class->new(commits => \@commits, project => $self);
 };
 
-# XXX All these methods will need "revision" and "as_of".
+# XXX All these methods will need "revision" and "at_or_before".
 
 method 'get_directory' => named (
     path => { isa => 'Path', coerce => 1, required => 1 },
@@ -108,13 +110,24 @@ method 'get_directory' => named (
 };
 
 method 'get_file' => named (
-    path => { isa => 'Path', coerce => 1, required => 1 },
+    path     => { isa => 'Path', coerce => 1, required => 1 },
+    revision => { isa => 'Str' },
 ) => sub {
     my ($self, $params) = @_;
     my $path = $params->{path};
+    my $rev  = $params->{revision};
     
-    confess("Empty path name passed to get_file.") if $path->is_empty;
-
+    confess("Empty path name passed to get_file") if $path->is_empty;
+    
+    if (defined $rev) {
+        # This won't work in VCSes like CVS where the File revision IDs are
+        # different from the Commit revision IDs.
+        my $commit = $self->get_commit(revision => $rev);
+        my ($file) = grep { $_->path->stringify eq $path->stringify }
+                          @{ $commit->contents };
+        return $file;
+    }
+    
     my $dir = $self->get_directory(path => $path->parent);
     confess("No directory named " . $path->parent) if !$dir;
     
@@ -154,6 +167,13 @@ sub build_root_directory {
                                                         project => $self);
 }
 
+sub build_head_revision {
+    my $self = shift;
+    my $last_commit = $self->history->commits->[-1];
+    return undef if !$last_commit;
+    return $last_commit->revision;
+}
+
 ####################
 # Subclass Helpers #
 ####################
@@ -188,7 +208,7 @@ VCI::Abstract::Project - A particular project in the Repository
 
  my $commit = $project->get_commit(revision => '123');
  my $commit = $project->get_commit(time => 'July 7, 2007 12:01:22 UTC');
- my $commit = $project->get_commit(as_of => 'July 7, 2007 13:00:00 UTC');
+ my $commit = $project->get_commit(at_or_before => 'July 7, 2007 13:00:00 UTC');
  my $commits = $project->get_history_by_time(start => 'January 1, 1970',
                                              end   => '2007-01-01');
  # Other information
@@ -234,6 +254,11 @@ The L<VCI::Abstract::History> of this whole Project.
 
 The root L<VCI::Abstract::Directory>, containing this project's
 L<files|VCI::Abstract::File> and L<directories|VCI::Abstract::Directory>.
+
+=item C<head_revision>
+
+The revision ID that identifies the current "head" of this Project.
+Usually this will be the ID of the very latest revision.
 
 =back
 
@@ -404,18 +429,20 @@ time. Note that some VCSes may track commits down to the microsecond, and
 in this case, your time must be accurate down to the same microsecond.
 
 (If you want to be less accurate, use L</get_history_by_time> or the
-L</as_of> argument instead.)
+L</at_or_before> argument instead.)
 
 In extremely rare cases, VCSes may have two commits that happen at the exact
 same time. In this case VCI will print a warning and you will get the commit
 that the VCS considers to have happened "first" (that is, it will
 have the lower revision number or come "logically" before the other commit).
 
-=item C<as_of>
+=item C<at_or_before>
 
 A L<datetime|VCI::Util/DateTime>.
 
 Specifies that you want the commit I<right before> or exactly at this time.
+
+Note that if the earliest commit is I<after> this time, you will get C<undef>.
 
 =back
 

@@ -95,13 +95,14 @@ check_plugin('xmloutput')
 eval { setup_repo() if !-d 't/repos/bzr/.bzr'; 1; }
     || plan skip_all => "Unable to create bzr testing repo: $@";
     
-plan tests => 39;
+plan tests => 43;
 
 test_vcs({
     type          => 'Bzr',
     repo_dir      => 't/repos/bzr',
     project_name  => 'vci',
     mangled_name  => '/vci/',
+    head_revision => 10,
     num_commits   => 10,
     expected_contents => EXPECTED_CONTENTS,
     expected_commit   => EXPECTED_COMMIT,

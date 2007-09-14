@@ -28,7 +28,7 @@ sub _x_get_rss_commits {
     my @path = ('rss-log', $rev_id);
     push(@path, $file) if defined $file;
     my $rss = $project->x_get(\@path);
-    my $xml = $xs->xml_in($rss);    
+    my $xml = $xs->xml_in($rss);
     my $items = $xml->{channel}->{item};
     if ($rev_id ne 'tip') {
         # We always get the $rev_id we requested as the first item, except

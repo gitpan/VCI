@@ -84,13 +84,14 @@ plan skip_all => "git not enabled" if !feature_enabled('git');
 eval { setup_repo() if !-d 't/repos/git/test.git'; 1; }
     || plan skip_all => "Unable to create git testing repo: $@";
 
-plan tests => 39;
+plan tests => 43;
 
 test_vcs({
     type          => 'Git',
     repo_dir      => 't/repos/git',
     project_name  => 'test.git',
     mangled_name  => '/test.git/',
+    head_revision => '0e15f67ea2b4388eb6663678404c23919a054f0c',
     num_commits   => 10,
     expected_contents => EXPECTED_CONTENTS,
     expected_commit   => EXPECTED_COMMIT,

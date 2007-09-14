@@ -14,6 +14,7 @@ sub test_vcs {
     my $num_projects      = $params->{num_projects} || 1;
     my $project_name      = $params->{project_name};
     my $mangled_name      = $params->{mangled_name};
+    my $head_revision     = $params->{head_revision};
     my $num_commits       = $params->{num_commits};
     my $expected_contents = $params->{expected_contents};
     my $expected_commit   = $params->{expected_commit};
@@ -51,11 +52,16 @@ sub test_vcs {
     }
         
     # Project
+    # We check head_revision first so that for drivers that optimize it,
+    # $project->history hasn't already been set.
+    is($project->head_revision, $head_revision, 'Head revision correct');
     my $history;
     lives_and { isa_ok($history = $project->history, "${class}::History") }
            '$project->history';
     cmp_ok(scalar @{ $history->commits }, '==', $num_commits,
            "History has $num_commits commits");
+    is($history->commits->[-1]->revision, $head_revision,
+       'Last commit has head revision');
     
     my $root_dir;
     isa_ok($root_dir = $project->root_directory, "${class}::Directory",
@@ -83,11 +89,12 @@ sub test_vcs {
            '$project->get_commit(time => ' . $commit->time . ')');
     is($commit_at->revision, $commit->revision,
        "'time' and 'revision' return the same Commit");
-    my $as_of = $commit->time->clone->add(seconds => 1);
-    my $commit_asof;
-    isa_ok($commit_asof = $project->get_commit(as_of => $as_of),
-           "${class}::Commit", '$project->get_commit(as_of => ' . "$as_of)");
-    is($commit_asof->revision, $commit->revision,
+    my $right_after = $commit->time->clone->add(seconds => 1);
+    my $commit_aob;
+    isa_ok($commit_aob = $project->get_commit(at_or_before => $right_after),
+           "${class}::Commit",
+           '$project->get_commit(at_or_before => ' . "$right_after)");
+    is($commit_aob->revision, $commit->revision,
        "'as_of' and 'revision' return the same Commit");
     is_deeply($commit->moved, $expected_commit->{moved}, 'Commit moved');
     is_deeply([sort map { $_->path->stringify } @{ $commit->modified }],
@@ -137,6 +144,11 @@ sub test_vcs {
        '$contents_file timezone');
     is(length($contents_file->content), $expected_file->{size},
        '$expected_file->content size');
+    my $rev_file;
+    isa_ok($rev_file = $project->get_file(path => $expected_file->{path},
+                                          revision => $expected_file->{revision}),
+           "${class}::File", '$project->get_file(path, revision)');
+    is($rev_file->time, $contents_file->time, 'Files have the same time');
     
     # Committable History
     my $item_history;
@@ -222,4 +234,3 @@ sub all_modules {
 
     return @modules;
 }
-

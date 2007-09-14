@@ -49,13 +49,13 @@ a Version-Control System
 =head1 SYNOPSIS
 
  my $diff = $commit->as_diff;
- 
+
  my $file_changes = $diff->files;
  foreach my $file (@$files) {
      my $changes = $file->changes;
      my $path    = $file->path;
  }
- 
+
  my $text = $diff->raw;
 
 =head1 DESCRIPTION

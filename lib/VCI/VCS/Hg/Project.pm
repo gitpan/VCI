@@ -4,6 +4,8 @@ use MooseX::Method;
 
 use XML::Simple;
 
+use VCI::Util;
+use VCI::VCS::Hg::Commit;
 use VCI::VCS::Hg::History;
 
 extends 'VCI::Abstract::Project';
@@ -13,6 +15,23 @@ sub BUILD {
     $self->_name_never_ends_with_slash();
     $self->_name_never_starts_with_slash();
 }
+
+method 'get_file' => named (
+    path     => { isa => 'Path', coerce => 1, required => 1 },
+    revision => { isa => 'Str' },
+) => sub {
+    my $self = shift;
+    my ($params) = @_;
+    
+    if (defined $params->{revision} && $params->{revision} eq 'tip') {
+        $params->{revision} = $self->head_revision;
+    }
+
+    # MooseX::Method always has a hash key for each parameter, even if they
+    # weren't passed by the caller.
+    delete $params->{$_} foreach (grep(!defined $params->{$_}, keys %$params));
+    return $self->SUPER::get_file(@_);
+};
 
 sub x_get {
     my ($self, $path) = @_;
@@ -26,6 +45,18 @@ sub x_get {
 sub build_history {
     my $self = shift;
     return VCI::VCS::Hg::History->x_from_rss('', $self);
+}
+
+sub build_head_revision {
+    my $self = shift;
+    if (exists $self->{history}) {
+        my $last_commit = $self->history->commits->[-1];
+        return defined $last_commit ? $last_commit->revision : undef;
+    }
+    
+    my $raw_rev = $self->x_get('raw-rev');
+    $raw_rev =~ /^# Node ID (\S+)$/ms || return undef;
+    return substr($1, 0, 12);
 }
 
 __PACKAGE__->meta->make_immutable;

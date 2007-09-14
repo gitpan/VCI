@@ -8,7 +8,7 @@ use IPC::Cmd;
 
 use VCI::VCS::Cvs::Repository;
 
-our $VERSION = '0.2.0_1';
+our $VERSION = '0.2.0_2';
 
 has 'x_cvsps' => (is => 'ro', isa => 'Str', lazy => 1,
                   default => sub { shift->build_x_cvsps });
@@ -48,7 +48,7 @@ method 'x_do' => named (
     chdir $old_cwd;
 
     # "cvs diff" returns 256 always, it seems.
-    if (!$success && $errorcode != 256) {
+    if (!$success && !(grep($_ eq 'diff', @$args) && $errorcode == 256)) {
         my $err_string = join('', @$stderr);
         chomp($err_string);
         confess("$full_command failed: $err_string");
@@ -57,7 +57,7 @@ method 'x_do' => named (
     my $output = join('', @$all);
     if ($self->debug) {
         print STDERR "Exit Code: $errorcode\n";
-        (print STERR "Results: $output\n") if $self->debug > 1;
+        (print STDERR "Results: $output\n") if $self->debug > 1;
     }
     return $output;
 };

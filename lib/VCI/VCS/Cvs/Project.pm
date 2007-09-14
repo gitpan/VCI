@@ -1,10 +1,12 @@
 package VCI::VCS::Cvs::Project;
 use Moose;
+use MooseX::Method;
 
 use IPC::Cmd;
 use File::Temp qw(tempdir);
 use File::Path;
 
+use VCI::Util;
 use VCI::VCS::Cvs::File;
 use VCI::VCS::Cvs::Commit;
 use VCI::VCS::Cvs::History;
@@ -37,6 +39,32 @@ sub BUILD {
     $self->_name_never_ends_with_slash();
     $self->_name_never_starts_with_slash();
 }
+
+method 'get_file' => named (
+    path     => { isa => 'Path', coerce => 1, required => 1 },
+    revision => { isa => 'Str' },
+) => sub {
+    my $self = shift;
+    my ($params) = @_;
+    my $path = $params->{path};
+    my $rev  = $params->{revision};
+    
+    confess("Empty path name passed to get_file") if $path->is_empty;
+    
+    if (defined $rev) {
+        my $file = VCI::VCS::Cvs::File->new(path => $path, revision => $rev,
+                                            project => $self);
+        # If $file->time works, then we have a valid file & revision.
+        return $file if defined eval { $file->time };
+        undef $@; # Don't mess up anything else that checks $@.
+        return undef;
+    }
+    
+    # MooseX::Method always has a hash key for each parameter, even if they
+    # weren't passed by the caller.
+    delete $params->{$_} foreach (grep(!defined $params->{$_}, keys %$params));
+    return $self->SUPER::get_file(@_);
+};
 
 sub build_history {
     my $self = shift;
