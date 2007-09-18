@@ -366,11 +366,11 @@ Gets a L<file|VCI::Abstract::File> from the repository.
 
 =item B<Parameters>
 
-Takes one named parameter:
+Takes the following named parameters:
 
 =over
 
-=item C<path>
+=item C<path> B<Required>
 
 A L<Path|VCI::Util/Path> to the file that you want, relative to
 the base of the project.
@@ -379,13 +379,25 @@ Absolute paths will be interpreted as relative to the base of the project.
 
 This method will throw an error if you pass in an empty string or just C<"/">.
 
+=item C<revision>
+
+The exact revision that you want of the file. On VCSes where the File
+revision IDs differ from the Commit revision IDs (like CVS), you should
+specify the I<File> revision ID here, not the Commit revision ID.
+
+If you specify a valid revision ID but that revision didn't include
+adding, removing, or modifying this file in any way, you will get C<undef>.
+
+If you don't specify this parameter, you will get the latest revision
+of the file.
+
 =back
 
 =item B<Returns>
 
 A L<VCI::Abstract::File>, or C<undef> if there is no I<file>
-with that name. (Even if there's I<something> with that name, if it's not a
-file, we will still return C<undef>.)
+with that name and revision. (Even if there's I<something> with that name,
+if it's not a file, we will still return C<undef>.)
 
 If the parent directory doesn't exist, or any of the parent directories
 don't exist, this will throw an error (identically to how L</get_path> works).

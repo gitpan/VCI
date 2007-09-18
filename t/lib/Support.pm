@@ -3,7 +3,7 @@ use strict;
 use File::Spec;
 use Test::More;
 use Test::Exception;
-use base qw(Exporter);
+our @ISA = qw(Exporter);
 our @EXPORT_OK = qw(test_vcs all_modules feature_enabled);
 
 sub test_vcs {

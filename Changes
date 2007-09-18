@@ -1,34 +1,17 @@
-0.2.0_2 Fri, Sep 14, 2007
-    New Features:
-        - Added Project::head_revision, which returns the revision identifier
-          that represents "head" in the Project.
-        - You can now specify "revision" to get_file to get a particular
-          revision of that file.
+0.2.1 Fri, Sep 17, 2007
+    - We now explicitly require Perl 5.6.0, which is what
+      Perl::MinimumVersion says we require. No promises that all our
+      dependencies work with 5.6.0, though.
     
-    API Changes:
-        - Renamed get_commit's "as_of" to "at_or_before", which is more
-          correct English-wise. (Thanks to LTJake on IRC.)
-    
-    Optimizations:
-        - Hg's File::history should now be much faster, as gets the
-          information directly from Hg instead of building it from the
-          Project's History.
-    
-    Bug Fixes:
-        - Sometimes Cvs's File::content was including CVS's header at the
-          end of the content.
-        - Specifying a value greater than 1 for "debug" in VCI->connect
-          was throwing an error.
-        - Cvs wasn't dying correctly when a command failed.
-
-0.2.0_1 Thu, Sep 13, 2007
     New Features:
         - Added File::content, which allows you to get the actual raw content
           of a file at its particular revision.
         - Added File::content_size, which allows you to get the size of the
           file in bytes at its particular revision.
-        - In addition to specifying a revision ID, you can now specify "time"
-          and "as_of" to Project::get_commit.
+        - Added Project::head_revision, which returns the revision ID
+          that represents "head" in the Project.
+        - You can now specify "revision" to get_file to get a particular
+          revision of that file.
     
     API Changes:
         - Project::get_commit now takes named parameters instead of a single
@@ -38,7 +21,17 @@
         - Svn's FileOrDirectory is now *both* a VCI::Abstract::File and a
           VCI::Abstract::Directory, instead of being neither.
     
+    Optimizations:
+        - Hg's File::history should now be much faster, as gets the
+          information directly from Hg instead of building it from the
+          Project's History.
+    
     Bug Fixes:
+        - Sometimes Cvs's File::content was including extra garbage at the
+          end of the actual file content.
+        - Specifying a value greater than 1 for "debug" in VCI->connect
+          was throwing an error.
+        - Cvs wasn't dying correctly when a command failed.
         - File::is_executable wasn't correctly specified as being Bool.
         - Svn should now correctly delete temp files created by
           Commit::as_diff after build_as_diff returns.

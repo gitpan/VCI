@@ -55,7 +55,9 @@ lib/VCI/VCS/Svn/FileOrDirectory.pm
 lib/VCI/VCS/Svn/History.pm
 lib/VCI/VCS/Svn/Project.pm
 lib/VCI/VCS/Svn/Repository.pm
+Makefile.PL
 MANIFEST			This list of files
+META.yml
 README
 t/010_abstract_compile.t
 t/020_bzr_compile.t
@@ -268,5 +270,3 @@ t/repos/svn/hooks/start-commit.tmpl
 t/repos/svn/locks/db-logs.lock
 t/repos/svn/locks/db.lock
 t/repos/svn/README.txt
-Makefile.PL
-META.yml
