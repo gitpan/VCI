@@ -1,11 +1,38 @@
 package VCI::Abstract::Directory;
 use Moose;
+use VCI::Abstract::History;
 
 with 'VCI::Abstract::Committable', 'VCI::Abstract::FileContainer';
+
+has contents_history_recursive
+    => (is => 'ro', isa => 'VCI::Abstract::History', lazy => 1,
+        default => sub { shift->build_contents_history_recursive });
 
 # Because composed roles don't call BUILD, this is in all objects that
 # implment Committable.
 sub BUILD { shift->_no_time_without_revision; }
+
+sub build_contents_history_recursive {
+    my $self = shift;
+    my @histories;
+    push(@histories, $self->contents_history);
+    push(@histories, @{ _get_histories($self->contents) });
+    return $self->project->repository->vci->history_class->union(
+               histories => \@histories, project => $self->project);
+}
+
+# Helper for build_contents_history_recursive.
+sub _get_histories {
+    my ($items) = @_;
+    my @histories;
+    foreach my $item (@$items) {
+        if ($item->does('VCI::Abstract::FileContainer')) {
+            push(@histories, @{ _get_histories($item->contents) });
+            push(@histories, $item->contents_history);
+        }
+    }
+    return \@histories;
+}
 
 # For helping build directory contents for some VCSes.
 sub _set_contents_from_list {
@@ -93,6 +120,18 @@ In addition to what's specified in L<VCI::Abstract::Committable>:
 
 Root directories always have an "empty" L<Path|VCI::Util/Path>. That is,
 the path is an empty string.
+
+=item C<contents_history_recursive>
+
+The normal L<VCI::Abstract::FileContainer/contents_history> only returns
+the History of items directly contained in the directory.
+
+This accsessor returns an entire L<VCI::Abstract::History> for all items
+in the Project from this directory I<down>.
+
+So, for example, if F<dir1> contains F<dir2>, and F<dir2> contains F<dir3>,
+this method would return the History of all items contained in F<dir1>,
+F<dir2>, and F<dir3>.
 
 =back
 

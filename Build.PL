@@ -28,6 +28,7 @@ my $build = $class->new(
     license  => 'perl',
     create_makefile_pl => 'passthrough',
     requires => {
+        'perl'           => '5.006',
         'Moose'          => '0',
         'MooseX::Method' => '0',
         'DateTime'       => '0',

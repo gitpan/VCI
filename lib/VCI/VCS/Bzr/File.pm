@@ -1,8 +1,7 @@
 package VCI::VCS::Bzr::File;
 use Moose;
 
-with 'VCI::VCS::Bzr::Committable';
-extends 'VCI::Abstract::File';
+extends 'VCI::VCS::Bzr::Committable', 'VCI::Abstract::File';
 
 sub build_content {
     my $self = shift;

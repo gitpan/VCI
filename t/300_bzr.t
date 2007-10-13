@@ -68,12 +68,14 @@ sub check_plugin {
     if (!$python) {
         my $output;
         IPC::Cmd::run(command => [qw(bzr --version)], buffer => \$output);
-        if ($output =~ /^Using Python interpreter: (.+?)$/ms) {
+        if ($output =~ /^Using Python interpreter: (.+?)$/m
+            # Around 0.90 or 0.91 the format changed.
+            || $output =~ /^\s*Python interpreter: (.+) \S+$/m) {
             $python = $1;
         }
         else {
             plan skip_all => "Couldn't determine python interpreter from"
-                             . "output:\n$output";
+                             . " output:\n$output";
         }
     }
     
@@ -95,7 +97,7 @@ check_plugin('xmloutput')
 eval { setup_repo() if !-d 't/repos/bzr/.bzr'; 1; }
     || plan skip_all => "Unable to create bzr testing repo: $@";
     
-plan tests => 43;
+plan tests => 44;
 
 test_vcs({
     type          => 'Bzr',

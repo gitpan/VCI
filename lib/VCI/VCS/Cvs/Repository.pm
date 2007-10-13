@@ -41,6 +41,8 @@ sub build_projects {
     return \@projects;
 }
 
+sub build_root_project { $_[0]->_root_project; }
+
 # XXX get_project Doesn't support modules yet.
 # For get_project module support, all paths will be from the root of the
 # repository. But for directory support, they will be from the root

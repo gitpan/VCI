@@ -1,5 +1,7 @@
 package VCI::VCS::Bzr::Committable;
-use Moose::Role;
+use Moose;
+
+use VCI::VCS::Bzr::History;
 
 sub build_time {
     my $self = shift;
@@ -19,6 +21,15 @@ sub build_revision {
         $self->{time} = $commit->time;
     }
     return $commit->revision;
+}
+
+sub build_history {
+    my $self = shift;
+    my $full_path = $self->project->repository->root . $self->project->name
+                    . '/' . $self->path->stringify;
+    my $xml_string = $self->project->repository->vci->x_do(
+        args => [qw(log --xml), $full_path]);
+    return VCI::VCS::Bzr::History->x_from_xml($xml_string, $self->project);    
 }
 
 sub _x_this_commit {

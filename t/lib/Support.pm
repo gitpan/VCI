@@ -12,6 +12,7 @@ sub test_vcs {
     my $type              = $params->{type};
     my $repo_dir          = $params->{repo_dir};
     my $num_projects      = $params->{num_projects} || 1;
+    my $has_root_proj     = $params->{has_root_proj};
     my $project_name      = $params->{project_name};
     my $mangled_name      = $params->{mangled_name};
     my $head_revision     = $params->{head_revision};
@@ -49,6 +50,12 @@ sub test_vcs {
                           "Only $num_projects project returned");
         is($project->name, $projects->[0]->name,
            '$repo->projects returns same Project');
+    }
+    if ($has_root_proj) {
+        isa_ok($repo->root_project, "${class}::Project", '$repo->root_project');
+    }
+    else {
+        ok(!defined $repo->root_project, '$repo->root_project is undef');
     }
         
     # Project

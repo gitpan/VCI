@@ -51,6 +51,8 @@ sub build_projects {
     return \@projects;
 }
 
+sub build_root_project { $_[0]->_root_project; }
+
 __PACKAGE__->meta->make_immutable;
 
 1;

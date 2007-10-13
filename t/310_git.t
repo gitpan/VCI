@@ -84,7 +84,7 @@ plan skip_all => "git not enabled" if !feature_enabled('git');
 eval { setup_repo() if !-d 't/repos/git/test.git'; 1; }
     || plan skip_all => "Unable to create git testing repo: $@";
 
-plan tests => 43;
+plan tests => 44;
 
 test_vcs({
     type          => 'Git',

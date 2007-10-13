@@ -63,7 +63,7 @@ plan skip_all => 'VCI_REMOTE_TESTS environment variable not set to 1'
     if !$ENV{VCI_REMOTE_TESTS};
 plan skip_all => "hg not enabled" if !feature_enabled('hg');
 
-plan tests => 43;
+plan tests => 44;
 
 test_vcs({
     type         => 'Hg',

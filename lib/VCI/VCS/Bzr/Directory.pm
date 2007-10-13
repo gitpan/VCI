@@ -1,8 +1,7 @@
 package VCI::VCS::Bzr::Directory;
 use Moose;
 
-with 'VCI::VCS::Bzr::Committable';
-extends 'VCI::Abstract::Directory';
+extends 'VCI::VCS::Bzr::Committable', 'VCI::Abstract::Directory';
 
 # XXX Currently always returns HEAD contents.
 sub build_contents {

@@ -8,7 +8,7 @@ use IPC::Cmd;
 
 use VCI::VCS::Cvs::Repository;
 
-our $VERSION = '0.2.1';
+our $VERSION = '0.3.0_1';
 
 has 'x_cvsps' => (is => 'ro', isa => 'Str', lazy => 1,
                   default => sub { shift->build_x_cvsps });
@@ -190,6 +190,10 @@ general API specified in the C<VCI::Abstract> modules:
 C<get_project> doesn't support modules yet, only directory names in
 the repository. Using a module name won't throw an error, but operations
 on that Project are likely to then fail.
+
+=head2 VCI::VCS::Cvs::Project
+
+CVS supports L<"root_project"|VCI::Abstract::Project/root_project>.
 
 =head2 VCI::VCS::Cvs::Commit
 

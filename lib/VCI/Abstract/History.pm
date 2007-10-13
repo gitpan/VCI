@@ -1,6 +1,7 @@
 package VCI::Abstract::History;
 use Moose;
 use MooseX::Method;
+use VCI::Util;
 
 # XXX Will also need some sort of graph view of commits for things like Git
 #     and Hg.
@@ -16,8 +17,6 @@ method 'union' => named (
     my $params = shift;
     my $histories = $params->{histories};
     
-    # XXX This may break in systems where commits don't have uniform revision
-    # IDs, like CVS.
     my %commits;
     foreach my $history (@$histories) {
         foreach my $commit (@{ $history->commits }) {
@@ -25,7 +24,7 @@ method 'union' => named (
         }
     }
     
-    my @result = sort { $a->revision <=> $b->revision } (values %commits);
+    my @result = sort { $a->time <=> $b->time } (values %commits);
     
     return $class->new(commits => \@result, project => $params->{project});
 };

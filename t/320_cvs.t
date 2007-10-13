@@ -104,11 +104,12 @@ my $repo_success = eval {
 };
 $repo_success || plan skip_all => "Unable to create cvs testing repo: $@";
 
-plan tests => 43;
+plan tests => 44;
 
 test_vcs({
     type          => 'Cvs',
     repo_dir      => ':local:t/repos/cvs',
+    has_root_proj => 1,
     project_name  => 'htom',
     mangled_name  => '/htom/',
     head_revision => 9,

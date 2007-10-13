@@ -18,7 +18,7 @@ sub build_history {
     my $self = shift;
     my $full_path = $self->repository->root . $self->name;
     my $xml_string = $self->repository->vci->x_do(
-        args => [qw(log -v --xml), $full_path]);
+        args => [qw(log --xml), $full_path]);
     return VCI::VCS::Bzr::History->x_from_xml($xml_string, $self);
 }
 
