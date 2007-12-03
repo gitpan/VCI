@@ -45,8 +45,8 @@ use constant EXPECTED_COMMIT => {
     message   => "This is the commit for testing VCI.\n"
                  . "And it has a two-line message.",
     committer => 'mkanat',
-    time      => '2007-09-02T16:41:38',
-    timezone  => '-0700',
+    time      => '2007-09-02T23:41:38',
+    timezone  => '+0000',
     modified  => [qw(Doxyfile examples/htom_table_example.php)],
     added     => [qw(EmptyFile FileWithContents newdir/EmptyFile
                      newdir/NewFileInNewDir)],
@@ -104,7 +104,7 @@ my $repo_success = eval {
 };
 $repo_success || plan skip_all => "Unable to create cvs testing repo: $@";
 
-plan tests => 44;
+plan tests => 46;
 
 test_vcs({
     type          => 'Cvs',
@@ -114,6 +114,7 @@ test_vcs({
     mangled_name  => '/htom/',
     head_revision => 9,
     num_commits   => 9,
+    commits_rec   => 7,
     expected_contents => EXPECTED_CONTENTS,
     expected_commit   => EXPECTED_COMMIT,
     diff_type     => 'VCI::VCS::Cvs::Diff',

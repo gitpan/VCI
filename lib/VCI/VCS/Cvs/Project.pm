@@ -85,7 +85,7 @@ sub build_history {
                     my ($path, $from_rev, $to_rev, $dead) = ($1, $2, $3, $4);
                     my $file = VCI::VCS::Cvs::File->new(
                         path => $path, revision => $to_rev, project => $self,
-                        time => $date);
+                        time => "$date UTC");
                     if ($from_rev eq 'INITIAL') {
                         push(@added, $file);
                     }
@@ -103,7 +103,7 @@ sub build_history {
             }
             
             push(@commits, VCI::VCS::Cvs::Commit->new(revision => $revision,
-                time => $date, added => \@added, removed => \@removed,
+                time => "$date UTC", added => \@added, removed => \@removed,
                 modified => \@modified, committer => $author,
                 message => $message, project => $self));
         }
@@ -129,6 +129,7 @@ sub x_cvsps_do {
     }
     
     local $ENV{CVSROOT} = $root;
+    local $ENV{TZ} = 'UTC';
     # XXX cvsps must be able to write to $HOME or this will fail.
     my ($success, $errorcode, $all, $stdout, $stderr) =
         IPC::Cmd::run(command => [$self->repository->vci->x_cvsps, @args]);

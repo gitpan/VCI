@@ -63,7 +63,7 @@ plan skip_all => 'VCI_REMOTE_TESTS environment variable not set to 1'
     if !$ENV{VCI_REMOTE_TESTS};
 plan skip_all => "hg not enabled" if !feature_enabled('hg');
 
-plan tests => 44;
+plan tests => 46;
 
 test_vcs({
     type         => 'Hg',
@@ -72,6 +72,7 @@ test_vcs({
     mangled_name  => '/test-repo/',
     head_revision => 'e34b54e34f30',
     num_commits   => 23,
+    commits_rec   => 14,
     expected_contents => EXPECTED_CONTENTS,
     expected_commit   => EXPECTED_COMMIT,
     diff_type     => 'VCI::VCS::Hg::Diff',

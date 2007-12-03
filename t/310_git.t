@@ -84,7 +84,7 @@ plan skip_all => "git not enabled" if !feature_enabled('git');
 eval { setup_repo() if !-d 't/repos/git/test.git'; 1; }
     || plan skip_all => "Unable to create git testing repo: $@";
 
-plan tests => 44;
+plan tests => 46;
 
 test_vcs({
     type          => 'Git',
@@ -93,6 +93,7 @@ test_vcs({
     mangled_name  => '/test.git/',
     head_revision => '0e15f67ea2b4388eb6663678404c23919a054f0c',
     num_commits   => 10,
+    commits_rec   => 9,
     expected_contents => EXPECTED_CONTENTS,
     expected_commit   => EXPECTED_COMMIT,
     diff_type     => 'VCI::VCS::Git::Diff',

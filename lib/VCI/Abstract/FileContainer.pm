@@ -6,6 +6,9 @@ has 'contents' => (is => 'ro', isa => 'ArrayOfCommittables', lazy => 1,
 has 'contents_history' => (is => 'ro', isa => 'VCI::Abstract::History',
                            lazy => 1,
                            default => sub { shift->build_contents_history });
+has contents_history_recursive
+    => (is => 'ro', isa => 'VCI::Abstract::History', lazy => 1,
+        default => sub { shift->build_contents_history_recursive });
 
 # Unfortunately we can't currently enforce this, because Moose throws an
 # error about attribute conflicts for a Directory, which is both a Committable
@@ -22,6 +25,28 @@ sub build_contents_history {
     my @histories = map {$_->history} @{$self->contents};
     return $self->project->repository->vci->history_class->union(
         histories => \@histories, project => $self->project);
+}
+
+sub build_contents_history_recursive {
+    my $self = shift;
+    my @histories;
+    push(@histories, $self->contents_history);
+    push(@histories, @{ _get_histories($self->contents) });
+    return $self->project->repository->vci->history_class->union(
+               histories => \@histories, project => $self->project);
+}
+
+# Helper for build_contents_history_recursive.
+sub _get_histories {
+    my ($items) = @_;
+    my @histories;
+    foreach my $item (@$items) {
+        if ($item->does('VCI::Abstract::FileContainer')) {
+            push(@histories, @{ _get_histories($item->contents) });
+            push(@histories, $item->contents_history);
+        }
+    }
+    return \@histories;
 }
 
 1;
@@ -61,6 +86,18 @@ This does not include the history of the item itself, if the item itself
 has a history. (That is, if this item is also a L<VCI::Abstract::Committable>,
 you should use the C<history> method to get information about this specific
 item.)
+
+=item C<contents_history_recursive>
+
+The normal L</contents_history> only returns the History of items directly
+contained in the directory.
+
+This accsessor returns an entire L<VCI::Abstract::History> for all items
+in the Project from this directory I<down>.
+
+So, for example, if F<dir1> contains F<dir2>, and F<dir2> contains F<dir3>,
+this method would return the History of all items contained in F<dir1>,
+F<dir2>, and F<dir3>.
 
 =item C<project>
 

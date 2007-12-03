@@ -5,7 +5,7 @@ use SVN::Client;
 
 extends 'VCI';
 
-our $VERSION = '0.3.0_1';
+our $VERSION = '0.3.1';
 
 has 'x_client' => (is => 'ro', isa => 'SVN::Client', lazy => 1,
                    default => sub { shift->build_x_client });
@@ -54,7 +54,7 @@ if you are in an environment where L<Cwd/abs_path> fails.
 
 =head1 REQUIREMENTS
 
-VCI::VCS::Svn requires at least Subversion 1.1, and the SVN::Client
+VCI::VCS::Svn requires at least Subversion 1.2, and the SVN::Client
 perl modules that ship with Subversion must be installed.
 
 =head1 LIMITATIONS AND EXTENSIONS

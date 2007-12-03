@@ -15,11 +15,13 @@ has 'root_directory' => (is => 'ro', isa => 'VCI::Abstract::Directory',
                          lazy => 1,
                          default => sub { shift->build_root_directory });
 
-method 'get_commit' => named (
+# This is handy for people who want to override get_commit.
+use constant get_commit_prototype => (
     revision => { isa => 'Str' },
     time     => { isa => 'DateTime', coerce => 1 },
     at_or_before => { isa => 'DateTime', coerce => 1 },
-) => sub {
+);
+method 'get_commit' => named (get_commit_prototype) => sub {
     my ($self, $params) = @_;
 
     # MooseX::Method always has a hash key for each parameter, even if they
@@ -33,7 +35,7 @@ method 'get_commit' => named (
         confess("You must specify only one argument to get_commit."
                 . " You specified the following arguments: "
                 . join(', ', keys %$params));
-    }
+    }    
     
     my ($key) = keys %$params;
     my $value = $params->{$key};
@@ -199,7 +201,7 @@ VCI::Abstract::Project - A particular project in the Repository
  # Getting information about individual files/directories.
 
  my $file = $project->get_file(path => 'path/to/file.c');
- my $directory = $project->get_file(path => 'path/to/directory/');
+ my $directory = $project->get_directory(path => 'path/to/directory/');
 
  my $file = $project->get_path(path => 'path/to/file.c');
  my $directory = $project->get_path(path => 'path/to/directory/');

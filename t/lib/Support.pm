@@ -17,6 +17,7 @@ sub test_vcs {
     my $mangled_name      = $params->{mangled_name};
     my $head_revision     = $params->{head_revision};
     my $num_commits       = $params->{num_commits};
+    my $commits_rec       = $params->{commits_rec} || $params->{num_commits};
     my $expected_contents = $params->{expected_contents};
     my $expected_commit   = $params->{expected_commit};
     my $diff_type         = $params->{diff_type};
@@ -69,7 +70,8 @@ sub test_vcs {
            "History has $num_commits commits");
     is($history->commits->[-1]->revision, $head_revision,
        'Last commit has head revision');
-    
+
+    # Directory    
     my $root_dir;
     isa_ok($root_dir = $project->root_directory, "${class}::Directory",
            '$project->root_directory');
@@ -78,6 +80,12 @@ sub test_vcs {
              'Getting all paths from $root_dir';
     is_deeply([sort @paths], [sort @$expected_contents],
               'Correct paths returned');
+    my $history_rec;
+    isa_ok($history_rec = $root_dir->contents_history_recursive,
+           "${class}::History", '$root_dir->contents_history_recursive');
+    cmp_ok(scalar @{ $history_rec->commits }, '==', $commits_rec,
+           "Recursive History has $commits_rec commits.");
+           
     
     # History and Commits
     my $commit;
@@ -173,6 +181,11 @@ sub test_vcs {
            '$contents_file->first_revision');
     is($first_revision->revision, $expected_file->{first_revision},
        "First revision ID correct");
+
+    if ($params->{other_tests}) {
+        $params->{other_tests}->({
+            project => $project, file => $contents_file });
+    }
 }
 
 sub _get_all_paths {

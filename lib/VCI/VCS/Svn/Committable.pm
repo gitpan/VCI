@@ -2,6 +2,10 @@ package VCI::VCS::Svn::Committable;
 use Moose::Role;
 use Moose::Util::TypeConstraints;
 
+use Path::Abstract;
+
+use VCI::Abstract::Committable;
+
 # We could make this not required and build it with $ctx->info, but I want
 # it to be required right now to make sure I don't forget to add it while
 # constructing objects.
@@ -17,6 +21,21 @@ sub BUILD {
     if (!defined $self->{x_info} && !defined $self->{revision}) {
         confess("You must define x_info if you don't define revision");
     }
+}
+
+sub build_history {
+    my ($self) = @_;
+    # We only use our custom implementation if the Project's History object
+    # doesn't already exist.
+    if (defined $self->project->{history}) {
+        return VCI::Abstract::Committable::build_history(@_);
+    }
+    
+    my $commits = $self->project->_x_get_commits(
+        path => Path::Abstract->new($self->project->name,
+                                    $self->path->stringify)->stringify);
+    return VCI::VCS::Svn::History->new(commits => $commits,
+                                       project => $self->project);
 }
 
 sub build_revision {

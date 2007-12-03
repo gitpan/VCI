@@ -97,7 +97,7 @@ check_plugin('xmloutput')
 eval { setup_repo() if !-d 't/repos/bzr/.bzr'; 1; }
     || plan skip_all => "Unable to create bzr testing repo: $@";
     
-plan tests => 44;
+plan tests => 46;
 
 test_vcs({
     type          => 'Bzr',

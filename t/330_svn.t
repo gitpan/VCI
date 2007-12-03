@@ -99,7 +99,7 @@ eval { require SVN::Core };
 
 plan skip_all => "svn not enabled" if !feature_enabled('svn');
 
-plan tests => 44;
+plan tests => 49;
 
 test_vcs({
     type          => 'Svn',
@@ -115,4 +115,30 @@ test_vcs({
     diff_type     => 'VCI::Abstract::Diff',
     copy_in_diff  => 1,
     expected_file => EXPECTED_FILE,
+    other_tests   => \&other_tests,
 });
+
+sub other_tests {
+    my $params = shift;
+
+    my $project = $params->{project};
+    my $file = $params->{file};
+
+    # Svn has an optimization for get_commit(revision =>) that has
+    # to be tested on a project without a {history}.
+    delete $project->{history};
+    my $expected_rev = EXPECTED_COMMIT->{revision};
+    isa_ok($project->get_commit(revision => $expected_rev),
+           "VCI::VCS::Svn::Commit", '$project->get_commit(revision => ' 
+                                    . "$expected_rev) without History");
+
+   # Svn has an optimization for history() when the parent Project
+   # doesn't have a History.
+   delete $file->project->{history};
+   my $history;
+   isa_ok($history = $file->history, "VCI::VCS::Svn::History",
+          '$file->history without Project history');
+   # And we do this just as a sanity check.
+   is(scalar @{$history->commits}, EXPECTED_FILE->{commits},
+      "File above has " . EXPECTED_FILE->{commits} . " commits");
+}

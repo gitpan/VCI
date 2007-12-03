@@ -71,7 +71,7 @@ my $build = $class->new(
             description => 'Subversion Support',
             requires => {
                 'Cwd' => 0,
-                'SVN::Core' => '1.1.0',
+                'SVN::Core' => '1.2.0',
             }
         },
         hg => {
