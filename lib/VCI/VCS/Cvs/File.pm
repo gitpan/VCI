@@ -7,7 +7,7 @@ use constant CHECKOUT_HEADER => '=+\n.+?\nRCS:\s+.+?,v\nVERS: [\.\d]+\n\*+\n';
 
 # XXX If we have a History, these two should probably just use latest_revision.
 
-sub build_revision {
+sub _build_revision {
     my $self = shift;
     my $output = $self->project->repository->vci->x_do(
         args    => ['-n', 'status', $self->name],
@@ -16,7 +16,7 @@ sub build_revision {
     return $1;
 }
 
-sub build_time {
+sub _build_time {
     my $self = shift;
     my $rev = $self->revision;
     my $output = $self->project->repository->vci->x_do(
@@ -29,7 +29,7 @@ sub build_time {
     return "$time UTC";
 }
 
-sub build_content {
+sub _build_content {
     my $self = shift;
     my $rev = $self->revision;
     my $output = $self->project->repository->vci->x_do(

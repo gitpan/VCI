@@ -1,7 +1,9 @@
 package VCI;
 use 5.006;
 use Moose;
-our $VERSION = '0.3.1';
+our $VERSION = '0.4.0_1';
+
+use VCI::Util;
 
 # Will also need a write_repo in the future, if we add commit support,
 # for things like Hg that read from hgweb but have to write through the
@@ -9,10 +11,11 @@ our $VERSION = '0.3.1';
 
 has 'repo' => (is => 'ro', isa => 'Str', required => 1);
 has 'type' => (is => 'ro', isa => 'Str', required => 1);
-has 'debug' => (is => 'ro', isa => 'Int | Bool', default => sub { 0 });
+has 'debug' => (is => 'ro', isa => 'VCI::Type::IntBool', coerce => 1,
+                default => sub { 0 });
 
 has 'repository' => (is => 'ro', isa => 'VCI::Abstract::Repository',
-                     lazy => 1, default => sub { shift->build_repository });
+                     lazy_build => 1);
 
 sub connect {
     my $class = shift;
@@ -35,7 +38,7 @@ sub api_version {
 
 # Note that this default build_repository doesn't do anything about
 # authentication.
-sub build_repository {
+sub _build_repository {
     my $self = shift;
     return $self->repository_class->new(root => $self->repo, vci => $self);
 }
@@ -262,6 +265,12 @@ VCS. For example, for CVS this would be the contents of C<CVSROOT>.
 The documentation of individual drivers will explain what the format
 required for this field is.
 
+B<Taint Mode>: VCI will throw an error if this is tainted, because drivers use
+this string to do various operations (such as filesystem operations) that
+could be unsafe with untrusted data. If VCI didn't throw the error, you'd
+instead get some weird error from some internal part of VCI or one of the
+modules it uses, so it's better to just throw it right here.
+
 =item C<type> B<(Required)>
 
 What VCI driver you want to use. For example, to use CVS (L<VCI::VCS::Cvs>)
@@ -276,6 +285,8 @@ information.
 
 Some drivers will print out more information if you set C<debug> to higher
 values than C<1>.
+
+(Note: This is an L<IntBool|VCI::Util/VCI::Type::IntBool>.)
 
 =back
 
@@ -350,12 +361,22 @@ out code before you can install it.
 
 =head1 PERFORMANCE
 
-Currently, you should expect good performance on small projects, and
-bad performance on large projects. This isn't due to the design of VCI
-itself, but just because many performance optimizations haven't been
-implemented yet in the various drivers.
+VCI strives to perform well. It will never perform faster than the VCS being
+used, however. Also, on very large projects (tens of thousands of
+files or tens of thousands of commits) some operations may be slow
+(such as asking for the History of an entire Project). However, for most
+uses and for the majority of projects, VCI should be fast enough.
 
-As time goes on, performance should improve significantly.
+Using local repositories is always faster than using remote repositories,
+usually by orders of magnitude.
+
+VCI uses L<Moose> extensively, so installing the latest version of
+L<Moose> often helps improve the performance of VCI.
+
+If the performance of VCI is too slow for your project, please let the
+author know using one of the mechanisms described in L</SUPPORT>. Without
+knowing exactly what sort of things are slow in real-world use, it's
+impossible to know what to optimize.
 
 =head1 SUPPORT
 
@@ -368,6 +389,15 @@ the author at C<mkanat@cpan.org>.
 VCI also has a (currently minimal) home page at:
 
 L<http://vci.everythingsolved.com/>
+
+=head1 USING VCI IN TAINT MODE
+
+VCI strives to work properly and safely under taint mode. Unless specified
+otherwise in their POD, all VCS drivers work correctly under taint mode.
+
+Various methods check their arguments for being tainted and throw an
+error if they are. Methods that do this have a note about B<Taint Mode>
+in their documentation.
 
 =head1 GENERAL NOTES FOR VCI::VCS IMPLEMENTORS
 
@@ -446,22 +476,22 @@ that you B<must> implement are:
 
 =over
 
-=item C<build_projects> in L<VCI::Abstract::Repository>
+=item C<_build_projects> in L<VCI::Abstract::Repository>
 
-=item C<build_history> in L<VCI::Abstract::Project>
+=item C<_build_history> in L<VCI::Abstract::Project>
 
-=item C<build_contents> in L<VCI::Abstract::Directory>
+=item C<_build_contents> in L<VCI::Abstract::Directory>
 
-=item C<build_revision> for L<VCI::Abstract::Committable> objects
+=item C<_build_revision> for L<VCI::Abstract::Committable> objects
 (File and Directory), for objects that have no revision specified (meaning
 this is the "HEAD" revision).
 
-=item C<build_time> for L<VCI::Abstract::Committable> objects that have
+=item C<_build_time> for L<VCI::Abstract::Committable> objects that have
 a revision but no time specified.
 
-=item C<build_as_diff> in L<VCI::Abstract::Commit>
+=item C<_build_as_diff> in L<VCI::Abstract::Commit>
 
-=item  C<build_content> in L<VCI::Abstract::File>
+=item  C<_build_content> in L<VCI::Abstract::File>
 
 =back
 
@@ -524,8 +554,8 @@ on L</connect> probably also isn't a good idea. You could use C<after>,
 but it mostly just makes sense to implement L</build_repository> and leave
 it at that.
 
-If you I<do> override connect, you must call this C<connect> at some point
-in your C<connect>.
+If you I<do> override connect, you B<must> call I<this> C<connect> at some
+point in your C<connect>.
 
 You B<must> not add new C<required> attributes to C<connect>.
 
@@ -554,12 +584,21 @@ Need C<user> and C<pass> support for L</connect>.
 
 Come up with a meaningful "branch" abstraction.
 
-Nearly all VCI drivers are not currently Taint-safe, and need to be.
+Commits need to understand C<parent> and C<children>, for VCSes like
+Hg and Git that don't necessarily have a linear series of commits.
+
+Commits need to have a C<subcommits> accessor that gives minor
+commits that are part of this larger commit. (For example, "merge commits"
+in bzr or git.)
+
+L<VCI::Abstract::Commit/moved> should be a hashref that points to objects,
+not to strings.
 
 =head1 BUGS
 
 VCI is very new, and probably has many significant bugs. The code is
-no better than alpha-quality at this point.
+no better than alpha-quality at this point. However, VCI's test suite has
+nearly 100% code coverage, and VCI currently passes all tests.
 
 =head1 AUTHOR
 
@@ -567,7 +606,7 @@ Max Kanat-Alexander <mkanat@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2007 by Everything Solved, Inc.
+Copyright 2007-2008 by Everything Solved, Inc.
 
 L<http://www.everythingsolved.com>
 

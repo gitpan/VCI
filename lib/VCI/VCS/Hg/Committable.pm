@@ -3,7 +3,7 @@ use Moose::Role;
 
 use DateTime;
 
-sub build_time {
+sub _build_time {
     my $self = shift;
     my $text = $self->project->x_get(['raw-rev', $self->revision]);
     $text =~ /^# Date (\d+) (-)?(\d+)$/ms;

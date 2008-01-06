@@ -1,7 +1,7 @@
 package VCI::VCS::Git::Committable;
 use Moose::Role;
 
-sub build_revision {
+sub _build_revision {
     my $self = shift;
     my $head_rev = $self->project->x_do('rev-list',
         ['--all', '--max-count=1', '--', $self->path->stringify], 1);
@@ -9,7 +9,7 @@ sub build_revision {
     return $head_rev;
 }
 
-sub build_time {
+sub _build_time {
     my $self = shift;
     my $time = $self->project->x_do('log', ['-1', '--pretty=format:%cD', '--',
                                             $self->path->stringify], 1);

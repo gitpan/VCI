@@ -4,7 +4,7 @@ use Moose;
 extends 'VCI::Abstract::File';
 with 'VCI::VCS::Git::Committable';
 
-sub build_content {
+sub _build_content {
     my $self = shift;
     my $rev  = $self->revision;
     my $path = $self->path->stringify;

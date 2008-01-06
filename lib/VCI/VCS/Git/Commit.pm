@@ -6,12 +6,12 @@ use VCI::VCS::Git::File;
 
 extends 'VCI::Abstract::Commit';
 
-has 'x_changes' => (is => 'ro', lazy => 1,
-                    default => sub { shift->build_x_changes });
-has '+message' => (lazy => 1, default => sub { shift->build_message });
+has 'x_changes' => (is => 'ro', lazy_build => 1);
+# Moose doesn't let me do lazy_build here, as of Moose 0.33.
+has '+message' => (lazy => 1, default => sub { shift->_build_message });
 
 
-sub build_message {
+sub _build_message {
     my $self = shift;
     my $text = $self->project->x_do('log', ['-1', '--pretty=format:%s%n%b',
                                             $self->revision], 1);
@@ -22,12 +22,12 @@ sub build_message {
     return $text;
 }
 
-sub build_added    { return shift->_x_files_from_changes('A') }
-sub build_removed  { return shift->_x_files_from_changes('D') }
-sub build_modified { return shift->_x_files_from_changes('M') }
-sub build_moved    { return shift->x_changes->{'R'} }
+sub _build_added    { return shift->_x_files_from_changes('A') }
+sub _build_removed  { return shift->_x_files_from_changes('D') }
+sub _build_modified { return shift->_x_files_from_changes('M') }
+sub _build_moved    { return shift->x_changes->{'R'} }
 
-sub build_copied {
+sub _build_copied {
     my $self = shift;
     my $copied = $self->x_changes->{'C'};
     my %return;
@@ -39,7 +39,7 @@ sub build_copied {
     return \%return;
 }
 
-sub build_as_diff {
+sub _build_as_diff {
     my $self = shift;
     my $diff = $self->project->x_do('whatchanged',
         ['-m', '-p', '-1', '-C', '--pretty=format:', $self->revision], 1);
@@ -56,7 +56,7 @@ sub _x_files_from_changes {
                 @$files];
 }
 
-sub build_x_changes {
+sub _build_x_changes {
     my $self = shift;
     my $output = $self->project->x_do('whatchanged',
         ['-m', '-1', '-C', '--pretty=format:%P', $self->revision]);

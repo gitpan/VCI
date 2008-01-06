@@ -7,9 +7,9 @@ extends 'VCI::Abstract::File';
 use File::Temp;
 
 # XXX Must implement this.
-sub build_is_executable { undef }
+sub _build_is_executable { undef }
 
-sub build_content {
+sub _build_content {
     my $self = shift;
     my $project = $self->project;
     my $full_path = $project->repository->root . $project->name

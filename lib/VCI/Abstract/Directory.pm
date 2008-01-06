@@ -92,8 +92,8 @@ string.
 
 In addition to what's specified in L<VCI::Abstract::Committable>:
 
-Root directories always have an "empty" L<Path|VCI::Util/Path>. That is,
-the path is an empty string.
+Root directories always have an "empty" L<Path|VCI::Util/VCI::Type::Path>.
+That is, the path is an empty string.
 
 =back
 

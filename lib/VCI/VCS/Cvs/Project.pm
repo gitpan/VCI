@@ -41,7 +41,7 @@ sub BUILD {
 }
 
 method 'get_file' => named (
-    path     => { isa => 'Path', coerce => 1, required => 1 },
+    path     => { isa => 'VCI::Type::Path', coerce => 1, required => 1 },
     revision => { isa => 'Str' },
 ) => sub {
     my $self = shift;
@@ -66,7 +66,7 @@ method 'get_file' => named (
     return $self->SUPER::get_file(@_);
 };
 
-sub build_history {
+sub _build_history {
     my $self = shift;
     my $stdout = $self->x_cvsps_do();
 
@@ -118,7 +118,7 @@ sub build_history {
 sub x_cvsps_do {
     my ($self, $addl_args) = @_;
     $addl_args ||= [];
-    my @args = (@$addl_args, '-u', '-b HEAD', $self->name);
+    my @args = (@$addl_args, '-u', '-b', 'HEAD', $self->name);
     # Just using the --root argument of cvsps doesn't work.
     my $root = $self->repository->root;
     my $cvsps = $self->repository->vci->x_cvsps;
@@ -130,6 +130,8 @@ sub x_cvsps_do {
     
     local $ENV{CVSROOT} = $root;
     local $ENV{TZ} = 'UTC';
+    # See http://rt.cpan.org/Ticket/Display.html?id=31738
+    local $IPC::Cmd::USE_IPC_RUN = 1;
     # XXX cvsps must be able to write to $HOME or this will fail.
     my ($success, $errorcode, $all, $stdout, $stderr) =
         IPC::Cmd::run(command => [$self->repository->vci->x_cvsps, @args]);

@@ -7,7 +7,7 @@ with 'VCI::VCS::Git::Committable';
 # XXX This should probably be optimized to not build a File object for
 #     every file in the whole tree--it's a bit slow on the kernel sources
 #     (over 20,000 files).
-sub build_contents {
+sub _build_contents {
     my $self = shift;
     my @path_part;
     @path_part = ('--', $self->path->stringify) unless $self->path->is_empty;

@@ -3,7 +3,8 @@ use Moose;
 
 use VCI::Util;
 
-has 'changes'  => (is => 'ro', isa => 'ArrayOfChanges', required => 1);
+has 'changes'  => (is => 'ro', isa => 'ArrayRef[Text::Diff::Parser::Change]',
+                   required => 1);
 # XXX Eventually this should be replaced with a VCI::Abstract::File
 has 'path'     => (is => 'ro', isa => 'Str', required => 1);
 
@@ -35,8 +36,8 @@ All accessors are read-only.
 
 =item C<changes>
 
-An L<ArrayOfChanges|VCI::Util/ArrayOfChanges> representing the changes made
-to this file.
+An arrayref of L<Text::Diff::Parser::Change|Text::Diff::Parser/CHANGE_METHODS>
+objects, representing the changes made to this file.
 
 =item C<path>
 

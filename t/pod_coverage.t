@@ -23,7 +23,7 @@ my %mod_private = (
 );
 
 foreach my $module (@modules) {
-    my @also_private = (qr/^build_/, qr/^BUILD$/);
+    my @also_private = (qr/^has_/, qr/^clear_/, qr/^BUILD$/);
     push(@also_private, @{ $mod_private{$module} }) if $mod_private{$module};
     pod_coverage_ok($module, { coverage_class => 'Pod::Coverage::Moose',
                                also_private =>  \@also_private });

@@ -10,8 +10,7 @@ use Git ();
 
 extends 'VCI::Abstract::Project';
 
-has 'x_git' => (is => 'ro', isa => 'Git', lazy => 1,
-                default => sub { shift->build_x_git });
+has 'x_git' => (is => 'ro', isa => 'Git', lazy_build => 1);
 
 sub BUILD {
     my $self = shift;
@@ -19,7 +18,7 @@ sub BUILD {
     $self->_name_never_starts_with_slash();
 }
 
-sub build_x_git {
+sub _build_x_git {
     my $self = shift;
     my $repo = Git->repository(abs_path($self->repository->root) . '/'
                                . $self->name);
@@ -47,7 +46,7 @@ sub x_do {
 # every log detail for the whole history with this, like we do for other
 # drivers. We just get the list of revision IDs and then the commits can
 # populate themselves.
-sub build_history {
+sub _build_history {
     my $self = shift;
     my $lines = $self->x_do('log', ['--pretty=format:%H%n%cD%n%cn <%ce>%n',
                                     '--reverse', '-m'], 1);

@@ -17,9 +17,9 @@ Log:\n
 \n
 Members:\s?\n';
 
-sub build_as_diff {
+sub _build_as_diff {
     my $self = shift;
-    my $diff = $self->project->x_cvsps_do(['-g', '-s ' . $self->revision]);
+    my $diff = $self->project->x_cvsps_do(['-g', '-s', $self->revision]);
     my $header_re = REMOVE_HEADER;
     # Pull off the header
     $diff =~ s/$header_re//sox;

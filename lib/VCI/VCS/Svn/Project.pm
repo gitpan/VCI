@@ -43,19 +43,21 @@ sub {
 
 # We need a dirent for the root directory, so we have to override the
 # default build_root_directory.
-sub build_root_directory {
+sub _build_root_directory {
     my $self = shift;
     # XXX Probably should use x_ra.
     my $ctx = $self->repository->vci->x_client;
     my $info;
-    # XXX Need to check return for errors.
-    $ctx->info($self->repository->root . $self->name, undef,
+    # Getting the root_directory of the root_project only works if there's
+    # no slash on the end of the URL.
+    my $name = $self->name eq '' ? '' : ('/' . $self->name);
+    $ctx->info($self->repository->x_root_noslash . $name, undef,
                'HEAD', sub { $info = $_[1] }, 0);
     return VCI::VCS::Svn::Directory->new(
         path => '', project => $self, x_info => $info);
 }
 
-sub build_history {
+sub _build_history {
     my $self = shift;
     my $commits = $self->_x_get_commits();
     return VCI::VCS::Svn::History->new(commits => $commits, project => $self);

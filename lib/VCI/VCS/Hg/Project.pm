@@ -17,7 +17,7 @@ sub BUILD {
 }
 
 method 'get_file' => named (
-    path     => { isa => 'Path', coerce => 1, required => 1 },
+    path     => { isa => 'VCI::Type::Path', coerce => 1, required => 1 },
     revision => { isa => 'Str' },
 ) => sub {
     my $self = shift;
@@ -42,12 +42,12 @@ sub x_get {
 # Currently, we just get the first items listed in the changelog, and
 # just assume that changesets exist from this one back to #1. The
 # changesets themselves can easily modify themselves.
-sub build_history {
+sub _build_history {
     my $self = shift;
     return VCI::VCS::Hg::History->x_from_rss('', $self);
 }
 
-sub build_head_revision {
+sub _build_head_revision {
     my $self = shift;
     if (exists $self->{history}) {
         my $last_commit = $self->history->commits->[-1];

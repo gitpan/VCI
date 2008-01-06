@@ -3,14 +3,22 @@ use Moose;
 use MooseX::Method;
 
 use VCI::Abstract::Project;
-use VCI::Util;
+use VCI::Util qw(taint_fail);
+
+use Carp qw(croak);
+use Scalar::Util qw(tainted);
 
 has 'root'     => (is => 'ro', isa => 'Str', required => 1);
-has 'projects' => (is => 'ro', isa => 'ArrayOfProjects', lazy => 1,
-                   default => sub { shift->build_projects });
+has 'projects' => (is => 'ro', isa => 'ArrayRef[VCI::Abstract::Project]',
+                   lazy_build => 1);
 has 'vci'      => (is => 'ro', isa => 'VCI', required => 1);
 has 'root_project' => (is => 'ro', isa => 'VCI::Abstract::Project | Undef',
-                       lazy => 1, default => sub { shift->build_root_project });
+                       lazy_build => 1);
+
+sub BUILD {
+    my $root = $_[0]->root;
+    taint_fail("Repository root '$root' is tainted.") if tainted($root);
+}
 
 method 'get_project' => named (
     name   => { isa => 'Str', required => 1 },
@@ -21,7 +29,7 @@ method 'get_project' => named (
         name => $params->{name}, repository => $self);
 };
 
-sub build_root_project { return undef; }
+sub _build_root_project { return undef; }
 
 ####################
 # Subclass Helpers #
@@ -76,10 +84,7 @@ All these accessors are read-only.
 
 =item C<root>
 
-A string representing the "root" of this repository, in the same format
-that you'd pass into the command-line client for your VCS. The individual
-implementations of L<VCI::Abstract::Repository> will describe the format
-of this string in more detail.
+The same as L<VCI/repo>.
 
 =item C<projects>
 

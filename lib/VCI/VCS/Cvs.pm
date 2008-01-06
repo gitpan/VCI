@@ -5,25 +5,39 @@ extends 'VCI';
 
 use Cwd;
 use IPC::Cmd;
+use Scalar::Util qw(tainted);
 
+use VCI::Util qw(taint_fail detaint);
 use VCI::VCS::Cvs::Repository;
 
-our $VERSION = '0.3.1';
+our $VERSION = '0.4.0_1';
 
-has 'x_cvsps' => (is => 'ro', isa => 'Str', lazy => 1,
-                  default => sub { shift->build_x_cvsps });
-has 'x_cvs' => (is => 'ro', isa => 'Str', lazy => 1,
-                default => sub { shift->build_x_cvs });
+has 'x_cvsps' => (is => 'ro', isa => 'Str', lazy_build => 1);
+has 'x_cvs' => (is => 'ro', isa => 'Str', lazy_build => 1);
 
-sub build_x_cvsps {
+sub BUILD {
+    my $self = shift;
+    taint_fail("The x_cvs argument '$self->{x_cvs}' is tainted")
+        if tainted($self->{x_cvs});
+    taint_fail("The x_cvsps argument '$self->{x_cvsps}' is tainted")
+        if tainted($self->{x_cvsps});
+}
+
+sub _build_x_cvsps {
     my $cmd = IPC::Cmd::can_run('cvsps')
         || confess('Could not find "cvsps" in your path');
+    taint_fail("We found '$cmd' for cvsps, but that string is tainted."
+               . ' This probably means $ENV{PATH} is tainted')
+        if tainted($cmd);
     return $cmd;
 }
 
-sub build_x_cvs {
+sub _build_x_cvs {
     my $cmd = IPC::Cmd::can_run('cvs')
         || confess('Could not find "cvs" in your path');
+    taint_fail("We found '$cmd' for cvs, but that string is tainted."
+               . ' This probably means $ENV{PATH} is tainted')
+        if tainted($cmd);        
     return $cmd;
 }
 
@@ -42,10 +56,19 @@ method 'x_do' => named (
     }
     
     my $old_cwd = cwd();
-    chdir $fromdir;
+    chdir $fromdir || confess("Failed to chdir to $fromdir: $!");
+
+    # See http://rt.cpan.org/Ticket/Display.html?id=31738
+    local $IPC::Cmd::USE_IPC_RUN = 1;
+    
     my ($success, $errorcode, $all, $stdout, $stderr) =
         IPC::Cmd::run(command => [$self->x_cvs, '-f', @$args]);
-    chdir $old_cwd;
+
+    # We are forced to trust this directory, and we don't do
+    # anything dangerous with it, only chdir (which we can't do while
+    # it's tainted).
+    detaint($old_cwd);
+    chdir $old_cwd || confess("Failed to chdir back to $old_cwd: $!");
 
     # "cvs diff" returns 256 always, it seems.
     if (!$success && !(grep($_ eq 'diff', @$args) && $errorcode == 256)) {
@@ -92,10 +115,18 @@ The constructor also takes two additional, optional parameters:
 The path to the "cvs" binary on your system. If not specified, we will
 search your C<PATH> and throw an error if C<cvs> isn't found.
 
+B<Taint Mode>: VCI will throw an error if this argument is tainted,
+because VCI just runs this command blindly, and we wouldn't want
+to run something like C<delete_everything_on_this_computer.sh>.
+
 =item C<x_cvsps>
 
 The path to the "cvsps" binary on your system. If not specified, we will
 search your C<PATH> and throw an error if C<cvsps> isn't found.
+
+B<Taint Mode>: VCI will throw an error if this argument is tainted,
+because VCI just runs this command blindly, and we wouldn't want
+to run something like C<delete_everything_on_this_computer.sh>.
 
 =back
 
@@ -249,7 +280,7 @@ Max Kanat-Alexander <mkanat@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2007 by Everything Solved, Inc.
+Copyright 2007-2008 by Everything Solved, Inc.
 
 L<http://www.everythingsolved.com>
 

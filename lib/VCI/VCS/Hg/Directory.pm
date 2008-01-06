@@ -6,9 +6,9 @@ use VCI::VCS::Hg::File;
 extends 'VCI::Abstract::Directory';
 with 'VCI::VCS::Hg::Committable';
 
-sub build_revision { return 'tip' }
+sub _build_revision { return 'tip' }
 
-sub build_contents {
+sub _build_contents {
     my $self = shift;
     my $ls = $self->project->x_get(['raw-file/', $self->revision, $self->path]);
     my @lines = split("\n", $ls);

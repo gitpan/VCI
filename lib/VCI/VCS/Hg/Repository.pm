@@ -13,7 +13,7 @@ sub BUILD { shift->_root_always_ends_with_slash }
 
 # Mostly uses hgweb, right now.
 method 'x_get' => positional (
-     { isa => 'Path', coerce => 1, required => 1 },
+     { isa => 'VCI::Type::Path', coerce => 1, required => 1 },
 ) => sub {
     my ($self, $path) = @_;
     my $full_path = $self->root . $path->stringify;
@@ -27,7 +27,7 @@ method 'x_get' => positional (
     return $result->content;
 };
 
-sub build_projects {
+sub _build_projects {
     my $self = shift;
     my $list = $self->x_get('?style=raw');
     my @lines = split("\n", $list);

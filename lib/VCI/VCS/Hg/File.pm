@@ -5,14 +5,14 @@ extends 'VCI::Abstract::File';
 with 'VCI::VCS::Hg::Committable';
 
 # XXX From a Commit, we don't currently track if a file is executable or not.
-sub build_is_executable { undef }
+sub _build_is_executable { undef }
 
-sub build_revision {
+sub _build_revision {
     my $self = shift;
     return $self->history->commits->[-1]->revision;
 }
 
-sub build_content {
+sub _build_content {
     my $self = shift;
     return $self->project->x_get(['raw-file', $self->revision, $self->path])
 }
@@ -21,7 +21,7 @@ sub build_content {
 # the Project history is already built and every single commit has "contents"
 # populated, but that situation is rare enough that I don't think we need to
 # optimize for it.
-sub build_history {
+sub _build_history {
     my $self = shift;
 
     # Have to "require" to avoid dependency loops.

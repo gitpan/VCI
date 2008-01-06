@@ -65,6 +65,8 @@ sub setup_repo {
 my $python;
 sub check_plugin {
     my $plugin = shift;
+    # See http://rt.cpan.org/Ticket/Display.html?id=31738
+    local $IPC::Cmd::USE_IPC_RUN = 1;
     if (!$python) {
         my $output;
         IPC::Cmd::run(command => [qw(bzr --version)], buffer => \$output);
@@ -80,7 +82,7 @@ sub check_plugin {
     }
     
     return scalar IPC::Cmd::run(
-        command => [$python, "-c 'import bzrlib.plugins.$plugin'"]);
+        command => [$python, "-c", "import bzrlib.plugins.$plugin"]);
 }
 
 #########

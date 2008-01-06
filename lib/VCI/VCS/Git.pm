@@ -3,7 +3,7 @@ use Moose;
 
 extends 'VCI';
 
-our $VERSION = '0.3.1';
+our $VERSION = '0.4.0_1';
 
 __PACKAGE__->meta->make_immutable;
 
@@ -37,6 +37,11 @@ whose path is C</var/git/project>, then the C<repo> would be C</var/git/>.
 Commit, File, and Directory objects use the full sha1 id of the Commit
 (not the abbreviated sha1 hash) as their identifier.
 
+=head1 TAINT SAFETY
+
+C<VCI::VCS::Git> is not yet safe to use in taint mode. It currently
+uses C<Git.pm>, which is not itself taint-safe.
+
 =head1 LIMITATIONS AND EXTENSIONS
 
 These are limitations of VCI::VCS::Git compared to the general API specified
@@ -51,7 +56,7 @@ supported.
 
 C<projects> generates the list of projects by finding all directories in the
 repository that have F<.git> directories in them (or directories that are
-a "bare" repository). So if there are projects in further down in the
+a "bare" repository). So if there are projects further down in the
 directory hierarchy, they won't be found.
 
 =head2 VCI::VCS::Directory
@@ -64,8 +69,8 @@ future version.)
 
 Git itself is extremely fast, but many optimizations have not yet been
 implemented in VCI itself. However, VCI::VCS::Git should still be fairly
-fast on all operations for small to medium-sized repositories (under 1000
-commits and with under 1000 files).
+fast on all operations for medium-sized repositories (under 10000
+commits and with under 10000 files).
 
 =head1 SEE ALSO
 
@@ -82,7 +87,7 @@ Max Kanat-Alexander <mkanat@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2007 by Everything Solved, Inc.
+Copyright 2007-2008 by Everything Solved, Inc.
 
 L<http://www.everythingsolved.com>
 

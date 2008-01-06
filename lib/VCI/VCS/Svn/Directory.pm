@@ -14,7 +14,7 @@ extends 'VCI::Abstract::Directory';
 # we die with a reference to the error.
 sub _x_handle_svn_failure { die $_[0]; }
 
-sub build_contents {
+sub _build_contents {
     my $self = shift;
     my $project = $self->project;
     my $vci = $project->repository->vci;

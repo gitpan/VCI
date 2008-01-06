@@ -3,18 +3,15 @@ use Moose;
 
 with 'VCI::Abstract::Committable';
 
-has 'is_executable' => (is => 'ro', isa => 'Bool', lazy => 1,
-                        default => sub { shift->build_is_executable });
-has 'content' => (is => 'ro', isa => 'Str', lazy => 1,
-                  default => sub { shift->build_content });
-has 'content_size' => (is => 'ro', isa => 'Int', lazy => 1,
-                       default => sub { shift->build_content_size });
+has 'is_executable' => (is => 'ro', isa => 'Bool', lazy_build => 1);
+has 'content' => (is => 'ro', isa => 'Str', lazy_build => 1);
+has 'content_size' => (is => 'ro', isa => 'Int', lazy_build => 1);
 
 # Because composed roles don't call BUILD, this is in all objects that
 # implment Committable.
 sub BUILD { shift->_no_time_without_revision; }
 
-sub build_content_size { return length(shift->content) }
+sub _build_content_size { return length(shift->content) }
 
 __PACKAGE__->meta->make_immutable;
 

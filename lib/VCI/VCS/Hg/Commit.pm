@@ -5,12 +5,11 @@ use VCI::VCS::Hg::File;
 
 extends 'VCI::Abstract::Commit';
 
-has 'x_changes' => (is => 'ro', isa => 'HashRef', lazy => 1,
-                    default => sub { shift->build_x_changes });
+has 'x_changes' => (is => 'ro', isa => 'HashRef', lazy_build => 1);
 
 use constant DIFF_HEADER => qr/^([\-\+]{3}) (\S+)\t\w{3} \w{3} \d\d \d\d:\d\d:\d\d \d{4} [\+\-]\d{4}$/;
 
-sub build_added {
+sub _build_added {
     my $self = shift;
     my $files = $self->x_changes->{added};
     return [map { VCI::VCS::Hg::File->new(path => $_, project => $self->project,
@@ -18,7 +17,7 @@ sub build_added {
                @$files];
 }
 
-sub build_removed {
+sub _build_removed {
     my $self = shift;
     my $files = $self->x_changes->{removed};
     return [map { VCI::VCS::Hg::File->new(path => $_, project => $self->project,
@@ -26,7 +25,7 @@ sub build_removed {
                @$files];
 }
 
-sub build_modified {
+sub _build_modified {
     my $self = shift;
     my $files = $self->x_changes->{modified};
     return [map { VCI::VCS::Hg::File->new(path => $_, project => $self->project,
@@ -57,7 +56,7 @@ sub x_from_rss_item {
         project   => $project);
 }
 
-sub build_as_diff {
+sub _build_as_diff {
     my $self = shift;
     my $text = $self->project->x_get(['raw-rev', $self->revision]);
     my @lines = split("\n", $text);
@@ -76,7 +75,7 @@ sub build_as_diff {
 # Mercurial doesn't say anything about directories in its logs, so we have
 # no idea when directories are added or removed.
 
-sub build_x_changes {
+sub _build_x_changes {
     my $self = shift;
     my $text = $self->as_diff->raw;
     my $files = _diff_files($text);

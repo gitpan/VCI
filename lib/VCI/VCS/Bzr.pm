@@ -2,19 +2,32 @@ package VCI::VCS::Bzr;
 use Moose;
 use MooseX::Method;
 
-use IPC::Cmd;
+use VCI::Util qw(taint_fail);
 use VCI::VCS::Bzr::Repository;
+
+use IPC::Cmd;
+use Scalar::Util qw(tainted);
 
 extends 'VCI';
 
-our $VERSION = '0.3.1';
+our $VERSION = '0.4.0_1';
 
 # The path to the bzr binary.
-has 'x_bzr' => (is => 'ro', isa => 'Str', default => sub { shift->build_x_bzr });
+has 'x_bzr' => (is => 'ro', isa => 'Str',
+                default => sub { shift->_build_x_bzr });
 
-sub build_x_bzr {
+sub BUILD {
+    my $self = shift;
+    taint_fail("The x_bzr argument '$self->{x_bzr}' is tainted")
+        if tainted($self->{x_bzr});
+}
+
+sub _build_x_bzr {
     my $cmd = IPC::Cmd::can_run('bzr')
         || confess('Could not find "bzr" in your path');
+    taint_fail("We found '$cmd' for bzr, but that string is tainted."
+               . ' This probably means $ENV{PATH} is tainted')
+        if tainted($cmd);
     return $cmd;
 }
 
@@ -32,6 +45,10 @@ method 'x_do' => named (
     if ($self->debug) {
         print STDERR "Command: $full_command\n";
     }
+    
+    # See http://rt.cpan.org/Ticket/Display.html?id=31738
+    local $IPC::Cmd::USE_IPC_RUN = 1;
+    
     my ($success, $errorcode, $all, $stdout, $stderr) =
         IPC::Cmd::run(command => [$self->x_bzr, @$args]);
         
@@ -86,6 +103,21 @@ For the L<repo|VCI/repo> argument to L<VCI/connect>, choose the directory
 above where your branches are kept. For example, if I have a branch
 C<http://bzr.domain.com/bzr/branch>, then the C<repo> would be
 C<http://bzr.domain.com/bzr/>.
+
+Bzr's C<connect> also takes one optional extra argument:
+
+=over
+
+=item C<x_bzr>
+
+The path to the C<bzr> binary on your system. If not specified, we will
+search your C<PATH> and throw an error if C<bzr> isn't found.
+
+B<Taint Mode>: VCI will throw an error if this argument is tainted,
+because VCI just runs this command blindly, and we wouldn't want
+to run something like C<delete_everything_on_this_computer.sh>.
+
+=back
 
 =head1 REQUIREMENTS
 
@@ -168,7 +200,7 @@ Max Kanat-Alexander <mkanat@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2007 by Everything Solved, Inc.
+Copyright 2007-2008 by Everything Solved, Inc.
 
 L<http://www.everythingsolved.com>
 

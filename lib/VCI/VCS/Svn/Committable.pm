@@ -9,8 +9,7 @@ use VCI::Abstract::Committable;
 # We could make this not required and build it with $ctx->info, but I want
 # it to be required right now to make sure I don't forget to add it while
 # constructing objects.
-has 'x_info' => (is => 'ro', isa => 'SVN_Info', lazy => 1,
-                 default => sub { shift->build_x_info });
+has 'x_info' => (is => 'ro', isa => 'SVN_Info', lazy_build => 1);
 
 subtype 'SVN_Info'
     => as 'Object'
@@ -23,12 +22,12 @@ sub BUILD {
     }
 }
 
-sub build_history {
+sub _build_history {
     my ($self) = @_;
     # We only use our custom implementation if the Project's History object
     # doesn't already exist.
     if (defined $self->project->{history}) {
-        return VCI::Abstract::Committable::build_history(@_);
+        return VCI::Abstract::Committable::_build_history(@_);
     }
     
     my $commits = $self->project->_x_get_commits(
@@ -38,7 +37,7 @@ sub build_history {
                                        project => $self->project);
 }
 
-sub build_revision {
+sub _build_revision {
     my $info = shift->x_info;
     if ($info->isa('_p_svn_info_t')) {
         return $info->last_changed_rev;
@@ -47,7 +46,7 @@ sub build_revision {
 }
 
 # SVN Returns times in microseconds.
-sub build_time {
+sub _build_time {
     my $info = shift->x_info;
     if ($info->isa('_p_svn_info_t')) {
         return $info->last_changed_date / 1000000.0;
@@ -57,7 +56,7 @@ sub build_time {
 
 # This is mostly used to build "time" if you don't specify it during
 # construction.
-sub build_x_info {
+sub _build_x_info {
     my $self = shift;
     my $ctx = $self->repository->vci->x_client;
     my $info;

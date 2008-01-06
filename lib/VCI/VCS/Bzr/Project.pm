@@ -14,7 +14,7 @@ sub BUILD {
     $self->_name_never_starts_with_slash();
 }
 
-sub build_history {
+sub _build_history {
     my $self = shift;
     my $full_path = $self->repository->root . $self->name;
     my $xml_string = $self->repository->vci->x_do(

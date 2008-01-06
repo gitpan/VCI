@@ -1,14 +1,14 @@
 package VCI::Abstract::FileContainer;
 use Moose::Role;
 
-has 'contents' => (is => 'ro', isa => 'ArrayOfCommittables', lazy => 1,
-                   default => sub { shift->build_contents });
+use VCI::Abstract::Committable; # This makes the Type Constraint work
+
+has 'contents' => (is => 'ro', isa => 'ArrayRef[VCI::Abstract::Committable]',
+                   lazy_build => 1);
 has 'contents_history' => (is => 'ro', isa => 'VCI::Abstract::History',
-                           lazy => 1,
-                           default => sub { shift->build_contents_history });
+                           lazy_build => 1);
 has contents_history_recursive
-    => (is => 'ro', isa => 'VCI::Abstract::History', lazy => 1,
-        default => sub { shift->build_contents_history_recursive });
+    => (is => 'ro', isa => 'VCI::Abstract::History', lazy_build => 1);
 
 # Unfortunately we can't currently enforce this, because Moose throws an
 # error about attribute conflicts for a Directory, which is both a Committable
@@ -20,14 +20,14 @@ has contents_history_recursive
 # we can't really require them.
 #requires 'build_contents';
 
-sub build_contents_history {
+sub _build_contents_history {
     my $self = shift;
     my @histories = map {$_->history} @{$self->contents};
     return $self->project->repository->vci->history_class->union(
         histories => \@histories, project => $self->project);
 }
 
-sub build_contents_history_recursive {
+sub _build_contents_history_recursive {
     my $self = shift;
     my @histories;
     push(@histories, $self->contents_history);

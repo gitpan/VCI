@@ -8,13 +8,12 @@ use Path::Abstract;
 
 use VCI::VCS::Cvs::File;
 
-has 'x_cvs_dir' => (is => 'ro', isa => 'Str', lazy => 1,
-                    default => sub { shift->build_x_cvs_dir });
+has 'x_cvs_dir' => (is => 'ro', isa => 'Str', lazy_build => 1);
 
-sub build_revision { 'HEAD' }
+sub _build_revision { 'HEAD' }
 
 # XXX This should be optimized.
-sub build_time {
+sub _build_time {
     my $self = shift;
     my @files = grep($_->isa('VCI::Abstract::File'), @{$self->contents});
     my @times = map { $_->time } @files;
@@ -22,7 +21,7 @@ sub build_time {
 }
 
 # XXX Currently this may not return things with the proper revision.
-sub build_contents {
+sub _build_contents {
     my $self = shift;
     my $output = $self->project->repository->vci->x_do(
         args    => ['-n', 'update', '-d'],
@@ -52,7 +51,7 @@ sub build_contents {
 
 # CVS doesn't really support listing files and directories from a remote
 # connection. However, we can trick it into doing so with fake "CVS" dirs.
-sub build_x_cvs_dir {
+sub _build_x_cvs_dir {
     my $self = shift;
     my $dir = Path::Abstract->new($self->project->x_tmp, $self->path);
     my $cvsdir = Path::Abstract->new($dir, 'CVS')->stringify;

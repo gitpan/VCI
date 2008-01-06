@@ -2,26 +2,24 @@ package VCI::Abstract::Committable;
 use Moose::Role;
 use VCI::Util;
 
-has 'history'        => (is => 'ro', isa => 'VCI::Abstract::History', lazy => 1,
-                         default => sub { shift->build_history });
+has 'history'        => (is => 'ro', isa => 'VCI::Abstract::History', lazy_build => 1);
 
 has 'first_revision' => (is => 'ro', does => 'VCI::Abstract::Committable',
-                         lazy => 1,
-                         default => sub { shift->build_first_revision });
+                         lazy_build => 1);
                                           
 has 'last_revision'  => (is => 'ro', does => 'VCI::Abstract::Committable',
-                         lazy => 1,
-                         default => sub { shift->build_last_revision });
+                         lazy_build => 1);
 
-has 'revision'   => (is => 'ro', lazy => 1,
-                     default => sub { shift->build_revision });
+has 'revision'   => (is => 'ro', lazy_build => 1);
 # All of this crazy init_arg stuff means "coerce lazily, because it's
 # slow to make thousands of DateTime and Path::Abstract objects."
-has 'time'       => (is => 'ro', isa => 'DateTime', coerce => 1, lazy => 1,
+has 'time'       => (is => 'ro', isa => 'VCI::Type::DateTime', coerce => 1,
+                     lazy => 1,
                      default => sub { shift->_time }, init_arg => '__time');
 has '_time'      => (is => 'ro', isa => 'Defined', init_arg => 'time',
-                     lazy => 1, default => sub { shift->build_time });
-has 'path'       => (is => 'ro', isa => 'Path', coerce => 1, lazy => 1,
+                     lazy_build => 1, builder => '_build_time');
+has 'path'       => (is => 'ro', isa => 'VCI::Type::Path', coerce => 1,
+                     lazy => 1,
                      default => sub { shift->_path }, init_arg => '__path');
 has '_path'      => (is => 'ro', isa => 'Defined', required => 1,
                      init_arg => 'path');
@@ -29,7 +27,7 @@ has 'name'       => (is => 'ro', isa => 'Str', lazy => 1,
                      default => sub { shift->path->last });
 
 has 'parent'     => (is => 'ro', does => 'VCI::Abstract::Committable',
-                     lazy => 1, default => sub { shift->build_parent });
+                     lazy_build => 1);
 has 'project'    => (is => 'ro', isa => 'VCI::Abstract::Project',
                      required => 1);
 
@@ -38,13 +36,13 @@ has 'project'    => (is => 'ro', isa => 'VCI::Abstract::Project',
 # we can't really require them.
 # requires 'build_revision', 'build_time';
 
-sub build_first_revision {
+sub _build_first_revision {
     my $self = shift;
     my $commit = $self->history->commits->[0];
     return $self->_me_from($commit);
 }
 
-sub build_last_revision {
+sub _build_last_revision {
     my $self = shift;
     my $commit = $self->history->commits->[-1];
     return $self->_me_from($commit);
@@ -62,7 +60,7 @@ sub _me_from {
     return $item[0];
 }
 
-sub build_history {
+sub _build_history {
     my $self = shift;
     
     my $current_path = $self->path->stringify;
@@ -83,7 +81,7 @@ sub build_history {
     );
 }
 
-sub build_parent {
+sub _build_parent {
     my $self = shift;
     my $path = $self->path;
     return undef if $path->is_empty;
@@ -195,12 +193,12 @@ right now.
 
 =item C<time>
 
-A L<datetime|VCI::Util/DateTime> representing the time that this revision
-was committed to the repository.
+A L<datetime|VCI::Util/VCI::Type::DateTime> representing the time that this
+revision was committed to the repository.
 
 =item C<path>
 
-The L<Path|VCI::Util/Path> of this file, from the root of the project,
+The L<Path|VCI::Util/VCI::Type::Path> of this file, from the root of the project,
 including its filename if it's a file.
 
 In most version-control systems, this will never change, but there are

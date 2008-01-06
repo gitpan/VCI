@@ -10,7 +10,7 @@ sub BUILD { shift->_root_always_ends_with_slash }
 
 # Note that "projects" won't work for some remote repositories, because of
 # limitations of "bzr branches".
-sub build_projects {
+sub _build_projects {
     my $self = shift;
     my $branch_names = $self->vci->x_do(args => ['branches', $self->root]);
     my @projects;

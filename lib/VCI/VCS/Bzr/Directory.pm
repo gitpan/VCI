@@ -4,7 +4,7 @@ use Moose;
 extends 'VCI::VCS::Bzr::Committable', 'VCI::Abstract::Directory';
 
 # XXX Currently always returns HEAD contents.
-sub build_contents {
+sub _build_contents {
     my $self = shift;
     my $root = $self->project->repository->root . $self->project->name . '/'
                . $self->path->stringify;

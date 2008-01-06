@@ -6,19 +6,18 @@ use Text::Diff::Parser;
 use VCI::Util;
 use VCI::Abstract::Diff::File;
 
-has 'files'    => (is => 'ro', isa => 'ArrayRef', lazy => 1,
-                   default => sub { shift->build_files });
+has 'files'    => (is => 'ro', isa => 'ArrayRef[VCI::Abstract::Diff::File]',
+                   lazy_build => 1);
 has 'project'  => (is => 'ro', isa => 'VCI::Abstract::Project', required => 1);
 has 'raw'      => (is => 'ro', isa => 'Str', required => 1);
-has '_parsed'  => (is => 'ro', isa => 'Text::Diff::Parser', lazy => 1,
-                   default => sub { shift->build_parsed });
+has '_parsed'  => (is => 'ro', isa => 'Text::Diff::Parser', lazy_build => 1);
 
-sub build_parsed {
+sub _build__parsed {
     my $self = shift;
     return Text::Diff::Parser->new(Diff => $self->raw);
 }
 
-sub build_files {
+sub _build_files {
     my $self = shift;
     my %files;
     foreach my $change ($self->_parsed->changes) {

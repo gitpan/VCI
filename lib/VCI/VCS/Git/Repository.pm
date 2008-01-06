@@ -7,7 +7,7 @@ extends 'VCI::Abstract::Repository';
 
 sub BUILD { shift->_root_always_ends_with_slash }
 
-sub build_projects {
+sub _build_projects {
     my $self = shift;
     my $root = $self->root;
     my @dirs = glob "$root*/.git";

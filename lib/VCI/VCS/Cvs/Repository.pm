@@ -29,7 +29,7 @@ sub BUILD {
     $self->_root_never_ends_with_slash;
 }
 
-sub build_projects {
+sub _build_projects {
     my $self = shift;
     my $root_project = $self->get_project(name => '');
     my $contents = $root_project->root_directory->contents;
@@ -41,7 +41,7 @@ sub build_projects {
     return \@projects;
 }
 
-sub build_root_project { $_[0]->_root_project; }
+sub _build_root_project { $_[0]->_root_project; }
 
 # XXX get_project Doesn't support modules yet.
 # For get_project module support, all paths will be from the root of the

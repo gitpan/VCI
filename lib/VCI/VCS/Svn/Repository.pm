@@ -4,6 +4,7 @@ use Moose;
 use Cwd qw (abs_path);
 use SVN::Ra;
 
+use VCI::Util qw(detaint);
 use VCI::VCS::Svn::Directory;
 use VCI::VCS::Svn::Project;
 
@@ -24,34 +25,33 @@ sub BUILD {
     if ($root =~ m|^file://|) {
         $root =~ m|^file://(localhost/)?(.*)$|;
         my $dir = abs_path($2);
+        # Because of Abstract::Repository::BUILD, we know that $root is not
+        # tainted. Thus turning it into an absolute path should be safe.
+        # Theoretically there could be dangerous things in the absolute
+        # path that aren't in the relative path, but we only use this root
+        # via the SVN API, so we should be safe.
+        detaint($dir);
         $self->{root} = "file://$dir";
     }
     $self->_root_always_ends_with_slash;
 }
 
-sub build_projects {
+sub _build_projects {
     my $self = shift;
-    # XXX Should use x_ra instead, here, to re-use existing connection.
-    my $ctx = $self->vci->x_client;
-    # XXX Handle SVN::Error.
-    my $contents = $ctx->ls($self->x_root_noslash, undef, 0);
+    my $contents = $self->root_project->root_directory->contents;
     my @projects;
-    foreach my $name (keys %$contents) {
-        my $item = $contents->{$name};
-        
+    foreach my $item (@$contents) {
+        next if !$item->isa('VCI::VCS::Svn::Directory');
         my $project = VCI::VCS::Svn::Project->new(
-            name => $name, repository => $self);
-        # Since we've got a dirent already for each of these, might as
-        # well just use it.
-        $project->{root_directory} = VCI::VCS::Svn::Directory->new(
-            path => '', project => $project, x_info => $item);
+            name => $item->name, repository => $self,
+            root_directory => $item);
         push(@projects, $project);
     }
     
     return \@projects;
 }
 
-sub build_root_project { $_[0]->_root_project; }
+sub _build_root_project { $_[0]->_root_project; }
 
 __PACKAGE__->meta->make_immutable;
 

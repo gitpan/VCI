@@ -21,7 +21,7 @@ sub _transform_filename {
 }
 
 # We have to add "diff -u" headers that cvsps misses.
-override build_parsed => sub {
+override _build__parsed => sub {
     my $self = shift;
     my $raw = $self->raw;
     my $old_raw = $raw;

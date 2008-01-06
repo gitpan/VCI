@@ -95,7 +95,7 @@ sub x_from_log {
     );
 }
 
-sub build_as_diff {
+sub _build_as_diff {
     my $self = shift;
     my $path = $self->project->repository->root . $self->project->name;
     my $rev = $self->revision;

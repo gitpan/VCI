@@ -3,7 +3,7 @@ use Moose;
 
 extends 'VCI::VCS::Bzr::Committable', 'VCI::Abstract::File';
 
-sub build_content {
+sub _build_content {
     my $self = shift;
     my $vci = $self->project->repository->vci;
     my $rev = $self->revision;

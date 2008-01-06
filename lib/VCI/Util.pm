@@ -7,15 +7,50 @@ use DateTime::Format::DateParse;
 use Path::Abstract;
 use Scalar::Util qw(blessed);
 
+use Exporter;
+our @ISA = qw(Exporter);
+our @EXPORT_OK = qw(taint_fail detaint);
+    
+###############
+# Subroutines #
+###############
+
+sub taint_fail {
+    my ($msg) = @_;
+    
+    # Carp just fails utterly to get our messages right, no matter if we
+    # try @CARP_NOT, %Carp::CarpInternals, or $Carp::CarpLevel. So I just
+    # did this manually myself, to at least give somebody the idea of
+    # where their error is.
+    my $level = 1;
+    while (caller($level) =~ /^VCI::(?:Abstract|VCS)::/
+           || caller($level) =~ /^Moose::/ ) { $level++; }
+    
+    my @info = caller($level);
+    $msg .= " at $info[1] line $info[2].\n";
+    if (${^TAINT} == 1) {
+        die($msg);
+    }
+    elsif (${^TAINT} == -1) {
+        warn($msg);
+    }
+}
+
+sub detaint {
+    return if !defined $_[0];
+    $_[0] =~ /^(.*)$/s;
+    $_[0] = $1;
+}
+
 ################
 # Object Types #
 ################
 
-subtype 'DateTime'
+subtype 'VCI::Type::DateTime'
     => as 'Object'
     => where { $_->isa('DateTime') };
 
-coerce 'DateTime'
+coerce 'VCI::Type::DateTime'
     => from 'Num'
         => via { DateTime->from_epoch(epoch => $_) }
     => from 'Str'
@@ -27,11 +62,19 @@ coerce 'DateTime'
             return $result;
         };
 
-subtype 'Path'
+subtype 'VCI::Type::IntBool'
+    => as 'Int';
+coerce 'VCI::Type::IntBool'
+    => from 'Undef'
+        => via { 0 }
+    => from 'Str'
+        => via { $_ ? 1 : 0 };
+
+subtype 'VCI::Type::Path'
     => as 'Object',
     => where { $_->isa('Path::Abstract') && $_->stringify !~ m|/\s*$|o };
 
-coerce 'Path'
+coerce 'VCI::Type::Path'
     => from 'Str'
         => via {
             $_ =~ s|/\s*$||o;
@@ -43,59 +86,6 @@ coerce 'Path'
     => from 'Object'
         => via { $_->to_branch };
 
-###############
-# Array Types #
-###############
-
-subtype 'ArrayOfChanges'
-    => as 'ArrayRef'
-    => where {
-        foreach my $item (@$_) {
-            return 0 if !(blessed($item)
-                          && $item->isa('Text::Diff::Parser::Change'));
-        }
-        return 1;
-    };
-
-subtype 'ArrayOfCommits'
-    => as 'ArrayRef'
-    => where {
-        foreach my $item (@$_) {
-            return 0 if !(blessed($item)
-                          && $item->isa('VCI::Abstract::Commit'));
-        }
-        return 1;
-    };
-
-subtype 'ArrayOfCommittables'
-    => as 'ArrayRef'
-    => where {
-        foreach my $item (@$_) {
-            return 0 if !(blessed($item)
-                          && $item->does('VCI::Abstract::Committable'));
-        }
-        return 1;
-    };
-
-subtype 'ArrayOfHistories'
-    => as 'ArrayRef'
-    => where {
-        foreach my $item (@$_) {
-            return 0 if !(blessed($item)
-                          && $item->isa('VCI::Abstract::History'));
-        }
-        return 1;
-    };
-
-subtype 'ArrayOfProjects'
-    => as 'ArrayRef'
-    => where {
-        foreach my $item (@$_) {
-            return 0 if !(blessed $item
-                          && $item->isa('VCI::Abstract::Project'));
-        }
-        return 1;
-    };
 
 1;
 
@@ -110,45 +100,62 @@ VCI::Util - Types and Utility Functions used by VCI
 This contains mostly L<subtypes|Moose::Util::TypeConstraints/subtype> used
 by accessors in various VCI modules.
 
-=head1 TYPES
-
-=head2 Arrays
-
-All of these are extensions of the C<ArrayRef> type from
-L<Moose::Util::TypeConstraints>.
+=head1 SUBROUTINES
 
 =over
 
-=item C<ArrayOfChanges>
+=item C<detaint>
 
-An arrayref that can only contain
-L<Text::Diff::Parser::Change|Text::Diff::Parser/CHANGE_METHODS> objects.
+Used internally to detaint strings that are only used in safe ways.
 
-=item C<ArrayOfCommits>
+Unsafe actions would include:
 
-An arrayref that can only contain L<VCI::Abstract::Commit> objects.
+=over
 
-=item C<ArrayOfCommittables>
+=item *
 
-An arrayref that can only contain objects that implement
-L<VCI::Abstract::Committable>.
+C<system> or C<exec> calls
 
-=item C<ArrayOfContainers>
+=item *
 
-An arrayref that can only contain objects that implement
-L<VCI::Abstract::FileContainer>.
+Putting the string unchecked directly into SQL
 
-=item C<ArrayOfProjects>
+=item *
 
-An arrayref that can only contain L<VCI::Abstract::Project> objects.
+Passing to any external program or module that doesn't properly check
+its arguments for security issues, or that might do something unsafe with
+a particular file or directory that you're passing. (This is true even if you
+use a safe module like C<IPC::Run> to call the command.)
 
 =back
+
+That is not a complete list. All VCI::VCS implementors are strongly
+encouraged to read L<perlsec>.
+
+Note that passing a string to L<IPC::Run> is safe, because a shell is never
+invoked. If you are going to use L<IPC::Cmd>, please see other VCI::VCS
+implementations for how to make it safe.
+
+=item C<taint_fail>
+
+This handles throwing errors or warnings under taint mode. If we're
+in C<-t> mode, this just throws a warning. If we're in C<-T> mode,
+this will throw an error using the message you pass.
+
+Messages are thrown from the perspective of the caller, so the error
+is shown up as an error in the caller's code, not an error in VCI.
+
+It takes one argument: the message to warn or die with.
+
+=back
+
+=head1 TYPES
 
 =head2 Objects
 
 =over
 
-=item C<DateTime>
+=item C<VCI::Type::DateTime>
 
 A L<DateTime> object.
 
@@ -160,7 +167,12 @@ If you pass in a string that's not just an integer, it will be parsed
 by L<DateTime::Format::DateParse>. (B<Note>: If you don't specify a time
 zone in your string, it will be assumed your time is in the local time zone.)
 
-=item C<Path>
+=item C<VCI::Type::IntBool>
+
+This is basically an Int that accepts C<undef> and turns it into 0, and
+converts a string into C<1> if it represents a true value, C<0> if it doesn't.
+
+=item C<VCI::Type::Path>
 
 A L<Path::Abstract> object.
 

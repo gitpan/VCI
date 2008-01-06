@@ -7,19 +7,16 @@ use VCI::Util;
 has 'name'       => (is => 'ro', isa => 'Str', required => 1);
 has 'repository' => (is => 'ro', isa => 'VCI::Abstract::Repository',
                      required => 1);
-has 'history'    => (is => 'ro', isa => 'VCI::Abstract::History', lazy => 1,
-                     default => sub { shift->build_history });
-has 'head_revision' => (is => 'ro', isa => 'Str', lazy => 1,
-                        default => sub { shift->build_head_revision });
+has 'history'    => (is => 'ro', isa => 'VCI::Abstract::History', lazy_build => 1);
+has 'head_revision' => (is => 'ro', isa => 'Str', lazy_build => 1);
 has 'root_directory' => (is => 'ro', isa => 'VCI::Abstract::Directory',
-                         lazy => 1,
-                         default => sub { shift->build_root_directory });
+                         lazy_build => 1);
 
 # This is handy for people who want to override get_commit.
 use constant get_commit_prototype => (
     revision => { isa => 'Str' },
-    time     => { isa => 'DateTime', coerce => 1 },
-    at_or_before => { isa => 'DateTime', coerce => 1 },
+    time     => { isa => 'VCI::Type::DateTime', coerce => 1 },
+    at_or_before => { isa => 'VCI::Type::DateTime', coerce => 1 },
 );
 method 'get_commit' => named (get_commit_prototype) => sub {
     my ($self, $params) = @_;
@@ -63,8 +60,8 @@ method 'get_commit' => named (get_commit_prototype) => sub {
 };
 
 method 'get_history_by_time' => named (
-    start => { isa => 'DateTime', coerce => 1 },
-    end   => { isa => 'DateTime', coerce => 1 },
+    start => { isa => 'VCI::Type::DateTime', coerce => 1 },
+    end   => { isa => 'VCI::Type::DateTime', coerce => 1 },
 ) => sub {
     my ($self, $params) = @_;
     my $start = $params->{start};
@@ -87,7 +84,7 @@ method 'get_history_by_time' => named (
 # XXX All these methods will need "revision" and "at_or_before".
 
 method 'get_directory' => named (
-    path => { isa => 'Path', coerce => 1, required => 1 },
+    path => { isa => 'VCI::Type::Path', coerce => 1, required => 1 },
 ) => sub {
     my ($self, $params) = @_;
     my $path = $params->{path};
@@ -112,7 +109,7 @@ method 'get_directory' => named (
 };
 
 method 'get_file' => named (
-    path     => { isa => 'Path', coerce => 1, required => 1 },
+    path     => { isa => 'VCI::Type::Path', coerce => 1, required => 1 },
     revision => { isa => 'Str' },
 ) => sub {
     my ($self, $params) = @_;
@@ -145,7 +142,7 @@ method 'get_file' => named (
 };
 
 method 'get_path' => named (
-    path => { isa => 'Path', coerce => 1, required => 1 },
+    path => { isa => 'VCI::Type::Path', coerce => 1, required => 1 },
 ) => sub {
     my ($self, $params) = @_;
     my $path = $params->{path};
@@ -163,13 +160,13 @@ method 'get_path' => named (
     return $matches[0];
 };
 
-sub build_root_directory {
+sub _build_root_directory {
     my $self = shift;
     return $self->repository->vci->directory_class->new(path => '',
                                                         project => $self);
 }
 
-sub build_head_revision {
+sub _build_head_revision {
     my $self = shift;
     my $last_commit = $self->history->commits->[-1];
     return undef if !$last_commit;
@@ -297,8 +294,8 @@ Takes one named parameter:
 
 =item C<path>
 
-A L<Path|VCI::Util/Path> to the file or directory that you want, relative to
-the base of the project.
+A L<Path|VCI::Util/VCI::Type::Path> to the file or directory that you want,
+relative to the base of the project.
 
 Absolute paths will be interpreted as relative to the base of the project.
 
@@ -338,7 +335,7 @@ Takes one named parameter:
 
 =item C<path>
 
-A L<Path|VCI::Util/Path> to the directory that you want, relative to
+A L<Path|VCI::Util/VCI::Type::Path> to the directory that you want, relative to
 the base of the project.
 
 Absolute paths will be interpreted as relative to the base of the project.
@@ -374,7 +371,7 @@ Takes the following named parameters:
 
 =item C<path> B<Required>
 
-A L<Path|VCI::Util/Path> to the file that you want, relative to
+A L<Path|VCI::Util/VCI::Type::Path> to the file that you want, relative to
 the base of the project.
 
 Absolute paths will be interpreted as relative to the base of the project.
@@ -436,7 +433,7 @@ revision identifier is.
 
 =item C<time>
 
-A L<datetime|VCI::Util/DateTime>.
+A L<datetime|VCI::Util/VCI::Type::DateTime>.
 
 Specifies that you want the commit that happened at an exact moment in
 time. Note that some VCSes may track commits down to the microsecond, and
@@ -452,7 +449,7 @@ have the lower revision number or come "logically" before the other commit).
 
 =item C<at_or_before>
 
-A L<datetime|VCI::Util/DateTime>.
+A L<datetime|VCI::Util/VCI::Type::DateTime>.
 
 Specifies that you want the commit I<right before> or exactly at this time.
 
@@ -484,7 +481,7 @@ specified.
 
 =item C<start>
 
-A L<datetime|VCI::Util/DateTime>.
+A L<datetime|VCI::Util/VCI::Type::DateTime>.
 
 The earliest revision you want returned. (Search is "inclusive", so if
 the time of the commit matches C<start> exactly, it I<will> be returned.)
@@ -494,7 +491,7 @@ most recent commit.
 
 =item C<end>
 
-A L<datetime|VCI::Util/DateTime>.
+A L<datetime|VCI::Util/VCI::Type::DateTime>.
 
 The latest revision you want returned. (Search is "inclusive", so if
 the time of the commit matches C<end> exactly, it I<will> be returned.)

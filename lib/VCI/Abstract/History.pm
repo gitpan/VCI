@@ -6,11 +6,13 @@ use VCI::Util;
 # XXX Will also need some sort of graph view of commits for things like Git
 #     and Hg.
 
-has 'commits' => (is => 'ro', isa => 'ArrayOfCommits', required => 1);
+has 'commits' => (is => 'ro', isa => 'ArrayRef[VCI::Abstract::Commit]',
+                  required => 1);
 has 'project' => (is => 'ro', isa => 'VCI::Abstract::Project', required => 1);
 
 method 'union' => named (
-    histories => { isa => 'ArrayOfHistories', required => 1 },
+    # XXX Should be ArrayRef[VCI::Abstract::History]
+    histories => { isa => 'ArrayRef', required => 1 },
     project   => { isa => 'VCI::Abstract::Project', required => 1 },
 ) => sub {
     my $class = shift;
@@ -96,9 +98,10 @@ All accessors are read-only.
 
 =item C<commits>
 
-An L<ArrayOfCommits|VCI::Util/ArrayOfCommits> that represents a series of
-commits to some particular item. It will always be in time order--earliest
-commits will be first, more recent commits will be last.
+An arrayref of L<VCI::Abstract::Commit> objects. This represents a series of
+commits to some particular item, such as a file, a directory, or an entire
+Project. It will always be in time order--earliest commits will be first,
+more recent commits will be last.
 
 Note that depending on how the History was generated, and depending on the
 version-control system in use, what is listed in each commit may or may not

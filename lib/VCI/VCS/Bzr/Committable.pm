@@ -3,7 +3,7 @@ use Moose;
 
 use VCI::VCS::Bzr::History;
 
-sub build_time {
+sub _build_time {
     my $self = shift;
     my $commit = $self->_x_this_commit;
     # Since we've got it now, set the revision if it's not set.
@@ -13,7 +13,7 @@ sub build_time {
     return $commit->time;
 }
 
-sub build_revision {
+sub _build_revision {
     my $self = shift;
     my $commit = $self->_x_this_commit;
     # Since we've got it now, set the time if it's not set.
@@ -23,7 +23,7 @@ sub build_revision {
     return $commit->revision;
 }
 
-sub build_history {
+sub _build_history {
     my $self = shift;
     my $full_path = $self->project->repository->root . $self->project->name
                     . '/' . $self->path->stringify;

@@ -3,10 +3,9 @@ use Moose;
 extends 'VCI::Abstract::Commit';
 use VCI::Abstract::Diff;
 
-has 'x_changes' => (is => 'ro', isa => 'HashRef', lazy => 1,
-                    default => sub { shift->build_x_changes });
+has 'x_changes' => (is => 'ro', isa => 'HashRef', lazy_build => 1);
 
-sub build_as_diff {
+sub _build_as_diff {
     my $self = shift;
     my $rev = $self->revision;
     my $previous_rev = $rev - 1;
@@ -16,12 +15,12 @@ sub build_as_diff {
     return VCI::Abstract::Diff->new(raw => $diff, project => $self->project);
 }
 
-sub build_added    { shift->x_changes->{added}    }
-sub build_removed  { shift->x_changes->{removed}  }
-sub build_modified { shift->x_changes->{modified} }
-sub build_moved    { shift->x_changes->{moved}    }
+sub _build_added    { shift->x_changes->{added}    }
+sub _build_removed  { shift->x_changes->{removed}  }
+sub _build_modified { shift->x_changes->{modified} }
+sub _build_moved    { shift->x_changes->{moved}    }
 
-sub build_x_changes {
+sub _build_x_changes {
     my $self = shift;
     my $proj_path = $self->project->repository->root . $self->project->name;
     my $xml_string = $self->project->repository->vci->x_do(

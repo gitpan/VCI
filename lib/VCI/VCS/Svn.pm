@@ -5,12 +5,11 @@ use SVN::Client;
 
 extends 'VCI';
 
-our $VERSION = '0.3.1';
+our $VERSION = '0.4.0_1';
 
-has 'x_client' => (is => 'ro', isa => 'SVN::Client', lazy => 1,
-                   default => sub { shift->build_x_client });
+has 'x_client' => (is => 'ro', isa => 'SVN::Client', lazy_build => 1);
 
-sub build_x_client {
+sub _build_x_client {
     my $self = shift;
     return SVN::Client->new(config => {});
 }
@@ -129,7 +128,7 @@ Max Kanat-Alexander <mkanat@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2007 by Everything Solved, Inc.
+Copyright 2007-2008 by Everything Solved, Inc.
 
 L<http://www.everythingsolved.com>
 

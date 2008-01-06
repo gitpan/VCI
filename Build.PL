@@ -8,8 +8,6 @@ use warnings;
 # If we don't require SVN::Core, Module::Build can't read its $VERSION.
 eval { require SVN::Core };
 
-my $ipc_support = $^O =~ /win32/ ? 'IPC::Run' : 'IPC::Open3';
-
 my $class = Module::Build->subclass(
     class => 'Module::Build::VCI',
     code => <<'EOT' );
@@ -29,7 +27,7 @@ my $build = $class->new(
     create_makefile_pl => 'passthrough',
     requires => {
         'perl'           => '5.006',
-        'Moose'          => '0',
+        'Moose'          => '0.27',
         'MooseX::Method' => '0',
         'DateTime'       => '0',
         'Path::Abstract' => '0',
@@ -44,7 +42,8 @@ my $build = $class->new(
     # run all the test code.
     recommends => {
         'IPC::Cmd'       => 0,
-        $ipc_support     => 0,
+        'Module::Load::Conditional' => 0.24, # For taint safety in IPC::Cmd.
+        'IPC::Run'       => 0.55,
         'XML::Simple'    => 0,
         'LWP::UserAgent' => 0,
         'Cwd'        => 0,
@@ -63,7 +62,8 @@ my $build = $class->new(
             description => "Bazaar Support",
             requires => {
                 'IPC::Cmd'    => 0,
-                $ipc_support  => 0,
+                'Module::Load::Conditional' => 0.24,
+                'IPC::Run'    => 0.55,
                 'XML::Simple' => 0,
             }
         },
@@ -92,7 +92,8 @@ my $build = $class->new(
             description => 'CVS Support',
             requires => {
                 'IPC::Cmd'   => 0,
-                $ipc_support => 0,
+                'Module::Load::Conditional' => 0.24, # For taint safety in IPC::Cmd.
+                'IPC::Run'   => 0.55,
                 'Cwd'        => 0,
                 'File::Path' => 0,
                 'File::Temp' => 0,

@@ -7,7 +7,8 @@ with 'VCI::Abstract::FileContainer';
 
 # All of this crazy init_arg stuff means "coerce lazily, because
 # DateTime is slow."
-has 'time'       => (is => 'ro', isa => 'DateTime', coerce => 1, lazy => 1,
+has 'time'       => (is => 'ro', isa => 'VCI::Type::DateTime', coerce => 1,
+                     lazy => 1,
                      default => sub { shift->_time }, init_arg => '__time');
 has '_time'      => (is => 'ro', isa => 'Defined', init_arg => 'time',
                      required => 1);
@@ -15,16 +16,14 @@ has '_time'      => (is => 'ro', isa => 'Defined', init_arg => 'time',
 # XXX Git differentiates between Author and Committer, maybe this would be
 #     a useful distinction for us?
 has 'committer' => (is => 'ro', isa => 'Str', default => sub { '' });
-has 'added'     => (is => 'ro', isa => 'ArrayOfCommittables', lazy => 1,
-                    default => sub { shift->build_added });
-has 'removed'   => (is => 'ro', isa => 'ArrayOfCommittables', lazy => 1,
-                    default => sub { shift->build_removed });
-has 'modified'  => (is => 'ro', isa => 'ArrayOfCommittables', lazy => 1,
-                    default => sub { shift->build_modified });
-has 'moved'     => (is => 'ro', isa => 'HashRef', lazy => 1,
-                    default => sub{ shift->build_moved });
-has 'copied'    => (is => 'ro', isa => 'HashRef', lazy => 1,
-                    default => sub { shift->build_copied });
+has 'added'     => (is => 'ro', isa => 'ArrayRef[VCI::Abstract::Committable]',
+                    lazy_build => 1);
+has 'removed'   => (is => 'ro', isa => 'ArrayRef[VCI::Abstract::Committable]',
+                    lazy_build => 1);
+has 'modified'  => (is => 'ro', isa => 'ArrayRef[VCI::Abstract::Committable]',
+                    lazy_build => 1);
+has 'moved'     => (is => 'ro', isa => 'HashRef', lazy_build => 1);
+has 'copied'    => (is => 'ro', isa => 'HashRef', lazy_build => 1);
 has 'revision'  => (is => 'ro', isa => 'Str', required => 1);
 # XXX Probably should also have shortmessage, which can be the "subject"
 #     for VCSes that store that, and the first line of the message for
@@ -34,16 +33,15 @@ has 'message'   => (is => 'ro', isa => 'Str', default => sub { '' });
 # XXX This should really be being enforced by FileContainer, but see the
 #     note there.
 has 'project'  => (is => 'ro', isa => 'VCI::Abstract::Project', required => 1);
-has 'as_diff'  => (is => 'ro', isa => 'VCI::Abstract::Diff', lazy => 1,
-                   default => sub { shift->build_as_diff });
+has 'as_diff'  => (is => 'ro', isa => 'VCI::Abstract::Diff', lazy_build => 1);
 
-sub build_added     { [] }
-sub build_removed   { [] }
-sub build_modified  { [] }
-sub build_moved     { {} }
-sub build_copied    { {} }
+sub _build_added     { [] }
+sub _build_removed   { [] }
+sub _build_modified  { [] }
+sub _build_moved     { {} }
+sub _build_copied    { {} }
 
-sub build_contents {
+sub _build_contents {
     my $self = shift;
     return [@{$self->added}, @{$self->removed}, @{$self->modified}];
 }
@@ -93,8 +91,8 @@ These are all read-only.
 
 =item C<time>
 
-A L<datetime|VCI::Util/DateTime> representing the date and time of this
-commit.
+A L<datetime|VCI::Util/VCI::Type::DateTime> representing the date and time of
+this commit.
 
 On VCSes that don't understand atomic commits, this will be the time of
 the I<earliest> commited file in this set.
