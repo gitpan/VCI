@@ -224,8 +224,6 @@ t/repos/git/test.git/refs/heads/master
 t/repos/svn/conf/authz
 t/repos/svn/conf/passwd
 t/repos/svn/conf/svnserve.conf
-t/repos/svn/dav/activities.dir
-t/repos/svn/dav/activities.pag
 t/repos/svn/db/current
 t/repos/svn/db/format
 t/repos/svn/db/fs-type

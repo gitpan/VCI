@@ -101,7 +101,7 @@ my $build = $class->new(
             }
         },
     },
-   meta_merge => {
+    meta_merge => {
         resources => {
             homepage   => 'http://vci.everythingsolved.com/',
             repository => 'http://bzr.everythingsolved.com/vci/'
