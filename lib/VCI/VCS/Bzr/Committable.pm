@@ -42,7 +42,7 @@ sub _x_this_commit {
 
         require VCI::VCS::Bzr::History; # Have to "require" to avoid dep loops.
         my $vci = $self->project->repository->vci;
-        my $obj_path = Path::Abstract->new($self->project->name, $self->path);
+        my $obj_path = Path::Abstract::Underload->new($self->project->name, $self->path);
         my $full_path = $self->project->repository->root . $obj_path->stringify;
         my $rev = $self->revision;
         my $log = $vci->x_do(args => ['log', '--xml', "--revision=$rev",

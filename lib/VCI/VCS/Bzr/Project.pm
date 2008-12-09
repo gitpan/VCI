@@ -1,7 +1,7 @@
 package VCI::VCS::Bzr::Project;
 use Moose;
 
-use Path::Abstract;
+use Path::Abstract::Underload;
 use VCI::VCS::Bzr::Directory;
 use VCI::VCS::Bzr::File;
 use VCI::VCS::Bzr::History;

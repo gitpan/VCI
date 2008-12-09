@@ -1,7 +1,7 @@
 package VCI;
 use 5.006;
 use Moose;
-our $VERSION = '0.4.1';
+our $VERSION = '0.5.0_1';
 
 use VCI::Util;
 
@@ -78,8 +78,10 @@ sub repository_class { return shift->_class('Repository') }
 
 sub _class {
     my ($self, $class) = @_;
-        my $module = 'VCI::VCS::' . $self->type . '::' . $class;
-    eval("require $module")
+    my $module = 'VCI::VCS::' . $self->type . '::' . $class;
+    my $file = $module;
+    $file =~ s{::}{/}g;
+    eval { require "$file.pm" }
         || confess("Error requiring $module: $@");
     return $module;
 }

@@ -4,7 +4,7 @@ use Moose::Util::TypeConstraints;
 use Carp qw(confess);
 use DateTime;
 use DateTime::Format::DateParse;
-use Path::Abstract;
+use Path::Abstract::Underload;
 use Scalar::Util qw(blessed);
 
 use Exporter;
@@ -72,17 +72,17 @@ coerce 'VCI::Type::IntBool'
 
 subtype 'VCI::Type::Path'
     => as 'Object',
-    => where { $_->isa('Path::Abstract') && $_->stringify !~ m|/\s*$|o };
+    => where { $_->isa('Path::Abstract::Underload') && $_->stringify !~ m|/\s*$|o };
 
 coerce 'VCI::Type::Path'
     => from 'Str'
         => via {
             $_ =~ s|/\s*$||o;
-            Path::Abstract->new($_)->to_branch;
+            Path::Abstract::Underload->new($_)->to_branch;
         }
     => from 'ArrayRef'
                 # XXX This may not deal with trailing slashes properly.
-        => via { Path::Abstract->new(@$_)->to_branch; }
+        => via { Path::Abstract::Underload->new(@$_)->to_branch; }
     => from 'Object'
         => via { $_->to_branch };
 
@@ -174,10 +174,10 @@ converts a string into C<1> if it represents a true value, C<0> if it doesn't.
 
 =item C<VCI::Type::Path>
 
-A L<Path::Abstract> object.
+A L<Path::Abstract::Underload> object.
 
 If you pass a string for this argument, it will be converted using
-L<Path::Abstract/new>. This means that paths are always Unix paths--the
+L<Path::Abstract::Underload/new>. This means that paths are always Unix paths--the
 path separator is always C</>. C<\path\to\file> will not work.
 
 After processing, the path will never start with C</> and never end with

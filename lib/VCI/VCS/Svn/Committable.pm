@@ -2,7 +2,7 @@ package VCI::VCS::Svn::Committable;
 use Moose::Role;
 use Moose::Util::TypeConstraints;
 
-use Path::Abstract;
+use Path::Abstract::Underload;
 
 use VCI::Abstract::Committable;
 
@@ -31,7 +31,7 @@ sub _build_history {
     }
     
     my $commits = $self->project->_x_get_commits(
-        path => Path::Abstract->new($self->project->name,
+        path => Path::Abstract::Underload->new($self->project->name,
                                     $self->path->stringify)->stringify);
     return VCI::VCS::Svn::History->new(commits => $commits,
                                        project => $self->project);
@@ -61,7 +61,7 @@ sub _build_x_info {
     my $ctx = $self->repository->vci->x_client;
     my $info;
     # XXX Need to check return for errors.
-    my $full_path = Path::Abstract->new($self->name, $self->path);
+    my $full_path = Path::Abstract::Underload->new($self->name, $self->path);
     $ctx->info($self->repository->root . $full_path->stringify,
                undef, $self->revision, sub { $info = $_[1] }, 0);
     return $info;

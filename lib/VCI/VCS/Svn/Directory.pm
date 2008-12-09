@@ -3,7 +3,7 @@ use Moose;
 
 use VCI::VCS::Svn::File;
 
-use Path::Abstract;
+use Path::Abstract::Underload;
 use SVN::Core;
 
 with 'VCI::VCS::Svn::Committable';
@@ -19,7 +19,7 @@ sub _build_contents {
     my $project = $self->project;
     my $vci = $project->repository->vci;
     my $ra = $project->repository->x_ra;
-    my $dir_path  = Path::Abstract->new($project->name, $self->path);
+    my $dir_path  = Path::Abstract::Underload->new($project->name, $self->path);
     print STDERR "Getting contents for $dir_path rev " . $self->revision . "\n"
         if $vci->debug;
 
@@ -61,7 +61,7 @@ sub _build_contents {
     my @contents;
     foreach my $name (keys %$svn_contents) {
         my $item = $svn_contents->{$name};
-        my $path = Path::Abstract->new($self->path, $name);
+        my $path = Path::Abstract::Underload->new($self->path, $name);
         if ($item->kind == $SVN::Node::dir) {
             my $dir = VCI::VCS::Svn::Directory->new(
                 path => $path, project => $project, parent => $self,

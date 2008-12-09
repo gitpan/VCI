@@ -23,7 +23,7 @@ sub _set_contents_from_list {
     foreach my $path (@dir_array) {
         ($path =~ s/^\Q$strip_root\E//) if defined $strip_root;
         next if !$path;
-        my $path_obj    = Path::Abstract->new($path)->to_branch;
+        my $path_obj    = Path::Abstract::Underload->new($path)->to_branch;
         my $parent_name = $path_obj->parent->stringify;
         my $parent      = $dirs{$parent_name};
         
@@ -38,7 +38,7 @@ sub _set_contents_from_list {
     # Create File objects and set their parent directories correctly.
     foreach my $path (@$file_names) {
         ($path =~ s/^\Q$strip_root\E//) if defined $strip_root;
-        my $path_obj    = Path::Abstract->new($path)->to_branch;
+        my $path_obj    = Path::Abstract::Underload->new($path)->to_branch;
         my $parent_name = $path_obj->parent->stringify;
         my $parent      = $parent_name ? $dirs{$parent_name} : $self;
         

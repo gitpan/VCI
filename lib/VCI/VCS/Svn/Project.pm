@@ -2,7 +2,7 @@ package VCI::VCS::Svn::Project;
 use Moose;
 use MooseX::Method;
 
-use Path::Abstract;
+use Path::Abstract::Underload;
 use SVN::Core;
 
 use VCI::VCS::Svn::Commit;
@@ -64,7 +64,7 @@ sub _build_history {
 }
 
 method '_x_get_commits' => named (
-    start => { isa => 'Int', default => $SVN::Core::INVALID_REVNUM },
+    start => { isa => 'Int', default => 0 },
     end   => { isa => 'Int' },
     limit => { isa => 'Int', default => 0 },
     path  => { isa => 'Str' },

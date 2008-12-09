@@ -21,6 +21,7 @@ Date:\s(\S+\s\S+)\n
 Author:\s(\S+)\n
 Branch:\s\S+\n
 Tag:\s[^\n]+\s?\n
+(?:Branches:[^\n]\n)?
 Log:\n
 (.*)\n
 \n

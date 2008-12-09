@@ -1,7 +1,7 @@
 package VCI::VCS::Bzr::History;
 use Moose;
 
-use XML::Simple;
+use XML::Simple qw(:strict);
 use VCI::VCS::Bzr::Commit;
 use VCI::VCS::Bzr::File;
 
@@ -9,7 +9,10 @@ extends 'VCI::Abstract::History';
 
 sub x_from_xml {
     my ($class, $xml_string, $project) = @_;
-    # XXX We *really* need to do this with SAX, for performance reasons.
+    # XXX We *really* should to do this with SAX, for performance reasons.
+    # Right now, though, when we're using straight parsing, XML::Parser
+    # parses bzr's simple XML faster than the SAX modules do.
+    local $XML::Simple::PREFERRED_PARSER = 'XML::Parser';
     my $xs = XML::Simple->new(ForceArray => [qw(file directory log)],
                               KeyAttr => []);
     my $xml = $xs->xml_in($xml_string);

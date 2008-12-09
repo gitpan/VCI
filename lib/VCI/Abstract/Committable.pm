@@ -12,7 +12,7 @@ has 'last_revision'  => (is => 'ro', does => 'VCI::Abstract::Committable',
 
 has 'revision'   => (is => 'ro', lazy_build => 1);
 # All of this crazy init_arg stuff means "coerce lazily, because it's
-# slow to make thousands of DateTime and Path::Abstract objects."
+# slow to make thousands of DateTime and Path::Abstract::Underload objects."
 has 'time'       => (is => 'ro', isa => 'VCI::Type::DateTime', coerce => 1,
                      lazy => 1,
                      default => sub { shift->_time }, init_arg => '__time');

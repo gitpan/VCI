@@ -30,7 +30,8 @@ my $build = $class->new(
         'Moose'          => '0.27',
         'MooseX::Method' => '0',
         'DateTime'       => '0',
-        'Path::Abstract' => '0',
+        # This was when Underload was introduced.
+        'Path::Abstract' => '0.093',
         'DateTime::Format::DateParse' => '0',
         # 0.06 has a bug with diff formats that lack a "diff file1 file2"
         # header.

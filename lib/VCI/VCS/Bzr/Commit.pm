@@ -3,6 +3,8 @@ use Moose;
 extends 'VCI::Abstract::Commit';
 use VCI::Abstract::Diff;
 
+use XML::Simple qw(:strict);
+
 has 'x_changes' => (is => 'ro', isa => 'HashRef', lazy_build => 1);
 
 sub _build_as_diff {
@@ -25,6 +27,8 @@ sub _build_x_changes {
     my $proj_path = $self->project->repository->root . $self->project->name;
     my $xml_string = $self->project->repository->vci->x_do(
         args => [qw(log -v --xml), "-r" . $self->revision, $proj_path]);
+    # See Bzr::History for why we do this.
+    local $XML::Simple::PREFERRED_PARSER = 'XML::Parser';
     my $xs = XML::Simple->new(ForceArray => [qw(file directory)],
                               KeyAttr => []);
     my $xml = $xs->xml_in($xml_string);

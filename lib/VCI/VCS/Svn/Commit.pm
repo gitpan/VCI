@@ -21,6 +21,8 @@ sub x_from_log {
         # We do this directly with a regex instead of with Path::Abstract,
         # because Path::Abstract was a major performance bottleneck in tests
         # here.
+        # XXX Can probably move back, now that we have 
+        # Path::Abstract::Underload.
         my $path = $name;
         # We don't track changes to other Projects.
         ($path =~ s|^/\Q$project_path\E/||) || next;
@@ -32,18 +34,18 @@ sub x_from_log {
 
             my $orig_from_path = $from_path;
             if ($from_path =~ s|^/\Q$project_path\E/||) {
-                $from_file = Path::Abstract->new($from_path);
+                $from_file = Path::Abstract::Underload->new($from_path);
                 $project_from = $project;
             }
             else {
                 # We just use the very first directory as the name of the
                 # project we copied from. There's no way to know what part
                 # of the path represents the branch.
-                my $full_path = Path::Abstract->new($from_path);
+                my $full_path = Path::Abstract::Underload->new($from_path);
                 my $proj_from_name = ($full_path->list)[0];
                 $project_from =
                     $project->repository->get_project(name => $proj_from_name);
-                $from_file = Path::Abstract->new(($full_path->list)[1..-1]);
+                $from_file = Path::Abstract::Underload->new(($full_path->list)[1..-1]);
             }
             
             # XXX We don't currently track moves, because we can't reliably

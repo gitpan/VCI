@@ -4,7 +4,7 @@ extends 'VCI::Abstract::Directory';
 
 use File::Path qw(mkpath);
 use List::Util qw(maxstr);
-use Path::Abstract;
+use Path::Abstract::Underload;
 
 use VCI::VCS::Cvs::File;
 
@@ -31,13 +31,13 @@ sub _build_contents {
     foreach my $line (@lines) {
         next if  $line =~ /^cvs update: Updating \.$/;
         if ($line =~ /^U (.*)$/) {
-            my $path = Path::Abstract->new($self->path, $1);
+            my $path = Path::Abstract::Underload->new($self->path, $1);
             push(@contents, VCI::VCS::Cvs::File->new(
                 path => $path, project => $self->project,
                 parent => $self));
         }
         elsif ($line =~  /New directory .(.+). -- ignored$/) {
-            my $path = Path::Abstract->new($self->path, $1);
+            my $path = Path::Abstract::Underload->new($self->path, $1);
             push(@contents, VCI::VCS::Cvs::Directory->new(
                 path => $path, project => $self->project,
                 parent => $self));
@@ -53,8 +53,8 @@ sub _build_contents {
 # connection. However, we can trick it into doing so with fake "CVS" dirs.
 sub _build_x_cvs_dir {
     my $self = shift;
-    my $dir = Path::Abstract->new($self->project->x_tmp, $self->path);
-    my $cvsdir = Path::Abstract->new($dir, 'CVS')->stringify;
+    my $dir = Path::Abstract::Underload->new($self->project->x_tmp, $self->path);
+    my $cvsdir = Path::Abstract::Underload->new($dir, 'CVS')->stringify;
     if (!-d $cvsdir) {
         mkpath($cvsdir);
     
