@@ -120,7 +120,6 @@ t/repos/bzr/vci/.bzr/branch/format
 t/repos/bzr/vci/.bzr/branch/last-revision
 t/repos/bzr/vci/.bzr/branch/tags
 t/repos/bzr/vci/.bzr/README
-t/repos/cvs/cvs-test.tar.bz2
 t/repos/cvs/CVSROOT/checkoutlist
 t/repos/cvs/CVSROOT/checkoutlist,v
 t/repos/cvs/CVSROOT/commitinfo
@@ -268,4 +267,3 @@ t/repos/svn/hooks/start-commit.tmpl
 t/repos/svn/locks/db-logs.lock
 t/repos/svn/locks/db.lock
 t/repos/svn/README.txt
-t/repos/svn/svn-test.tar.bz2
