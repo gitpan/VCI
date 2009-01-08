@@ -5,7 +5,7 @@ use SVN::Client;
 
 extends 'VCI';
 
-our $VERSION = '0.5.1';
+our $VERSION = '0.5.2';
 
 has 'x_client' => (is => 'ro', isa => 'SVN::Client', lazy_build => 1);
 

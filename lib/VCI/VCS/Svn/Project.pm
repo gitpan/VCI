@@ -9,6 +9,10 @@ use VCI::VCS::Svn::Commit;
 use VCI::VCS::Svn::Directory;
 use VCI::VCS::Svn::History;
 
+# Class::MOP 0.75 has a bug in its XS module that makes get_commit_prototype
+# below invisible unless we do this explicitly.
+use VCI::Abstract::Project;
+
 extends 'VCI::Abstract::Project';
 
 sub BUILD {

@@ -10,7 +10,7 @@ use Scalar::Util qw(tainted);
 use VCI::Util qw(taint_fail detaint);
 use VCI::VCS::Cvs::Repository;
 
-our $VERSION = '0.5.1';
+our $VERSION = '0.5.2';
 
 has 'x_cvsps' => (is => 'ro', isa => 'Str', lazy_build => 1);
 has 'x_cvs' => (is => 'ro', isa => 'Str', lazy_build => 1);

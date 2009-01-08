@@ -16,6 +16,9 @@ sub ACTION_dist {
     my $self = shift;
     $self->ACTION_manifest(@_);
     $self->ACTION_test(@_);
+    # Otherwise git dies during tests, complaining that the repo is 
+    # invalid because there is no refs directory.
+    system("touch t/repos/git/test.git/refs/.mft_exists");
     $self->ACTION_manifest(@_);
     $self->SUPER::ACTION_dist(@_);
 }

@@ -10,7 +10,7 @@ use Scalar::Util qw(tainted);
 
 extends 'VCI';
 
-our $VERSION = '0.5.1';
+our $VERSION = '0.5.2';
 
 # The path to the bzr binary.
 has 'x_bzr' => (is => 'ro', isa => 'Str',

@@ -220,6 +220,7 @@ t/repos/git/test.git/info/exclude
 t/repos/git/test.git/objects/pack/pack-57167f2b3174ce4e2071b6d8230e08fde6ef6e54.idx
 t/repos/git/test.git/objects/pack/pack-57167f2b3174ce4e2071b6d8230e08fde6ef6e54.pack
 t/repos/git/test.git/packed-refs
+t/repos/git/test.git/refs/.mft_exists
 t/repos/svn/conf/authz
 t/repos/svn/conf/passwd
 t/repos/svn/conf/svnserve.conf

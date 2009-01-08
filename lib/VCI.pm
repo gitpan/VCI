@@ -1,7 +1,7 @@
 package VCI;
 use 5.006;
 use Moose;
-our $VERSION = '0.5.1';
+our $VERSION = '0.5.2';
 
 use VCI::Util;
 

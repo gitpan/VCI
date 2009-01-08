@@ -1,3 +1,7 @@
+0.5.2 Jan 7, 2009
+    - Fix a test failure that only happens when using the XS in recent
+      Class::MOP releases.
+
 0.5.1 Jan 2, 2008
     - No API changes, just major performance enhancements.
 
