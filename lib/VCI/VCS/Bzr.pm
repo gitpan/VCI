@@ -10,7 +10,7 @@ use Scalar::Util qw(tainted);
 
 extends 'VCI';
 
-our $VERSION = '0.5.2';
+our $VERSION = '0.5.3';
 
 # The path to the bzr binary.
 has 'x_bzr' => (is => 'ro', isa => 'Str',
@@ -49,17 +49,25 @@ method 'x_do' => named (
     # See http://rt.cpan.org/Ticket/Display.html?id=31738
     local $IPC::Cmd::USE_IPC_RUN = 1;
     
-    my ($success, $errorcode, $all, $stdout, $stderr) =
+    my ($success, $error_msg, $all, $stdout, $stderr) =
         IPC::Cmd::run(command => [$self->x_bzr, @$args]);
-        
-    print STDERR "Exit Code: $errorcode\n" if $self->debug;
+    
+    print STDERR "Error Message: $error_msg\n" 
+        if (defined $error_msg and $self->debug);
     
     if (!$success) {
         my $err_string = join('', @$stderr);
-        
-        if (!grep {$_ == $errorcode} @{$params->{errors_ignore}}) {
+        my $error_code;
+        if ($error_msg =~ /exited with value (\d+)/) {
+            $error_code = $1;
+        }
+        else {
+            # A value that will never be in errors_ignore.
+            $error_code = -1;
+        }
+        if (!grep {$_ == $error_code} @{$params->{errors_ignore}}) {
             my $re = $params->{errors_undef_regex};
-            if (grep {$_ == $errorcode} @{$params->{errors_undef}}
+            if (grep {$_ == $error_code} @{$params->{errors_undef}}
                 || (defined $re && $err_string =~ $re))
             {
                 return undef;

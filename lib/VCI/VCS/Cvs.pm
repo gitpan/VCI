@@ -10,7 +10,7 @@ use Scalar::Util qw(tainted);
 use VCI::Util qw(taint_fail detaint);
 use VCI::VCS::Cvs::Repository;
 
-our $VERSION = '0.5.2';
+our $VERSION = '0.5.3';
 
 has 'x_cvsps' => (is => 'ro', isa => 'Str', lazy_build => 1);
 has 'x_cvs' => (is => 'ro', isa => 'Str', lazy_build => 1);
@@ -56,22 +56,32 @@ method 'x_do' => named (
     }
     
     my $old_cwd = cwd();
-    chdir $fromdir || confess("Failed to chdir to $fromdir: $!");
+    chdir $fromdir or confess("Failed to chdir to $fromdir: $!");
 
     # See http://rt.cpan.org/Ticket/Display.html?id=31738
     local $IPC::Cmd::USE_IPC_RUN = 1;
     
-    my ($success, $errorcode, $all, $stdout, $stderr) =
+    my ($success, $error_msg, $all, $stdout, $stderr) =
         IPC::Cmd::run(command => [$self->x_cvs, '-f', @$args]);
 
+    my $error_code = 0;
+    if (defined $error_msg) {
+        if ($error_msg =~ /exited with value (\d+)/) {
+            $error_code = $1;
+        }
+        else {
+            $error_code = -1;
+        }
+    }
+    
     # We are forced to trust this directory, and we don't do
     # anything dangerous with it, only chdir (which we can't do while
     # it's tainted).
     detaint($old_cwd);
-    chdir $old_cwd || confess("Failed to chdir back to $old_cwd: $!");
+    chdir $old_cwd or confess("Failed to chdir back to $old_cwd: $!");
 
     # "cvs diff" returns 256 always, it seems.
-    if (!$success && !(grep($_ eq 'diff', @$args) && $errorcode == 256)) {
+    if (!$success && !(grep($_ eq 'diff', @$args) && $error_code == 256)) {
         my $err_string = join('', @$stderr);
         chomp($err_string);
         confess("$full_command failed: $err_string");
@@ -79,7 +89,7 @@ method 'x_do' => named (
     
     my $output = join('', @$all);
     if ($self->debug) {
-        print STDERR "Exit Code: $errorcode\n";
+        print STDERR "Error Message: $error_msg\n" if $error_msg;
         (print STDERR "Results: $output\n") if $self->debug > 1;
     }
     return $output;

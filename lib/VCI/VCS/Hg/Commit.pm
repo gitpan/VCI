@@ -37,7 +37,12 @@ sub _build_modified {
 sub x_from_rss_item {
     my ($class, $item, $project) = @_;
     my $project_path = $project->repository->root . $project->name;
-    my $revision = $item->{link};
+    my $revision = $item->{'guid'}->{'content'};
+    # Older versions of hgweb have it in "link"
+    if (!$revision) {
+        $revision = $item->{'link'};
+    }
+    
     # Sometimes revisions come to us with log{$rev}. We also include
     # log/$rev/File as an option in case they fix the bug in Hg.
     $revision =~ s#^\Q$project_path\E(/rev/|/log[{/])##;

@@ -6,15 +6,17 @@ extends 'VCI::VCS::Bzr::Committable', 'VCI::Abstract::Directory';
 # XXX Currently always returns HEAD contents.
 sub _build_contents {
     my $self = shift;
-    my $root = $self->project->repository->root . $self->project->name . '/'
-               . $self->path->stringify;
+    my $root = $self->project->repository->root . $self->project->name;
+    my $path = $root . "/" . $self->path->stringify; 
     # XXX We don't support symlinks yet.
     my $dir_names = $self->project->repository->vci->x_do(
-        args => ['ls', '--kind=directory', $root]);
+        args => ['ls', '--kind=directory', $path]);
+    # Remove trailing slashes from the directory names, as required
+    # by VCI::Type::Path.
+    my @dirs = map { $_ =~ s{/$}{}; $_ } split("\n", $dir_names);
     my $file_names = $self->project->repository->vci->x_do(
-        args => ['ls', '--kind=file', $root ]);
-    $self->_set_contents_from_list(
-        [split("\n", $dir_names)], [split("\n", $file_names)], $root);
+        args => ['ls', '--kind=file', $path]);
+    $self->_set_contents_from_list(\@dirs, [split("\n", $file_names)], $root);
     return $self->{contents};
 }
 

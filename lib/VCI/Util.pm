@@ -72,12 +72,12 @@ coerce 'VCI::Type::IntBool'
 
 subtype 'VCI::Type::Path'
     => as 'Object',
-    => where { $_->isa('Path::Abstract::Underload') && $_->stringify !~ m|/\s*$|o };
+    => where { $_->isa('Path::Abstract::Underload') && $_->stringify !~ m{/\s*$}o };
 
 coerce 'VCI::Type::Path'
     => from 'Str'
         => via {
-            $_ =~ s|/\s*$||o;
+            $_ =~ s{/\s*$}{}o;
             Path::Abstract::Underload->new($_)->to_branch;
         }
     => from 'ArrayRef'
@@ -132,7 +132,7 @@ use a safe module like C<IPC::Run> to call the command.)
 That is not a complete list. All VCI::VCS implementors are strongly
 encouraged to read L<perlsec>.
 
-Note that passing a string to L<IPC::Run> is safe, because a shell is never
+Note that passing a string to L<IPC::Cmd> is safe, because a shell is never
 invoked. If you are going to use L<IPC::Cmd>, please see other VCI::VCS
 implementations for how to make it safe.
 

@@ -13,8 +13,12 @@ has '+message' => (lazy => 1, default => sub { shift->_build_message });
 
 sub _build_message {
     my $self = shift;
-    my $text = $self->project->x_do('log', ['-1', '--pretty=format:%s%n%b',
+    my $text = $self->project->x_do('log', ['-1', '--pretty=medium',
                                             $self->revision], 1);
+    # Everything before the message ends in two newlines.
+    $text =~ s/^.+\n\n//s;
+    # Also, every line is idented by four spaces.
+    $text =~ s/^\s{4}//mg;
     # If Git's "subject" or "body" are empty, it prints "<unknown>"
     $text =~ s/^<unknown>\n//s;
     $text =~ s/\n<unknown>$//s;

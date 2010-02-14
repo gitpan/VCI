@@ -40,7 +40,6 @@ sub _x_this_commit {
         #     However, I'm not aware of any situation where we already have
         #     a history but don't have a time/revision.
 
-        require VCI::VCS::Bzr::History; # Have to "require" to avoid dep loops.
         my $vci = $self->project->repository->vci;
         my $obj_path = Path::Abstract::Underload->new($self->project->name, $self->path);
         my $full_path = $self->project->repository->root . $obj_path->stringify;

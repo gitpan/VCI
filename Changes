@@ -1,3 +1,12 @@
+0.5.3 Feb 14, 2009
+    Bug Fixes:
+        - Cvs and Bzr: Drivers now work when IPC::Cmd > 0.41 is installed.
+        - Bzr: Now works reliably with bzr > 1.15.
+        - Git: $commit->message now once again returns the literal
+          message, exactly as it was typed in, with modern versions of Git.
+        - Hg: History and Commit info was broken with recent versions of
+          hgweb, and now works.
+
 0.5.2 Jan 7, 2009
     - Fix a test failure that only happens when using the XS in recent
       Class::MOP releases.

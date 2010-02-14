@@ -45,7 +45,7 @@ my $build = $class->new(
     # on CPAN, in the hope that CPAN-Testers will now be more likely to
     # run all the test code.
     recommends => {
-        'IPC::Cmd'       => 0,
+        'IPC::Cmd'       => 0.42, # Error return values changed.
         'Module::Load::Conditional' => 0.24, # For taint safety in IPC::Cmd.
         'IPC::Run'       => 0.55,
         'XML::Simple'    => 0,
@@ -65,7 +65,7 @@ my $build = $class->new(
         bzr => {
             description => "Bazaar Support",
             requires => {
-                'IPC::Cmd'    => 0,
+                'IPC::Cmd'    => 0.42,
                 'Module::Load::Conditional' => 0.24,
                 'IPC::Run'    => 0.55,
                 'XML::Simple' => 0,
@@ -95,7 +95,7 @@ my $build = $class->new(
         cvs => {
             description => 'CVS Support',
             requires => {
-                'IPC::Cmd'   => 0,
+                'IPC::Cmd'   => 0.42,
                 'Module::Load::Conditional' => 0.24, # For taint safety in IPC::Cmd.
                 'IPC::Run'   => 0.55,
                 'Cwd'        => 0,

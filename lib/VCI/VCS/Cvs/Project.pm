@@ -134,10 +134,10 @@ sub x_cvsps_do {
     # See http://rt.cpan.org/Ticket/Display.html?id=31738
     local $IPC::Cmd::USE_IPC_RUN = 1;
     # XXX cvsps must be able to write to $HOME or this will fail.
-    my ($success, $errorcode, $all, $stdout, $stderr) =
+    my ($success, $error_msg, $all, $stdout, $stderr) =
         IPC::Cmd::run(command => [$self->repository->vci->x_cvsps, @args]);
     if (!$success) {
-        confess("cvsps failed with exit code $errorcode: $stderr");
+        confess("$error_msg: $stderr");
     }
     
     return join('', @$stdout);

@@ -11,9 +11,10 @@ sub _build_as_diff {
     my $self = shift;
     my $rev = $self->revision;
     my $previous_rev = $rev - 1;
+    my $proj_path = $self->project->repository->root . $self->project->name;
     my $diff = $self->project->repository->vci->x_do(
-        args => ['diff', "-r$previous_rev..$rev"],
-        errors_ignore => [256]);
+        args => ['diff', "-r$previous_rev..$rev", $proj_path],
+        errors_ignore => [1, 256]);
     return VCI::Abstract::Diff->new(raw => $diff, project => $self->project);
 }
 

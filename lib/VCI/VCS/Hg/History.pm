@@ -35,7 +35,12 @@ sub _x_get_rss_commits {
         # on the last page, where it could be the first, second, third, etc.
         # This code works correctly in all situations.
         while (my $first_item = shift(@$items)) {
-            last if $first_item->{link} =~ /\Q$rev_id\E/;
+            my $link = $first_item->{'guid'}->{'content'};
+            # Older versions of hgweb have the link in "link"
+            if (!$link) {
+                $link = $first_item->{'link'};
+            }
+            last if $link =~ /\Q$rev_id\E/;
         }
     }
     return [map { VCI::VCS::Hg::Commit->x_from_rss_item($_, $project) } @$items];
