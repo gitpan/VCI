@@ -10,7 +10,7 @@ use Scalar::Util qw(tainted);
 use VCI::Util qw(taint_fail detaint);
 use VCI::VCS::Cvs::Repository;
 
-our $VERSION = '0.5.3';
+our $VERSION = '0.5.4';
 
 has 'x_cvsps' => (is => 'ro', isa => 'Str', lazy_build => 1);
 has 'x_cvs' => (is => 'ro', isa => 'Str', lazy_build => 1);
@@ -101,7 +101,7 @@ __END__
 
 =head1 NAME
 
-VCI::VCS::Cvs - The CVS implementation of VCI
+VCI::VCS::Cvs - Object-oriented interface to CVS
 
 =head1 DESCRIPTION
 

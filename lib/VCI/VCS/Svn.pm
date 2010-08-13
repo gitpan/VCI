@@ -5,7 +5,7 @@ use SVN::Client;
 
 extends 'VCI';
 
-our $VERSION = '0.5.3';
+our $VERSION = '0.5.4';
 
 has 'x_client' => (is => 'ro', isa => 'SVN::Client', lazy_build => 1);
 
@@ -22,7 +22,7 @@ __END__
 
 =head1 NAME
 
-VCI::VCS::Svn - The Subversion implementation of VCI
+VCI::VCS::Svn - Object-oriented interface to Subversion
 
 =head1 DESCRIPTION
 

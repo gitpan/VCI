@@ -12,6 +12,8 @@ use IPC::Cmd;
 # Constants and Subroutines #
 #############################
 
+our $bzr;
+
 use constant EXPECTED_CONTENTS => [qw(
     VCI
     VCI.pm
@@ -62,35 +64,18 @@ sub setup_repo {
            . " t/repos/bzr/vci");
 }
 
-my $python;
 sub check_plugin {
     my $plugin = shift;
-    # See http://rt.cpan.org/Ticket/Display.html?id=31738
-    local $IPC::Cmd::USE_IPC_RUN = 1;
-    if (!$python) {
-        my $output;
-        IPC::Cmd::run(command => [qw(bzr --version)], buffer => \$output);
-        if ($output =~ /^Using Python interpreter: (.+?)$/m
-            # Around 0.90 or 0.91 the format changed.
-            || $output =~ /^\s*Python interpreter: (.+) \S+$/m) {
-            $python = $1;
-        }
-        else {
-            plan skip_all => "Couldn't determine python interpreter from"
-                             . " output:\n$output";
-        }
-    }
-    
-    return scalar IPC::Cmd::run(
-        command => [$python, "-c", "import bzrlib.plugins.$plugin"]);
+    my $plugins = `$bzr plugins`;
+    return ($plugins =~ /^\Q$plugin\E/m) ? 1 : 0;
 }
 
 #########
 # Tests #
 #########
 
-IPC::Cmd::can_run('bzr')
-    || plan skip_all => 'bzr not installed or in the path';
+$bzr = IPC::Cmd::can_run('bzr')
+    or plan skip_all => 'bzr not installed or in the path';
 check_plugin('bzrtools')
     || plan skip_all => 'bzrtools not installed';
 check_plugin('xmloutput')

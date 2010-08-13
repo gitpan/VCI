@@ -3,7 +3,7 @@ use Moose;
 
 extends 'VCI';
 
-our $VERSION = '0.5.3';
+our $VERSION = '0.5.4';
 
 __PACKAGE__->meta->make_immutable;
 
@@ -13,7 +13,7 @@ __END__
 
 =head1 NAME
 
-VCI::VCS::Git - The Git Implementation of VCI
+VCI::VCS::Git - Object-oriented interface to Git
 
 =head1 DESCRIPTION
 

@@ -1,3 +1,9 @@
+0.5.4 Aug 13, 2010
+   - Most modules that used to be optional are now required, to improve
+     the amount of testing that we get, and to simplify configuration for
+     downstream consumers.
+  - A few minor POD and test improvements.
+
 0.5.3 Feb 14, 2009
     Bug Fixes:
         - Cvs and Bzr: Drivers now work when IPC::Cmd > 0.41 is installed.

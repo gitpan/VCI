@@ -10,7 +10,7 @@ use Scalar::Util qw(tainted);
 
 extends 'VCI';
 
-our $VERSION = '0.5.3';
+our $VERSION = '0.5.4';
 
 # The path to the bzr binary.
 has 'x_bzr' => (is => 'ro', isa => 'Str',
@@ -96,7 +96,7 @@ __END__
 
 =head1 NAME
 
-VCI::VCS::Bzr - The Bazaar implementation of VCI
+VCI::VCS::Bzr - Object-oriented interface to Bazaar (bzr)
 
 =head1 DESCRIPTION
 

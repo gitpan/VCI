@@ -7,7 +7,7 @@ use VCI::Util;
 
 extends 'VCI';
 
-our $VERSION = '0.5.3';
+our $VERSION = '0.5.4';
 
 has 'x_ua' => (is => 'ro', isa => 'LWP::UserAgent', lazy_build => 1);
 has 'x_timeout' => (is => 'ro', isa => 'Int', default => sub { 60 });
@@ -28,7 +28,7 @@ __END__
 
 =head1 NAME
 
-VCI::VCS::Hg - The Mercurial (aka Hg) implementation of VCI
+VCI::VCS::Hg - Object-oriented interface to Mercurial (aka Hg)
 
 =head1 DESCRIPTION
 

@@ -39,12 +39,11 @@ my $build = $class->new(
         # 0.06 has a bug with diff formats that lack a "diff file1 file2"
         # header.
         'Text::Diff::Parser' => '0.07',
-        'Carp'           => '0',
-    },
-    # For right now I added all the auto_features to recommends that are
-    # on CPAN, in the hope that CPAN-Testers will now be more likely to
-    # run all the test code.
-    recommends => {
+        'Carp' => '0',
+
+        # These are modules only required by certain VCSes, but
+        # but into the general requirements to make things simpler
+        # for people using this module.
         'IPC::Cmd'       => 0.42, # Error return values changed.
         'Module::Load::Conditional' => 0.24, # For taint safety in IPC::Cmd.
         'IPC::Run'       => 0.55,
@@ -53,7 +52,7 @@ my $build = $class->new(
         'Cwd'        => 0,
         'File::Path' => 0,
         'File::Temp' => 0,
-        'List::Util' => 0,        
+        'List::Util' => 0,
     },
     build_requires => {
         'Test::More'      => '0',
@@ -64,51 +63,30 @@ my $build = $class->new(
     auto_features => {
         bzr => {
             description => "Bazaar Support",
-            requires => {
-                'IPC::Cmd'    => 0.42,
-                'Module::Load::Conditional' => 0.24,
-                'IPC::Run'    => 0.55,
-                'XML::Simple' => 0,
-            }
         },
         svn => {
             description => 'Subversion Support',
             requires => {
-                'Cwd' => 0,
                 'SVN::Core' => '1.2.0',
             }
         },
         hg => {
             description => 'Mercurial Support',
-            requires => {
-                'LWP::UserAgent' => '0',
-                'XML::Simple' => '0',
-            }
         },
         git => {
             description => 'Git Support',
             requires => {
-                'Cwd' => '0',
                 'Git' => '0',
             }
         },
         cvs => {
             description => 'CVS Support',
-            requires => {
-                'IPC::Cmd'   => 0.42,
-                'Module::Load::Conditional' => 0.24, # For taint safety in IPC::Cmd.
-                'IPC::Run'   => 0.55,
-                'Cwd'        => 0,
-                'File::Path' => 0,
-                'File::Temp' => 0,
-                'List::Util' => 0,
-            }
         },
     },
     meta_merge => {
         resources => {
             homepage   => 'http://vci.everythingsolved.com/',
-            repository => 'http://bzr.everythingsolved.com/vci/'
+            repository => 'bzr://bzr.everythingsolved.com/vci/'
         },
     },
 );

@@ -1,7 +1,7 @@
 package VCI;
 use 5.006;
 use Moose;
-our $VERSION = '0.5.3';
+our $VERSION = '0.5.4';
 
 use VCI::Util;
 
@@ -94,7 +94,7 @@ __END__
 
 =head1 NAME
 
-VCI - A generic interface for interacting with various version-control systems.
+VCI - A library for interacting with various version-control systems.
 
 =head1 SYNOPSIS
 
