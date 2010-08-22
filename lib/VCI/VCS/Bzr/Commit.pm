@@ -1,21 +1,20 @@
 package VCI::VCS::Bzr::Commit;
 use Moose;
 extends 'VCI::Abstract::Commit';
-use VCI::Abstract::Diff;
 
 use XML::Simple qw(:strict);
 
 has 'x_changes' => (is => 'ro', isa => 'HashRef', lazy_build => 1);
+has '+revno' => (required => 1);
 
 sub _build_as_diff {
     my $self = shift;
     my $rev = $self->revision;
-    my $previous_rev = $rev - 1;
-    my $proj_path = $self->project->repository->root . $self->project->name;
-    my $diff = $self->project->repository->vci->x_do(
-        args => ['diff', "-r$previous_rev..$rev", $proj_path],
+    my $proj_path = $self->repository->root . $self->project->name;
+    my $diff = $self->vci->x_do(
+        args => ['diff', "--change=revid:$rev", $proj_path],
         errors_ignore => [1, 256]);
-    return VCI::Abstract::Diff->new(raw => $diff, project => $self->project);
+    return $self->diff_class->new(raw => $diff, project => $self->project);
 }
 
 sub _build_added    { shift->x_changes->{added}    }
@@ -25,9 +24,10 @@ sub _build_moved    { shift->x_changes->{moved}    }
 
 sub _build_x_changes {
     my $self = shift;
-    my $proj_path = $self->project->repository->root . $self->project->name;
-    my $xml_string = $self->project->repository->vci->x_do(
-        args => [qw(log -v --xml), "-r" . $self->revision, $proj_path]);
+    my $proj_path = $self->repository->root . $self->project->name;
+    my $xml_string = $self->vci->x_do(
+        args => [qw(log -v --show-ids --xml),
+                 "--revision=revid:" . $self->revision, $proj_path]);
     # See Bzr::History for why we do this.
     local $XML::Simple::PREFERRED_PARSER = 'XML::Parser';
     my $xs = XML::Simple->new(ForceArray => [qw(file directory)],
@@ -49,20 +49,8 @@ sub _build_x_changes {
     }
         
     my %moved;
-    if (my $renamed = $files->{renamed}) {
-        my @items;
-        if (exists $renamed->{file}) {
-            push(@items, @{$renamed->{file}});
-        }
-        if (exists $renamed->{directory}) {
-            push(@items, @{$renamed->{directory}});
-        }
-     
-        foreach my $item (@items) {
-            my $old = $item->{oldpath};
-            my $new = $item->{content};
-            $moved{$new} = $old;
-        }
+    if (exists $files->{renamed}) {
+        %moved = $self->_x_parse_renamed($files->{renamed}, $log);
     }
     
     return {
@@ -73,6 +61,22 @@ sub _build_x_changes {
     };
 }
 
+sub _x_parse_renamed {
+    my ($self, $renamed, $log) = @_;
+    my %result;
+    foreach my $file (@{ $renamed->{file} || [] }) {
+        $result{$file->{content}} = $self->file_class->new(
+            path => $file->{oldpath}, x_before => $log->{revisionid},
+            project => $self->project);
+    }
+    foreach my $dir (@{ $renamed->{directory} || [] }) {
+        $result{$dir->{content}} = $self->directory_class->new(
+            path => $dir->{oldpath}, x_before => $log->{revisionid},
+            project => $self->project);
+    }
+    return %result;
+}
+
 sub _x_parse_items {
     my ($self, $items, $log) = @_;
 
@@ -80,17 +84,16 @@ sub _x_parse_items {
     if (exists $items->{file}) {
         foreach my $file (@{ $items->{file} }) {
             # Have to "require" to avoid dep loops.
-            require VCI::VCS::Bzr::File;
-            push(@result, VCI::VCS::Bzr::File->new(
-                path => $file, revision => $log->{revno},
+            push(@result, $self->file_class->new(
+                path => $file->{content}, revision => $log->{revisionid},
                 time => $log->{timestamp}, project => $self->project));
         }
     }
     if (exists $items->{directory}) {
         foreach my $dir (@{ $items->{directory} }) {
             require VCI::VCS::Bzr::Directory;
-            push(@result, VCI::VCS::Bzr::Directory->new(
-                path => $dir, revision => $log->{revno},
+            push(@result, $self->directory_class->new(
+                path => $dir->{content}, revision => $log->{revisionid},
                 time => $log->{timestamp}, project => $self->project));
         }
     }

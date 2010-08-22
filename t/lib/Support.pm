@@ -85,7 +85,6 @@ sub test_vcs {
            "${class}::History", '$root_dir->contents_history_recursive');
     cmp_ok(scalar @{ $history_rec->commits }, '==', $commits_rec,
            "Recursive History has $commits_rec commits.");
-           
     
     # History and Commits
     my $commit;
@@ -93,6 +92,7 @@ sub test_vcs {
     isa_ok($commit = $project->get_commit(revision => $expected_rev),
            "${class}::Commit",
            '$project->get_commit(revision => ' . "$expected_rev)");
+    is($commit->revno, $expected_commit->{revno},'Commit revno');
     is($commit->message, $expected_commit->{message}, 'Commit message');
     is($commit->committer, $expected_commit->{committer}, 'Commit committer');
     is($commit->time->iso8601, $expected_commit->{time}, 'Commit time');
@@ -110,8 +110,8 @@ sub test_vcs {
            "${class}::Commit",
            '$project->get_commit(at_or_before => ' . "$right_after)");
     is($commit_aob->revision, $commit->revision,
-       "'as_of' and 'revision' return the same Commit");
-    is_deeply($commit->moved, $expected_commit->{moved}, 'Commit moved');
+       "'at_or_before' and 'revision' return the same Commit");
+    
     is_deeply([sort map { $_->path->stringify } @{ $commit->modified }],
               [sort @{$expected_commit->{modified}}], 'Commit modified');
     is_deeply([sort map { $_->path->stringify } @{ $commit->added }],
@@ -119,9 +119,15 @@ sub test_vcs {
     is_deeply([sort map { $_->path->stringify } @{ $commit->removed }],
               [sort @{$expected_commit->{removed}}], 'Commit removed');
     
+    my $moved = $commit->moved;
+    my %moved_hash = map { $_ => { $moved->{$_}->path->stringify =>
+                                   $moved->{$_}->revision } }
+                          keys(%$moved);
+    is_deeply(\%moved_hash, $expected_commit->{moved}, 'Commit moved');
+    
     my $copied = $commit->copied;
     my %copied_hash = map { $_ => { $copied->{$_}->path->stringify =>
-                                     $copied->{$_}->revision } }
+                                    $copied->{$_}->revision } }
                           keys(%$copied);
     is_deeply(\%copied_hash, $expected_commit->{copied}, 'Commit copied');
     
@@ -153,6 +159,7 @@ sub test_vcs {
            "${class}::File", $expected_file->{path});
     is($contents_file->revision, $expected_file->{revision},
        '$contents_file revision');
+    is($contents_file->revno, $expected_file->{revno}, '$contents_file revno');
     is($contents_file->time->iso8601, $expected_file->{time},
        '$contents_file time');
     is($contents_file->time->strftime('%z'), $expected_file->{timezone},

@@ -14,7 +14,7 @@ sub _build_content {
     my $project = $self->project;
     my $full_path = $project->repository->root . $project->name
                     . '/' . $self->path->stringify;
-    my $ctx = $project->repository->vci->x_client;
+    my $ctx = $project->vci->x_client;
     my $temp = File::Temp->new;
     $ctx->cat($temp, $full_path, $self->revision);
     # For some reason, the actual file on disk contains data, but the

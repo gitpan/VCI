@@ -30,7 +30,8 @@ use constant EXPECTED_CONTENTS => [qw(
 )];
 
 use constant EXPECTED_COMMIT => {
-    revision  => 3,
+    revision  => 'mkanat@es-compy-20070806041257-f16n2g248d63mf1i',
+    revno     => 3,
     message   => "Add more documentation, re-work Committable, move"
           . " VCI::Abstract::Util to just be VCI::Util (that makes more sense,"
           . " since the Utilities aren't abstract...) and move from using"
@@ -38,7 +39,9 @@ use constant EXPECTED_COMMIT => {
     committer => 'Max Kanat-Alexander <mkanat@es-compy>',
     time      => '2007-08-05T21:12:57',
     timezone  => '-0700',
-    moved     => { 'VCI/Util.pm' => 'VCI/Abstract/Util.pm' },
+    moved     => {
+        'VCI/Util.pm' => { 'VCI/Abstract/Util.pm' => 'mkanat@es-compy-20070806014341-pyxvc39osgfibp7k' },
+    },
     added     => [],
     removed   => [],
     copied    => {},
@@ -49,18 +52,19 @@ use constant EXPECTED_COMMIT => {
 
 use constant EXPECTED_FILE => {
     path     => 'VCI/Abstract/Repository.pm',
-    revision => 6,
+    revision => 'mkanat@es-compy-20070807070743-63zfyrindwf0vov4',
+    revno    => 6,
     time     => '2007-08-07T00:07:43',
     timezone => '-0700',
     size     => 2772,
     commits  => 4,
-    first_revision => 1,
-    last_revision  => 6,
+    first_revision => 'mkanat@everythingsolved.com-20070805031704-pxp4msygesk0fwi8',
+    last_revision  => 'mkanat@es-compy-20070807070743-63zfyrindwf0vov4',
 };
 
 sub setup_repo {
-    system("bzr init-repo --knit --no-trees t/repos/bzr");
-    system("bzr branch -r10 http://bzr.everythingsolved.com/vci/trunk"
+    system("bzr init-repo -q --pack-0.92 --rich-root --no-trees t/repos/bzr");
+    system("bzr branch -q -r10 http://bzr.everythingsolved.com/vci/trunk"
            . " t/repos/bzr/vci");
 }
 
@@ -84,14 +88,14 @@ check_plugin('xmloutput')
 eval { setup_repo() if !-d 't/repos/bzr/.bzr'; 1; }
     || plan skip_all => "Unable to create bzr testing repo: $@";
     
-plan tests => 46;
+plan tests => 48;
 
 test_vcs({
     type          => 'Bzr',
     repo_dir      => 't/repos/bzr',
     project_name  => 'vci',
     mangled_name  => '/vci/',
-    head_revision => 10,
+    head_revision => 'mkanat@es-compy-20070807084314-z6d292cvjeberkww',
     num_commits   => 10,
     expected_contents => EXPECTED_CONTENTS,
     expected_commit   => EXPECTED_COMMIT,

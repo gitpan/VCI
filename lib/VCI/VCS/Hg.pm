@@ -7,7 +7,7 @@ use VCI::Util;
 
 extends 'VCI';
 
-our $VERSION = '0.5.4';
+our $VERSION = '0.6.0_1';
 
 has 'x_ua' => (is => 'ro', isa => 'LWP::UserAgent', lazy_build => 1);
 has 'x_timeout' => (is => 'ro', isa => 'Int', default => sub { 60 });

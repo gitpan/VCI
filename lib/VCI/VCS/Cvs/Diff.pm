@@ -33,4 +33,6 @@ override _build__parsed => sub {
     return $parsed;
 };
 
+__PACKAGE__->meta->make_immutable;
+
 1;

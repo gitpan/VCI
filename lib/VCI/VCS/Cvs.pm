@@ -8,9 +8,8 @@ use IPC::Cmd;
 use Scalar::Util qw(tainted);
 
 use VCI::Util qw(taint_fail detaint);
-use VCI::VCS::Cvs::Repository;
 
-our $VERSION = '0.5.4';
+our $VERSION = '0.6.0_1';
 
 has 'x_cvsps' => (is => 'ro', isa => 'Str', lazy_build => 1);
 has 'x_cvs' => (is => 'ro', isa => 'Str', lazy_build => 1);
@@ -94,6 +93,8 @@ method 'x_do' => named (
     }
     return $output;
 };
+
+__PACKAGE__->meta->make_immutable;
 
 1;
 

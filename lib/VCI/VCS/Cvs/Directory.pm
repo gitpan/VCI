@@ -6,11 +6,10 @@ use File::Path qw(mkpath);
 use List::Util qw(maxstr);
 use Path::Abstract::Underload;
 
-use VCI::VCS::Cvs::File;
-
 has 'x_cvs_dir' => (is => 'ro', isa => 'Str', lazy_build => 1);
 
 sub _build_revision { 'HEAD' }
+sub _build_revno { shift->revision }
 
 # XXX This should be optimized.
 sub _build_time {
@@ -23,7 +22,7 @@ sub _build_time {
 # XXX Currently this may not return things with the proper revision.
 sub _build_contents {
     my $self = shift;
-    my $output = $self->project->repository->vci->x_do(
+    my $output = $self->vci->x_do(
         args    => ['-n', 'update', '-d'],
         fromdir => $self->x_cvs_dir);
     my @lines = split("\n", $output);
@@ -32,13 +31,13 @@ sub _build_contents {
         next if  $line =~ /^cvs update: Updating \.$/;
         if ($line =~ /^U (.*)$/) {
             my $path = Path::Abstract::Underload->new($self->path, $1);
-            push(@contents, VCI::VCS::Cvs::File->new(
+            push(@contents, $self->file_class->new(
                 path => $path, project => $self->project,
                 parent => $self));
         }
         elsif ($line =~  /New directory .(.+). -- ignored$/) {
             my $path = Path::Abstract::Underload->new($self->path, $1);
-            push(@contents, VCI::VCS::Cvs::Directory->new(
+            push(@contents, $self->directory_class->new(
                 path => $path, project => $self->project,
                 parent => $self));
         }
@@ -60,13 +59,13 @@ sub _build_x_cvs_dir {
     
         open(my $root, ">$cvsdir/Root")
             || confess "Failed to open $cvsdir/Root: $!";
-        print $root $self->project->repository->root;
+        print $root $self->repository->root;
         close($root);
         
         my $repo_name = $self->project->name . '/' . $self->path->stringify;
         # For local repos, you have to specify the full absolute path.
-        if ($self->project->repository->x_is_local) {
-            $repo_name = $self->project->repository->x_dir_part . '/' . $repo_name;
+        if ($self->repository->x_is_local) {
+            $repo_name = $self->repository->x_dir_part . '/' . $repo_name;
         }
         open(my $repository, ">$cvsdir/Repository")
             || confess "Failed to open $cvsdir/Repository: $!";

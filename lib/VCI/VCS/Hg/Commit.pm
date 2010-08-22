@@ -9,10 +9,13 @@ has 'x_changes' => (is => 'ro', isa => 'HashRef', lazy_build => 1);
 
 use constant DIFF_HEADER => qr/^([\-\+]{3}) (\S+)\t\w{3} \w{3} \d\d \d\d:\d\d:\d\d \d{4} [\+\-]\d{4}$/;
 
+# XXX Hg does have a concept of revno, but we can't access it via hgweb.
+# So we have to use the default "revno is revision id".
+
 sub _build_added {
     my $self = shift;
     my $files = $self->x_changes->{added};
-    return [map { VCI::VCS::Hg::File->new(path => $_, project => $self->project,
+    return [map { $self->file_class->new(path => $_, project => $self->project,
                       revision => $self->revision, time => $self->time) }
                @$files];
 }
@@ -20,7 +23,7 @@ sub _build_added {
 sub _build_removed {
     my $self = shift;
     my $files = $self->x_changes->{removed};
-    return [map { VCI::VCS::Hg::File->new(path => $_, project => $self->project,
+    return [map { $self->file_class->new(path => $_, project => $self->project,
                       revision => $self->revision, time => $self->time) }
                @$files];
 }
@@ -28,7 +31,7 @@ sub _build_removed {
 sub _build_modified {
     my $self = shift;
     my $files = $self->x_changes->{modified};
-    return [map { VCI::VCS::Hg::File->new(path => $_, project => $self->project,
+    return [map { $self->file_class->new(path => $_, project => $self->project,
                       revision => $self->revision, time => $self->time) }
                @$files];
 }
@@ -73,8 +76,8 @@ sub _build_as_diff {
         last if (!defined $line);
     }
     unshift(@lines, $line) if defined $line;
-    return VCI::VCS::Hg::Diff->new(raw => join("\n", @lines),
-                                   project => $self->project);
+    return $self->diff_class->new(raw => join("\n", @lines),
+                                  project => $self->project);
 }
 
 # Mercurial doesn't say anything about directories in its logs, so we have

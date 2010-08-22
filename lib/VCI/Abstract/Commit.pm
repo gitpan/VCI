@@ -1,9 +1,10 @@
 package VCI::Abstract::Commit;
 use Moose;
 use VCI::Util;
-use VCI::Abstract::Diff;
 
-with 'VCI::Abstract::FileContainer';
+# XXX ProjectItem should really be composed by FileContainer, but see the
+#     note there.
+with 'VCI::Abstract::FileContainer', 'VCI::Abstract::ProjectItem';
 
 # All of this crazy init_arg stuff means "coerce lazily, because
 # DateTime is slow."
@@ -13,8 +14,7 @@ has 'time'       => (is => 'ro', isa => 'VCI::Type::DateTime', coerce => 1,
 has '_time'      => (is => 'ro', isa => 'Defined', init_arg => 'time',
                      required => 1);
 
-# XXX Git differentiates between Author and Committer, maybe this would be
-#     a useful distinction for us?
+has 'author'    => (is => 'ro', isa => 'Str', lazy_build => 1);
 has 'committer' => (is => 'ro', isa => 'Str', default => sub { '' });
 has 'added'     => (is => 'ro', isa => 'ArrayRef[VCI::Abstract::Committable]',
                     lazy_build => 1);
@@ -22,17 +22,17 @@ has 'removed'   => (is => 'ro', isa => 'ArrayRef[VCI::Abstract::Committable]',
                     lazy_build => 1);
 has 'modified'  => (is => 'ro', isa => 'ArrayRef[VCI::Abstract::Committable]',
                     lazy_build => 1);
-has 'moved'     => (is => 'ro', isa => 'HashRef', lazy_build => 1);
-has 'copied'    => (is => 'ro', isa => 'HashRef', lazy_build => 1);
+has 'moved'     => (is => 'ro', isa => 'HashRef[VCI::Abstract::Committable]',
+                    lazy_build => 1);
+has 'copied'    => (is => 'ro', isa => 'HashRef[VCI::Abstract::Committable]',
+                    lazy_build => 1);
 has 'revision'  => (is => 'ro', isa => 'Str', required => 1);
+has 'revno'     => (is => 'ro', isa => 'Str', lazy_build => 1);
 # XXX Probably should also have shortmessage, which can be the "subject"
 #     for VCSes that store that, and the first line of the message for
 #     VCSes that don't.
 has 'message'   => (is => 'ro', isa => 'Str', default => sub { '' });
 
-# XXX This should really be being enforced by FileContainer, but see the
-#     note there.
-has 'project'  => (is => 'ro', isa => 'VCI::Abstract::Project', required => 1);
 has 'as_diff'  => (is => 'ro', isa => 'VCI::Abstract::Diff', lazy_build => 1);
 
 sub _build_added     { [] }
@@ -45,6 +45,9 @@ sub _build_contents {
     my $self = shift;
     return [@{$self->added}, @{$self->removed}, @{$self->modified}];
 }
+
+sub _build_author { shift->committer }
+sub _build_revno  { shift->revision  }
 
 # as_patch, as_bundle
 # Also as_patch_binary, as_bundle_binary?
@@ -102,6 +105,17 @@ the I<earliest> commited file in this set.
 A string identifying who committed this revision. That is, the username
 of the committer, or their real name and email address (or something
 similar). The format of this string is not guaranteed.
+
+=item C<author>
+
+Some VCSes differentiate between the person who wrote a patch, and the
+person who committed it. For VCSes that understand this difference, this
+is a string identifying who wrote the patch, in a simialr format to
+L</committer>.
+
+For VCSes that don't understand the concept of "author" (or for
+commits where the "author" field is empty), this is identical to
+L</committer>.
 
 =item C<contents>
 
@@ -168,6 +182,20 @@ Individual C<VCI::VCS> implementations will specify the format of their
 revision IDs, if they are a VCS that doesn't have unique identifiers for
 commits, or if there is any ambiguity about what exactly "revision id"
 means for that VCS.
+
+=item C<revno>
+
+In many VCSes, there is a difference between the "unique revision identifier"
+(which is a long and complex string uniquely identifying a particular
+revision) and the actual simple "revision number" displayed. C<revno>
+represents the revision number (as opposed to L</revision>, which
+represents the unique identifier).
+
+Often this is a simple integer, but in some VCSes this could also be a
+string like "1.2.3.4".
+
+In some VCSes, C<revno> and L</revision> are identical. In other VCSes,
+C<revno> is just a shorter version of L</revision>.
 
 =item C<message>
 

@@ -1,5 +1,6 @@
 package VCI::Abstract::Diff;
 use Moose;
+with 'VCI::Abstract::ProjectItem';
 
 use Text::Diff::Parser;
 
@@ -8,7 +9,6 @@ use VCI::Abstract::Diff::File;
 
 has 'files'    => (is => 'ro', isa => 'ArrayRef[VCI::Abstract::Diff::File]',
                    lazy_build => 1);
-has 'project'  => (is => 'ro', isa => 'VCI::Abstract::Project', required => 1);
 has 'raw'      => (is => 'ro', isa => 'Str', required => 1);
 has '_parsed'  => (is => 'ro', isa => 'Text::Diff::Parser', lazy_build => 1);
 

@@ -1,8 +1,6 @@
 package VCI::VCS::Git::Diff;
 use Moose;
 
-use VCI::Abstract::Diff::File;
-
 extends 'VCI::Abstract::Diff';
 
 sub _transform_filename {
@@ -10,5 +8,7 @@ sub _transform_filename {
     $name =~ s|^[ab]/||;
     return $name;
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;

@@ -40,6 +40,7 @@ use constant EXPECTED_CONTENTS => [qw(
 
 use constant EXPECTED_COMMIT => {
     revision  => '0e15f67ea2b4388eb6663678404c23919a054f0c',
+    revno     => '0e15f67',
     message   => "Commit with all types of files.\nAnd a second line of text.",
     committer => 'Max Kanat-Alexander <mkanat@es-compy.(none)>',
     time      => '2007-09-01T22:53:38',
@@ -47,8 +48,9 @@ use constant EXPECTED_COMMIT => {
     modified  => [qw(Changes-NewName MANIFEST README t/00-load.t)],
     added     => [qw(NewFile NewFile2 MANIFEST2 MANIFEST3)],
     removed   => ['t/pod.t'],
-    moved     => { 'Changes-NewName' => 'Changes',
-                   'Makefile.PL2'    => 'Makefile.PL' },
+    moved     => { 'Changes-NewName' => { 'Changes'     => 'f64932b56175d711a007a4ef933a1b32de6ae9a8' },
+                   'Makefile.PL2'    => { 'Makefile.PL' => 'f64932b56175d711a007a4ef933a1b32de6ae9a8' },
+                 },
     copied    => { 'MANIFEST2' => { 'MANIFEST' => 'f64932b56175d711a007a4ef933a1b32de6ae9a8' },
                    'MANIFEST3' => { 'MANIFEST' => 'f64932b56175d711a007a4ef933a1b32de6ae9a8' },
                  },
@@ -58,6 +60,7 @@ use constant EXPECTED_COMMIT => {
 use constant EXPECTED_FILE => {
     path     => 'lib/Catalyst/Plugin/Static/TT.pm',
     revision => '1c94abbdfd2a29c637789324de87d16a97bf7cb8',
+    revno    => '1c94abb',
     time     => '2007-09-01T16:31:03',
     timezone => '-0700',
     size     => 5090,
@@ -84,7 +87,7 @@ plan skip_all => "git not enabled" if !feature_enabled('git');
 eval { setup_repo() if !-d 't/repos/git/test.git'; 1; }
     || plan skip_all => "Unable to create git testing repo: $@";
 
-plan tests => 46;
+plan tests => 48;
 
 test_vcs({
     type          => 'Git',

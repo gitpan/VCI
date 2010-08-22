@@ -2,8 +2,6 @@ package VCI::VCS::Bzr::History;
 use Moose;
 
 use XML::Simple qw(:strict);
-use VCI::VCS::Bzr::Commit;
-use VCI::VCS::Bzr::File;
 
 extends 'VCI::Abstract::History';
 
@@ -25,8 +23,9 @@ sub x_from_xml {
         # in XML format.
         $log->{message} =~ s/^ //;
         
-        my $commit = VCI::VCS::Bzr::Commit->new(
-            revision  => $log->{revno},
+        my $commit = $project->commit_class->new(
+            revision  => $log->{revisionid},
+            revno     => $log->{revno},
             committer => $log->{committer},
             time      => $log->{timestamp},
             message   => $log->{message},
@@ -38,7 +37,6 @@ sub x_from_xml {
     
     return $class->new(commits => [reverse @commits], project => $project);
 }
-
 
 __PACKAGE__->meta->make_immutable;
 

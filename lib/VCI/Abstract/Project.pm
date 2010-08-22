@@ -2,11 +2,11 @@ package VCI::Abstract::Project;
 use Moose;
 use MooseX::Method;
 
-use VCI::Util;
+use VCI::Util qw(CLASS_METHODS);
 
 has 'name'       => (is => 'ro', isa => 'Str', required => 1);
 has 'repository' => (is => 'ro', isa => 'VCI::Abstract::Repository',
-                     required => 1);
+                     required => 1, handles => ['vci', CLASS_METHODS]);
 has 'history'    => (is => 'ro', isa => 'VCI::Abstract::History', lazy_build => 1);
 has 'head_revision' => (is => 'ro', isa => 'Str', lazy_build => 1);
 has 'root_directory' => (is => 'ro', isa => 'VCI::Abstract::Directory',
@@ -77,7 +77,7 @@ method 'get_history_by_time' => named (
                          && (!$end || $_->time <= $end) }
                        @{$self->history->commits};
 
-    my $vci = $self->repository->vci;
+    my $vci = $self->vci;
     return $vci->history_class->new(commits => \@commits, project => $self);
 };
 
@@ -122,6 +122,7 @@ method 'get_file' => named (
         # This won't work in VCSes like CVS where the File revision IDs are
         # different from the Commit revision IDs.
         my $commit = $self->get_commit(revision => $rev);
+        confess("No commit with revision $rev") if !$commit;
         my ($file) = grep { $_->path->stringify eq $path->stringify }
                           @{ $commit->contents };
         return $file;
@@ -162,7 +163,7 @@ method 'get_path' => named (
 
 sub _build_root_directory {
     my $self = shift;
-    return $self->repository->vci->directory_class->new(path => '',
+    return $self->directory_class->new(path => '',
                                                         project => $self);
 }
 

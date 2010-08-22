@@ -1,8 +1,6 @@
 package VCI::VCS::Git::Repository;
 use Moose;
 
-use VCI::VCS::Git::Project;
-
 extends 'VCI::Abstract::Repository';
 
 sub BUILD { shift->_root_always_ends_with_slash }
@@ -15,7 +13,7 @@ sub _build_projects {
     @dirs = map { s|/.git$||; s|^\Q$root\E||; $_ } @dirs;
     my @bare_dirs = glob "$root/*/objects/pack/*.idx";
     @bare_dirs = map { s|^\Q$root\E||; s|/objects/pack/.*idx$||; $_ } @bare_dirs;
-    return [map { VCI::VCS::Git::Project->new(name => $_, repository => $self) }
+    return [map { $self->project_class->new(name => $_, repository => $self) }
                 (@dirs, @bare_dirs)];
 }
 

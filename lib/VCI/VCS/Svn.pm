@@ -5,13 +5,18 @@ use SVN::Client;
 
 extends 'VCI';
 
-our $VERSION = '0.5.4';
+our $VERSION = '0.6.0_1';
 
 has 'x_client' => (is => 'ro', isa => 'SVN::Client', lazy_build => 1);
 
 sub _build_x_client {
     my $self = shift;
     return SVN::Client->new(config => {});
+}
+
+sub diff_class {
+    require VCI::Abstract::Diff;
+    return 'VCI::Abstract::Diff';
 }
 
 __PACKAGE__->meta->make_immutable;

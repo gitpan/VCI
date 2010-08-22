@@ -10,6 +10,7 @@ lib/VCI/Abstract/File.pm
 lib/VCI/Abstract/FileContainer.pm
 lib/VCI/Abstract/History.pm
 lib/VCI/Abstract/Project.pm
+lib/VCI/Abstract/ProjectItem.pm
 lib/VCI/Abstract/Repository.pm
 lib/VCI/Util.pm
 lib/VCI/VCS/Bzr.pm
@@ -56,8 +57,8 @@ lib/VCI/VCS/Svn/History.pm
 lib/VCI/VCS/Svn/Project.pm
 lib/VCI/VCS/Svn/Repository.pm
 MANIFEST			This list of files
-META.yml
 README
+t/.pod_coverage.t.swp
 t/010_abstract_compile.t
 t/020_bzr_compile.t
 t/020_cvs_compile.t
@@ -86,6 +87,8 @@ t/repos/bzr/.bzr/repository/knits/11/commit.pm-20070805031658-6gxt21bnlf2yrnft-5
 t/repos/bzr/.bzr/repository/knits/11/commit.pm-20070805031658-6gxt21bnlf2yrnft-5.knit
 t/repos/bzr/.bzr/repository/knits/29/file.pm-20070805031658-6gxt21bnlf2yrnft-6.kndx
 t/repos/bzr/.bzr/repository/knits/29/file.pm-20070805031658-6gxt21bnlf2yrnft-6.knit
+t/repos/bzr/.bzr/repository/knits/2e/%54%52%45%45_%52%4f%4f%54.kndx
+t/repos/bzr/.bzr/repository/knits/2e/%54%52%45%45_%52%4f%4f%54.knit
 t/repos/bzr/.bzr/repository/knits/72/util.pm-20070805031658-6gxt21bnlf2yrnft-10.kndx
 t/repos/bzr/.bzr/repository/knits/72/util.pm-20070805031658-6gxt21bnlf2yrnft-10.knit
 t/repos/bzr/.bzr/repository/knits/82/project.pm-20070805031658-6gxt21bnlf2yrnft-8.kndx
@@ -265,7 +268,8 @@ t/repos/svn/hooks/start-commit.tmpl
 t/repos/svn/locks/db-logs.lock
 t/repos/svn/locks/db.lock
 t/repos/svn/README.txt
-t/repos/svn/svn-test.tar.bz2-14851
+t/repos/svn/svn-test.tar.bz2-25156
 t/svn.t
 t/vci_api_version.t
 Makefile.PL
+META.yml

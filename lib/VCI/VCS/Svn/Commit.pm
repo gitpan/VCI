@@ -3,7 +3,6 @@ use Moose;
 
 use File::Temp;
 
-use VCI::Abstract::Diff;
 use VCI::VCS::Svn::FileOrDirectory;
 
 extends 'VCI::Abstract::Commit';
@@ -99,18 +98,21 @@ sub x_from_log {
 
 sub _build_as_diff {
     my $self = shift;
-    my $path = $self->project->repository->root . $self->project->name;
+    my $path = $self->repository->root . $self->project->name;
     my $rev = $self->revision;
     my $previous_rev = $self->revision - 1;
-    my $ctx = $self->project->repository->vci->x_client;
+    my $ctx = $self->vci->x_client;
     # Diff doesn't work unless these have filenames, for some reason.
     my $out = File::Temp->new;
     my $err = File::Temp->new;
+    if ($self->vci->debug) {
+        print STDERR "Getting diff for '$path' from $previous_rev to $rev\n";
+    }
     $ctx->diff([], $path, $previous_rev, $path, $rev, 1, 0, 0,
                $out->filename, $err->filename);
     { local $/ = undef; $err = <$err>; $out = <$out> }
     confess($err) if $err;
-    return VCI::Abstract::Diff->new(raw => $out, project => $self->project);
+    return $self->diff_class->new(raw => $out, project => $self->project);
 }
 
 __PACKAGE__->meta->make_immutable;

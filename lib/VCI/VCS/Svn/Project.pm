@@ -5,10 +5,6 @@ use MooseX::Method;
 use Path::Abstract::Underload;
 use SVN::Core;
 
-use VCI::VCS::Svn::Commit;
-use VCI::VCS::Svn::Directory;
-use VCI::VCS::Svn::History;
-
 # Class::MOP 0.75 has a bug in its XS module that makes get_commit_prototype
 # below invisible unless we do this explicitly.
 use VCI::Abstract::Project;
@@ -50,21 +46,21 @@ sub {
 sub _build_root_directory {
     my $self = shift;
     # XXX Probably should use x_ra.
-    my $ctx = $self->repository->vci->x_client;
+    my $ctx = $self->vci->x_client;
     my $info;
     # Getting the root_directory of the root_project only works if there's
     # no slash on the end of the URL.
     my $name = $self->name eq '' ? '' : ('/' . $self->name);
     $ctx->info($self->repository->x_root_noslash . $name, undef,
                'HEAD', sub { $info = $_[1] }, 0);
-    return VCI::VCS::Svn::Directory->new(
+    return $self->directory_class->new(
         path => '', project => $self, x_info => $info);
 }
 
 sub _build_history {
     my $self = shift;
     my $commits = $self->_x_get_commits();
-    return VCI::VCS::Svn::History->new(commits => $commits, project => $self);
+    return $self->history_class->new(commits => $commits, project => $self);
 }
 
 method '_x_get_commits' => named (
@@ -79,10 +75,14 @@ method '_x_get_commits' => named (
     $params->{end}  ||= $ra->get_latest_revnum;
 
     my @commits;
+    if ($self->vci->debug) {
+        print STDERR "Calling get_log for $params->{path}"
+                     . " START: $params->{start} END: $params->{end}\n";
+    }
     $ra->get_log([$params->{path}], $params->{start}, $params->{end},
                                    # discover_changed_paths, strict_node_history
                  $params->{limit}, 1, 0,
-                 sub { push(@commits, VCI::VCS::Svn::Commit->x_from_log($self, @_)) });
+                 sub { push(@commits, $self->commit_class->x_from_log($self, @_)) });
     return \@commits;
 };
 

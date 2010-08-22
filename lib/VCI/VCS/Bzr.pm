@@ -3,14 +3,13 @@ use Moose;
 use MooseX::Method;
 
 use VCI::Util qw(taint_fail);
-use VCI::VCS::Bzr::Repository;
 
 use IPC::Cmd;
 use Scalar::Util qw(tainted);
 
 extends 'VCI';
 
-our $VERSION = '0.5.4';
+our $VERSION = '0.6.0_1';
 
 # The path to the bzr binary.
 has 'x_bzr' => (is => 'ro', isa => 'Str',
@@ -20,6 +19,11 @@ sub BUILD {
     my $self = shift;
     taint_fail("The x_bzr argument '$self->{x_bzr}' is tainted")
         if tainted($self->{x_bzr});
+}
+
+sub diff_class {
+    require VCI::Abstract::Diff;
+    return 'VCI::Abstract::Diff';
 }
 
 sub _build_x_bzr {
@@ -89,6 +93,8 @@ method 'x_do' => named (
     }
     return $output_string;
 };
+
+__PACKAGE__->meta->make_immutable;
 
 1;
 

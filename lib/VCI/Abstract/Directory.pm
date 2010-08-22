@@ -1,6 +1,5 @@
 package VCI::Abstract::Directory;
 use Moose;
-use VCI::Abstract::History;
 
 with 'VCI::Abstract::Committable', 'VCI::Abstract::FileContainer';
 
@@ -27,7 +26,7 @@ sub _set_contents_from_list {
         my $parent_name = $path_obj->parent->stringify;
         my $parent      = $dirs{$parent_name};
         
-        my $directory = $self->project->repository->vci->directory_class->new(
+        my $directory = $self->directory_class->new(
             path => $path_obj, parent => $parent, project => $self->project);
         $dirs{$path_obj->stringify} = $directory;
         
@@ -42,7 +41,7 @@ sub _set_contents_from_list {
         my $parent_name = $path_obj->parent->stringify;
         my $parent      = $parent_name ? $dirs{$parent_name} : $self;
         
-        my $file = $self->project->repository->vci->file_class->new(
+        my $file = $self->file_class->new(
             parent => $parent, path => $path_obj, project => $self->project);
         
         $dir_contents{$parent_name} ||= [];

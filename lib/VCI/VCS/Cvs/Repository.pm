@@ -4,8 +4,6 @@ use MooseX::Method;
 
 use Cwd qw(abs_path);
 
-use VCI::VCS::Cvs::Project;
-
 extends 'VCI::Abstract::Repository';
 
 has 'x_is_local' => (is => 'ro', isa => 'Bool', default => sub { 0 });
@@ -35,7 +33,7 @@ sub _build_projects {
     my $contents = $root_project->root_directory->contents;
     my @directories = grep { $_->isa('VCI::Abstract::Directory')
                              && $_->path->stringify ne 'CVSROOT' } @$contents;
-    my @projects = map { VCI::VCS::Cvs::Project->new(
+    my @projects = map { $self->project_class->new(
                             name => $_->path->stringify, repository => $self) }
                        @directories;
     return \@projects;
@@ -47,5 +45,7 @@ sub _build_root_project { $_[0]->_root_project; }
 # For get_project module support, all paths will be from the root of the
 # repository. But for directory support, they will be from the root
 # of the directory. Can do "cvs co -c" to get modules.
+
+__PACKAGE__->meta->make_immutable;
 
 1;

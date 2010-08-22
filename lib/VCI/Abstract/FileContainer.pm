@@ -3,17 +3,17 @@ use Moose::Role;
 
 use VCI::Abstract::Committable; # This makes the Type Constraint work
 
+# Unfortunately we can't currently enforce this, because Moose throws an
+# error about attribute conflicts for a Directory, which is both a Committable
+# and a FileContainer.
+#with 'VCI::Abstract::ProjectItem';
+
 has 'contents' => (is => 'ro', isa => 'ArrayRef[VCI::Abstract::Committable]',
                    lazy_build => 1);
 has 'contents_history' => (is => 'ro', isa => 'VCI::Abstract::History',
                            lazy_build => 1);
 has contents_history_recursive
     => (is => 'ro', isa => 'VCI::Abstract::History', lazy_build => 1);
-
-# Unfortunately we can't currently enforce this, because Moose throws an
-# error about attribute conflicts for a Directory, which is both a Committable
-# and a FileContainer.
-#has 'project'  => (is => 'ro', isa => 'VCI::Abstract::Project', required => 1);
 
 # Unfortunately Moose is a little dumb about Roles sometimes, and requires
 # our *abstract* classes to implement these, instead of our subclasses. So
@@ -23,7 +23,7 @@ has contents_history_recursive
 sub _build_contents_history {
     my $self = shift;
     my @histories = map {$_->history} @{$self->contents};
-    return $self->project->repository->vci->history_class->union(
+    return $self->history_class->union(
         histories => \@histories, project => $self->project);
 }
 
@@ -32,7 +32,7 @@ sub _build_contents_history_recursive {
     my @histories;
     push(@histories, $self->contents_history);
     push(@histories, @{ _get_histories($self->contents) });
-    return $self->project->repository->vci->history_class->union(
+    return $self->history_class->union(
                histories => \@histories, project => $self->project);
 }
 

@@ -9,7 +9,18 @@ use Scalar::Util qw(blessed);
 
 use Exporter;
 our @ISA = qw(Exporter);
-our @EXPORT_OK = qw(taint_fail detaint);
+our @EXPORT_OK = qw(taint_fail detaint CLASS_METHODS);
+
+# A list of _class methods from VCI.pm that we delegate to other classes.
+use constant CLASS_METHODS => qw(
+    commit_class
+    diff_class
+    directory_class
+    file_class
+    history_class
+    project_class
+    repository_class
+);
     
 ###############
 # Subroutines #

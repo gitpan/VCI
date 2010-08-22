@@ -2,16 +2,18 @@ package VCI::Abstract::Repository;
 use Moose;
 use MooseX::Method;
 
+# Required for the "| Undef" type constraint.
 use VCI::Abstract::Project;
-use VCI::Util qw(taint_fail);
+use VCI::Util qw(CLASS_METHODS taint_fail);
 
 use Carp qw(croak);
 use Scalar::Util qw(tainted);
 
-has 'root'     => (is => 'ro', isa => 'Str', required => 1);
+has 'vci'      => (is => 'ro', isa => 'VCI', required => 1,
+                   handles => [CLASS_METHODS]);
 has 'projects' => (is => 'ro', isa => 'ArrayRef[VCI::Abstract::Project]',
                    lazy_build => 1);
-has 'vci'      => (is => 'ro', isa => 'VCI', required => 1);
+has 'root'     => (is => 'ro', isa => 'Str', required => 1);
 has 'root_project' => (is => 'ro', isa => 'VCI::Abstract::Project | Undef',
                        lazy_build => 1);
 
@@ -25,7 +27,7 @@ method 'get_project' => named (
 ) => sub {
     my ($self, $params) = @_;
   
-    return $self->vci->project_class->new(
+    return $self->project_class->new(
         name => $params->{name}, repository => $self);
 };
 
@@ -45,7 +47,7 @@ sub _root_never_ends_with_slash  { $_[0]->{root} =~ s|/\s*$|| }
 
 # To implement build_root_project for VCSes that support it.
 sub _root_project {
-    return $_[0]->vci->project_class->new(repository => $_[0], name => '');
+    return $_[0]->project_class->new(repository => $_[0], name => '');
 }
 
 __PACKAGE__->meta->make_immutable;

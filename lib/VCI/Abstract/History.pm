@@ -3,12 +3,13 @@ use Moose;
 use MooseX::Method;
 use VCI::Util;
 
+with 'VCI::Abstract::ProjectItem';
+
 # XXX Will also need some sort of graph view of commits for things like Git
 #     and Hg.
 
 has 'commits' => (is => 'ro', isa => 'ArrayRef[VCI::Abstract::Commit]',
                   required => 1);
-has 'project' => (is => 'ro', isa => 'VCI::Abstract::Project', required => 1);
 
 method 'union' => named (
     # XXX Should be ArrayRef[VCI::Abstract::History]

@@ -9,4 +9,6 @@ sub _transform_filename {
     return $name;
 }
 
+__PACKAGE__->meta->make_immutable;
+
 1;

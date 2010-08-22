@@ -7,27 +7,10 @@ use File::Temp qw(tempdir);
 use File::Path;
 
 use VCI::Util;
-use VCI::VCS::Cvs::File;
-use VCI::VCS::Cvs::Commit;
-use VCI::VCS::Cvs::History;
 
 extends 'VCI::Abstract::Project';
 
-# XXX If this string shows up in a log message, that could mess up our parsing.
-use constant CVSPS_SEPARATOR => "\n\n---------------------\n";
-use constant CVSPS_PATCHSET  => qr/
-^PatchSet\s(\d+)\s?\n
-Date:\s(\S+\s\S+)\n
-Author:\s(\S+)\n
-Branch:\s\S+\n
-Tag:\s[^\n]+\s?\n
-(?:Branches:[^\n]\n)?
-Log:\n
-(.*)\n
-\n
-Members:\s?\n
-(.*)$
-/sox;
+use constant CVSPS_SEPARATOR => "---------------------";
 
 use constant CVSPS_MEMBER => qr/^\s+(.+):(INITIAL|[\d\.]+)->([\d\.]+)(\(DEAD\))?/o;
 
@@ -53,8 +36,8 @@ method 'get_file' => named (
     confess("Empty path name passed to get_file") if $path->is_empty;
     
     if (defined $rev) {
-        my $file = VCI::VCS::Cvs::File->new(path => $path, revision => $rev,
-                                            project => $self);
+        my $file = $self->file_class->new(path => $path, revision => $rev,
+                                          project => $self);
         # If $file->time works, then we have a valid file & revision.
         return $file if defined eval { $file->time };
         undef $@; # Don't mess up anything else that checks $@.
@@ -69,75 +52,131 @@ method 'get_file' => named (
 
 sub _build_history {
     my $self = shift;
-    my $stdout = $self->x_cvsps_do();
+    my @lines = split "\n", $self->x_cvsps_do(undef, 1);
 
     my @commits;
-    # The \n\n makes the split work more easily.
-    $stdout = "\n\n$stdout";
-    my @patchsets = split(CVSPS_SEPARATOR, $stdout);
-    shift @patchsets; # The first item will be empty.
-    foreach my $patchset (@patchsets) {
-        if ($patchset =~ CVSPS_PATCHSET) {
-            my ($revision, $date, $author, $message, $members) =
-                ($1, $2, $3, $4, $5);
-            my (@added, @removed, @modified);
-            foreach my $item (split("\n", $members)) {
-                if ($item =~ CVSPS_MEMBER) {
-                    my ($path, $from_rev, $to_rev, $dead) = ($1, $2, $3, $4);
-                    my $file = VCI::VCS::Cvs::File->new(
-                        path => $path, revision => $to_rev, project => $self,
-                        time => "$date UTC");
-                    if ($from_rev eq 'INITIAL') {
-                        push(@added, $file);
-                    }
-                    elsif ($dead) {
-                        push(@removed, $file);
-                    }
-                    else {
-                        push(@modified, $file);
-                    }
-                }
-                else {
-                    warn "Failed to parse message item: [$item] for patchset"
-                         . " $revision";
-                }
+    my %current_commit;
+    my $new_patchset = 1;
+    # The first line is a CVSPS_SEPARATOR, so we just discard it.
+    shift @lines;
+    while (@lines) {
+        my $line = shift @lines;
+        if ($line =~ /^Log:\s*$/) {
+            my @log_lines;
+            while (@lines) {
+                last if $lines[0] =~ /^Members:\s*$/;
+                my $log_line = shift @lines;
+                push(@log_lines, $log_line);
             }
-            
-            push(@commits, VCI::VCS::Cvs::Commit->new(revision => $revision,
-                time => "$date UTC", added => \@added, removed => \@removed,
-                modified => \@modified, committer => $author,
-                message => $message, project => $self));
+            $current_commit{'Log'} = \@log_lines;
+        }
+        elsif ($line =~ /^Members:\s*$/) {
+            my @member_lines;
+            while (@lines) {
+                my $member_line = shift @lines;
+                # This discards the extra newline at the end of "Members:"
+                last if $member_line eq '';
+                push(@member_lines, $member_line);
+            }
+            $current_commit{'Members'} = \@member_lines;
+        }
+        elsif ($line =~ /^(\S+):\s+(.+)?$/) {
+            my ($field, $value) = ($1, $2);
+            $current_commit{$field} = $value;
+        }
+        elsif ($new_patchset and $line =~ /^PatchSet\s+(\d+)\s*$/) {
+            $current_commit{PatchSet} = $1;
+            $new_patchset = 0;
+        }
+        elsif ($line eq CVSPS_SEPARATOR) {
+            $new_patchset = 1;
+            push(@commits, $self->_x_commit_from_patchset(\%current_commit));
+            %current_commit = ();
         }
         else {
-            warn "Patchset cannot be parsed:\n" . $patchset;
+            warn "Unparsed cvsps line: $line";
         }
     }
     
-    return VCI::VCS::Cvs::History->new(commits => \@commits, project => $self);
+    if (keys %current_commit) {
+        push(@commits, $self->_x_commit_from_patchset(\%current_commit));
+    }
+    
+    return $self->history_class->new(commits => \@commits, project => $self);
+}
+    
+sub _x_commit_from_patchset {
+    my ($self, $data) = @_;
+    my $log_lines = $data->{Log};
+    # There's an extra newline at the end of @log_lines.
+    pop @$log_lines;
+    
+    my ($added, $removed, $modified) = $self->_x_parse_members($data);
+    
+    return $self->commit_class->new(
+        revision  => $data->{PatchSet},
+        time      => $data->{Date} . ' UTC',
+        committer => $data->{Author},
+        message   => join("\n", @$log_lines),
+        added     => $added,
+        removed   => $removed,
+        modified  => $modified,
+        project   => $self,
+    );
+}
+
+sub _x_parse_members {
+    my ($self, $data) = @_;
+    my $members = $data->{Members};
+    my $date    = $data->{Date} . 'UTC';
+
+    my (@added, @removed, @modified);
+    foreach my $item (@$members) {
+        if ($item =~ CVSPS_MEMBER) {
+            my ($path, $from_rev, $to_rev, $dead) = ($1, $2, $3, $4);
+            my $file = $self->file_class->new(
+                path => $path, revision => $to_rev, project => $self,
+                time => $date);
+            if ($from_rev eq 'INITIAL') {
+                push(@added, $file);
+            }
+            elsif ($dead) {
+                push(@removed, $file);
+            }
+            else {
+                push(@modified, $file);
+            }
+        }
+        else {
+            warn "Failed to parse message item: [$item] for patchset "
+                 . $data->{PatchSet};
+        }
+    }
+    return (\@added, \@removed, \@modified);
 }
 
 sub x_cvsps_do {
     my ($self, $addl_args) = @_;
     $addl_args ||= [];
     my @args = (@$addl_args, '-u', '-b', 'HEAD', $self->name);
-    # Just using the --root argument of cvsps doesn't work.
     my $root = $self->repository->root;
-    my $cvsps = $self->repository->vci->x_cvsps;
+    my $cvsps = $self->vci->x_cvsps;
     
-    if ($self->repository->vci->debug) {
+    if ($self->vci->debug) {
         print STDERR "Running CVSROOT=$root $cvsps " . join(' ', @args)
                      . "\n";
     }
-    
+
+    # Just using the --root argument of cvsps doesn't work.
     local $ENV{CVSROOT} = $root;
     local $ENV{TZ} = 'UTC';
     # See http://rt.cpan.org/Ticket/Display.html?id=31738
     local $IPC::Cmd::USE_IPC_RUN = 1;
     # XXX cvsps must be able to write to $HOME or this will fail.
     my ($success, $error_msg, $all, $stdout, $stderr) =
-        IPC::Cmd::run(command => [$self->repository->vci->x_cvsps, @args]);
+        IPC::Cmd::run(command => [$self->vci->x_cvsps, @args]);
     if (!$success) {
-        confess("$error_msg: $stderr");
+        confess "$error_msg: " . join('', @$stderr);
     }
     
     return join('', @$stdout);
@@ -146,5 +185,7 @@ sub x_cvsps_do {
 sub DEMOLISH {
     File::Path::rmtree($_[0]->x_tmp) if $_[0]->{x_tmp};
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;

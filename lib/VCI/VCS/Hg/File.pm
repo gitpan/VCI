@@ -24,9 +24,7 @@ sub _build_content {
 sub _build_history {
     my $self = shift;
 
-    # Have to "require" to avoid dependency loops.
-    require VCI::VCS::Hg::History;
-    return VCI::VCS::Hg::History->x_from_rss($self->path, $self->project);
+    return $self->history_class->x_from_rss($self->path, $self->project);
 }
 
 __PACKAGE__->meta->make_immutable;

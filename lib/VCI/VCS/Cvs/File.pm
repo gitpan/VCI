@@ -9,17 +9,18 @@ use constant CHECKOUT_HEADER => '=+\n.+?\nRCS:\s+.+?,v\nVERS: [\.\d]+\n\*+\n';
 
 sub _build_revision {
     my $self = shift;
-    my $output = $self->project->repository->vci->x_do(
+    my $output = $self->vci->x_do(
         args    => ['-n', 'status', $self->name],
         fromdir => $self->parent->x_cvs_dir);
     $output =~ /^\s+Repository revision:\s([\d\.]+)/ms;
     return $1;
 }
+sub _build_revno { shift->revision }
 
 sub _build_time {
     my $self = shift;
     my $rev = $self->revision;
-    my $output = $self->project->repository->vci->x_do(
+    my $output = $self->vci->x_do(
         args => ['-n', 'log', '-N', "-r$rev", $self->name],
         fromdir => $self->parent->x_cvs_dir);
     $output =~ /^date: (\S+ \S+);/ms;
@@ -32,7 +33,7 @@ sub _build_time {
 sub _build_content {
     my $self = shift;
     my $rev = $self->revision;
-    my $output = $self->project->repository->vci->x_do(
+    my $output = $self->vci->x_do(
         args    => ['update', '-p', "-r$rev", $self->name],
         fromdir => $self->parent->x_cvs_dir);
     # CVS puts a header at the top of each file it checks out, when using

@@ -1,9 +1,12 @@
 package VCI;
-use 5.006;
+use 5.008;
 use Moose;
-our $VERSION = '0.5.4';
+our $VERSION = '0.6.0_1';
 
+use Class::MOP;
 use VCI::Util;
+
+use constant CLASS_BASE => 'VCI::VCS::';
 
 # Will also need a write_repo in the future, if we add commit support,
 # for things like Hg that read from hgweb but have to write through the
@@ -17,13 +20,23 @@ has 'debug' => (is => 'ro', isa => 'VCI::Type::IntBool', coerce => 1,
 has 'repository' => (is => 'ro', isa => 'VCI::Abstract::Repository',
                      lazy_build => 1);
 
+has 'vci_class'        => (is => 'ro', isa => 'ClassName', lazy_build => 1);
+has 'commit_class'     => (is => 'ro', isa => 'ClassName', lazy_build => 1);
+has 'diff_class'       => (is => 'ro', isa => 'ClassName', lazy_build => 1);
+has 'directory_class'  => (is => 'ro', isa => 'ClassName', lazy_build => 1);
+has 'file_class'       => (is => 'ro', isa => 'ClassName', lazy_build => 1);
+has 'history_class'    => (is => 'ro', isa => 'ClassName', lazy_build => 1);
+has 'project_class'    => (is => 'ro', isa => 'ClassName', lazy_build => 1);
+has 'repository_class' => (is => 'ro', isa => 'ClassName', lazy_build => 1);
+
 sub connect {
     my $class = shift;
     my %params = @_;
     my $type = $params{type};
-    eval("require VCI::VCS::$type")
+    my $vci_class = $params{vci_class} || CLASS_BASE . $type;
+    eval { Class::MOP::load_class($vci_class) }
         || confess("$type is not a valid VCI driver: $@");
-    my $vci = "VCI::VCS::$type"->new(@_);
+    my $vci = $vci_class->new(@_);
     $vci->_check_api();
     my $repo = $vci->repository;
     return $repo;
@@ -70,19 +83,19 @@ sub _check_api {
     }
 }
 
-sub directory_class  { return shift->_class('Directory')  }
-sub file_class       { return shift->_class('File')       }
-sub history_class    { return shift->_class('History')    }
-sub project_class    { return shift->_class('Project')    }
-sub repository_class { return shift->_class('Repository') }
+sub _build_vci_class        { CLASS_BASE . shift->type }
+sub _build_commit_class     { return shift->_class('Commit')     }
+sub _build_diff_class       { return shift->_class('Diff')       }
+sub _build_directory_class  { return shift->_class('Directory')  }
+sub _build_file_class       { return shift->_class('File')       }
+sub _build_history_class    { return shift->_class('History')    }
+sub _build_project_class    { return shift->_class('Project')    }
+sub _build_repository_class { return shift->_class('Repository') }
 
 sub _class {
     my ($self, $class) = @_;
-    my $module = 'VCI::VCS::' . $self->type . '::' . $class;
-    my $file = $module;
-    $file =~ s{::}{/}g;
-    eval { require "$file.pm" }
-        || confess("Error requiring $module: $@");
+    my $module = $self->vci_class . '::' . $class;
+    Class::MOP::load_class($module);
     return $module;
 }
 
@@ -608,7 +621,7 @@ Max Kanat-Alexander <mkanat@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2007-2008 by Everything Solved, Inc.
+Copyright 2007-2010 by Everything Solved, Inc.
 
 L<http://www.everythingsolved.com>
 

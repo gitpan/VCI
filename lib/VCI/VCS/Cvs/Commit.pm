@@ -1,8 +1,6 @@
 package VCI::VCS::Cvs::Commit;
 use Moose;
 
-use VCI::VCS::Cvs::Diff;
-
 extends 'VCI::Abstract::Commit';
 
 use constant REMOVE_HEADER => '
@@ -25,7 +23,7 @@ sub _build_as_diff {
     $diff =~ s/$header_re//sox;
     # Pull off lines now until we get to "Index:"
     $diff =~ s/^\s+.*?(^Index)/$1/ms;
-    return VCI::VCS::Cvs::Diff->new(raw => $diff, project => $self->project);
+    return $self->diff_class->new(raw => $diff, project => $self->project);
 }
 
 __PACKAGE__->meta->make_immutable;

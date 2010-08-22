@@ -42,6 +42,7 @@ use constant EXPECTED_CONTENTS => [qw(
 
 use constant EXPECTED_COMMIT => {
     revision  => 6,
+    revno     => 6,
     message   => "This is the commit for testing VCI.\n"
                  . "And it has a two-line message.",
     committer => 'mkanat',
@@ -62,6 +63,7 @@ use constant EXPECTED_COMMIT => {
 use constant EXPECTED_FILE => {
     path     => 'examples/htom_debug_example.php',
     revision => '1.3',
+    revno    => '1.3',
     time     => '2007-09-03T01:40:30',
     timezone => '+0000',
     size     => 473,
@@ -104,7 +106,7 @@ my $repo_success = eval {
 };
 $repo_success || plan skip_all => "Unable to create cvs testing repo: $@";
 
-plan tests => 46;
+plan tests => 48;
 
 test_vcs({
     type          => 'Cvs',

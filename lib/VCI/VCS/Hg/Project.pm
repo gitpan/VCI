@@ -2,11 +2,9 @@ package VCI::VCS::Hg::Project;
 use Moose;
 use MooseX::Method;
 
-use XML::Simple;
+use XML::Simple qw(:strict);
 
 use VCI::Util;
-use VCI::VCS::Hg::Commit;
-use VCI::VCS::Hg::History;
 
 extends 'VCI::Abstract::Project';
 
@@ -44,7 +42,7 @@ sub x_get {
 # changesets themselves can easily modify themselves.
 sub _build_history {
     my $self = shift;
-    return VCI::VCS::Hg::History->x_from_rss('', $self);
+    return $self->history_class->x_from_rss('', $self);
 }
 
 sub _build_head_revision {

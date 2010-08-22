@@ -3,7 +3,6 @@ use Moose;
 use MooseX::Method;
 
 use VCI::Util;
-use VCI::VCS::Hg::Project;
 
 extends 'VCI::Abstract::Repository';
 
@@ -38,8 +37,8 @@ sub _build_projects {
     foreach my $dir (@lines) {
         next if $dir eq '';
         $dir =~ s|^\Q$root\E||;
-        push(@projects, VCI::VCS::Hg::Project->new(name => $dir,
-                                                   repository => $self));
+        push(@projects, $self->project_class->new(name => $dir,
+                                                  repository => $self));
     }
     return \@projects;
 }

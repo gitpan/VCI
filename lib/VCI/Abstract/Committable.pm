@@ -2,6 +2,8 @@ package VCI::Abstract::Committable;
 use Moose::Role;
 use VCI::Util;
 
+with 'VCI::Abstract::ProjectItem';
+
 has 'history'        => (is => 'ro', isa => 'VCI::Abstract::History', lazy_build => 1);
 
 has 'first_revision' => (is => 'ro', does => 'VCI::Abstract::Committable',
@@ -10,7 +12,8 @@ has 'first_revision' => (is => 'ro', does => 'VCI::Abstract::Committable',
 has 'last_revision'  => (is => 'ro', does => 'VCI::Abstract::Committable',
                          lazy_build => 1);
 
-has 'revision'   => (is => 'ro', lazy_build => 1);
+has 'revision'   => (is => 'ro', lazy_build => 1, predicate => '_has_revision');
+has 'revno'      => (is => 'ro', lazy_build => 1);
 # All of this crazy init_arg stuff means "coerce lazily, because it's
 # slow to make thousands of DateTime and Path::Abstract::Underload objects."
 has 'time'       => (is => 'ro', isa => 'VCI::Type::DateTime', coerce => 1,
@@ -28,8 +31,6 @@ has 'name'       => (is => 'ro', isa => 'Str', lazy => 1,
 
 has 'parent'     => (is => 'ro', does => 'VCI::Abstract::Committable',
                      lazy_build => 1);
-has 'project'    => (is => 'ro', isa => 'VCI::Abstract::Project',
-                     required => 1);
 
 # Unfortunately Moose is a little dumb about Roles sometimes, and requires
 # our *abstract* classes to implement these, instead of our subclasses. So
@@ -46,6 +47,12 @@ sub _build_last_revision {
     my $self = shift;
     my $commit = $self->history->commits->[-1];
     return $self->_me_from($commit);
+}
+
+sub _build_revno {
+    my $self = shift;
+    my $commit = $self->project->get_commit(revision => $self->revision);
+    return $commit->revno;
 }
 
 sub _me_from {
@@ -71,11 +78,11 @@ sub _build_history {
                                @{$commit->contents};
         push(@commits, $commit) if $in_contents;
         if (exists $commit->moved->{$current_path}) {
-            $current_path = $commit->moved->{$current_path};
+            $current_path = $commit->moved->{$current_path}->path->stringify;
         }
     }
     
-    return $self->project->repository->vci->history_class->new(
+    return $self->history_class->new(
         commits => [reverse @commits],
         project => $self->project,
     );
@@ -189,7 +196,17 @@ it may not be the same as the information about the most recent revision.
 =item C<revision>
 
 The revision identifier of the particular item that you're dealing with
-right now.
+right now. Similar to L<VCI::Abstract::Commit/revision>.
+
+This may be different than the revision id of the commit that
+this file/directory was committed in, because some VCSes (like CVS) have
+revision ids for individual files.
+
+=item C<revno>
+
+Similar to L<VCI::Abstract::Commit/revno>. This represents the revision
+number that corresponds to the revision id in L</revision>. In some VCSes,
+this is identical to L</revision>.
 
 =item C<time>
 

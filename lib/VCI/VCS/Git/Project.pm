@@ -1,10 +1,6 @@
 package VCI::VCS::Git::Project;
 use Moose;
 
-use VCI::VCS::Git::Commit;
-use VCI::VCS::Git::Directory;
-use VCI::VCS::Git::History;
-
 use Cwd qw(abs_path);
 use Git ();
 
@@ -22,7 +18,7 @@ sub _build_x_git {
     my $self = shift;
     my $repo = Git->repository(abs_path($self->repository->root) . '/'
                                . $self->name);
-    if ($self->repository->vci->debug) {
+    if ($self->vci->debug) {
         print STDERR "Connected to Git, Version: " . $repo->version . "\n";
     }
     return $repo;
@@ -32,7 +28,7 @@ sub x_do {
     my ($self, $command, $args, $as_string) = @_;
     $args ||= [];
     my $git = $self->x_git;
-    if ($self->repository->vci->debug) {
+    if ($self->vci->debug) {
         print STDERR "Calling [" . $git->exec_path . "/git $command "
             . join(' ', @$args) . "] on [" . $git->repo_path . "]\n";
     }
@@ -48,18 +44,20 @@ sub x_do {
 # populate themselves.
 sub _build_history {
     my $self = shift;
-    my $lines = $self->x_do('log', ['--pretty=format:%H%n%cD%n%cn <%ce>%n',
-                                    '--reverse', '-m'], 1);
+    my $lines = $self->x_do('log',
+        ['--pretty=format:%H%n%cD%n%cn <%ce>%n%an <%ae>%n', '--reverse', '-m'],
+        1);
     my @messages = split("\n\n", $lines);
     my @commits;
     foreach my $message (@messages) {
-        my ($id, $time, $committer) = split("\n", $message);
+        my ($id, $time, $committer, $author) = split("\n", $message);
         # Times start with "Wed" or "Thu", etc., which Date::Parse can't handle.
         $time =~ s/^\w{3}, //;
-        push(@commits, VCI::VCS::Git::Commit->new(revision => $id,
-            time => $time, committer => $committer, project => $self));
+        push(@commits, $self->commit_class->new(revision => $id,
+            time => $time, committer => $committer, author => $author,
+            project => $self));
     }
-    return VCI::VCS::Git::History->new(commits => \@commits, project => $self);
+    return $self->history_class->new(commits => \@commits, project => $self);
 }
 
 __PACKAGE__->meta->make_immutable;

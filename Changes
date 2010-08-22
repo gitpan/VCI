@@ -1,10 +1,37 @@
+0.6.0_1 Aug 22, 2010
+   - VCI now explicitly requires Perl 5.8. (We probably always did actually
+     require 5.8, because some of our dependencies did.)
+   - VCI now does nearly all of its internal class loading on-demand instead of
+     during compile time. This eliminates dependency loops and probably
+     helps some with startup time.
+
+   New Features:
+      - There is a new "revno" accessor for Commit objects. "revision"
+        now always represents the global revision id, if the VCS has one.
+      - Commit objects have an "author" accessor in addition to the
+        "committer" accessor, for VCSes that understand those things
+        as separate concepts.
+      - Svn: More debug output available.
+   
+   API Changes:
+      - A Commit's "moved" accessor now has Committable objects (File or
+        Directory objects) for its values instead of strings.
+      - Bzr: A Commit's "revision" accessor now returns a revid instead of
+        a revision number. This also means that every method that takes
+        "revision" as an argument works on revids intead of revision numbers.
+
+   Bug Fixes:
+      - The Cvs driver was unable to parse certain valid commit histories,
+        meaning that sometimes commits would be missing. The parser has
+        been re-written to be faster and more reliable.
+
 0.5.4 Aug 13, 2010
    - Most modules that used to be optional are now required, to improve
      the amount of testing that we get, and to simplify configuration for
      downstream consumers.
   - A few minor POD and test improvements.
 
-0.5.3 Feb 14, 2009
+0.5.3 Feb 14, 2010
     Bug Fixes:
         - Cvs and Bzr: Drivers now work when IPC::Cmd > 0.41 is installed.
         - Bzr: Now works reliably with bzr > 1.15.
@@ -17,7 +44,9 @@
     - Fix a test failure that only happens when using the XS in recent
       Class::MOP releases.
 
-0.5.1 Jan 2, 2008
+0.5.0_1 became 0.5.1 with no changes.
+
+0.5.0_1 Dec 9, 2008
     - No API changes, just major performance enhancements.
 
     Bug Fixes:
@@ -69,6 +98,23 @@
         - Cvs always said the timezone of commits was the local timezone.
           Now it's always UTC, to be consistent on all machines.
 
+0.3.0_1 Sat, Oct 13, 2007
+    New Features:
+        - Repository has a root_project to represent the idea that in some
+          VCSes, the entire repository can be looked at as one Project.
+        - Directory has contents_history_recursive, which gives a History
+          for the contents of that directory and the contents of all its
+          directories, etc.
+    
+    Optimizations:
+        - Calling Bzr::Project::history should now be much faster,
+          particularly on large projects.
+    
+    Bug Fixes:
+        - Make the bzr tests work with modern versions of bzr. (Fix the
+          parsing of the --version output.)
+        - History::union was sorting by revision number instead of by time.
+
 0.2.1 Fri, Sep 17, 2007
     - We now explicitly require Perl 5.6.0, which is what
       Perl::MinimumVersion says we require. No promises that all our
@@ -103,6 +149,51 @@
         - Specifying a value greater than 1 for "debug" in VCI->connect
           was throwing an error.
         - Cvs wasn't dying correctly when a command failed.
+        - File::is_executable wasn't correctly specified as being Bool.
+        - Svn should now correctly delete temp files created by
+          Commit::as_diff after build_as_diff returns.
+
+0.2.0_2 Fri, Sep 14, 2007
+    New Features:
+        - Added Project::head_revision, which returns the revision identifier
+          that represents "head" in the Project.
+        - You can now specify "revision" to get_file to get a particular
+          revision of that file.
+    
+    API Changes:
+        - Renamed get_commit's "as_of" to "at_or_before", which is more
+          correct English-wise. (Thanks to LTJake on IRC.)
+    
+    Optimizations:
+        - Hg's File::history should now be much faster, as gets the
+          information directly from Hg instead of building it from the
+          Project's History.
+    
+    Bug Fixes:
+        - Sometimes Cvs's File::content was including CVS's header at the
+          end of the content.
+        - Specifying a value greater than 1 for "debug" in VCI->connect
+          was throwing an error.
+        - Cvs wasn't dying correctly when a command failed.
+
+0.2.0_1 Thu, Sep 13, 2007
+    New Features:
+        - Added File::content, which allows you to get the actual raw content
+          of a file at its particular revision.
+        - Added File::content_size, which allows you to get the size of the
+          file in bytes at its particular revision.
+        - In addition to specifying a revision ID, you can now specify "time"
+          and "as_of" to Project::get_commit.
+    
+    API Changes:
+        - Project::get_commit now takes named parameters instead of a single
+          positional parameter.
+        - Project::get_history_by_time no longer has an "at" argument. (Use
+          get_commit(time => 'blah') instead.)
+        - Svn's FileOrDirectory is now *both* a VCI::Abstract::File and a
+          VCI::Abstract::Directory, instead of being neither.
+    
+    Bug Fixes:
         - File::is_executable wasn't correctly specified as being Bool.
         - Svn should now correctly delete temp files created by
           Commit::as_diff after build_as_diff returns.
@@ -145,6 +236,108 @@
         - You can set VCI_REMOTE_TESTS = 1 in your environment to run
           tests that involve accessing machines over the Internet.
 
+0.1.0_4 Fri, Sep 7, 2007
+    - This release will probably be released as 0.1.1 in a few days,
+      with a few POD improvements, unless there are terrible test failures
+      that I don't know about.
+    - Added tests for Hg, which found and fixed several bugs, listed lower
+      in these notes.
+    - We now require Text::Diff::Parser 0.07 which fixes bugs that affect us.
+    - In Project, get_path, get_file, and get_directory now take named
+      parameters instead of positional parameters, to prepare for future
+      API improvements.
+    
+    Tests:
+        - You can set VCI_TEST_DEBUG = 1 in the environment to have VCI
+          connect with "debug" turned on during tests.
+        - Set VCI_REMOTE_TESTS to 1 in the environment to run tests that
+          involve accessing things across the Internet.
+    
+    Hg:
+        - If you had a url like http://domain.com/repos/ for your Hg repo,
+          Project names would look like "repos/project" instead of just
+          "project".
+        - Repository::projects returned an extra project that had an
+          empty name.
+        - Slashes at the start of a project name will be stripped, now.
+        - Getting the contents of any directory other than the root_directory
+          wasn't working.
+        - Sometimes Committable objects would die when asked for their time,
+          in certain timezones.
+        - Commit::added, Commit::modified, and Commit::removed didn't work
+          at all.
+        - Messages had "<br/>" included in them, often.
+
+0.1.0_3 Wed, Sep 3, 2007
+    - The XML output format of bzr-xmloutput changed as of revision 18 of
+      that plugin. The Bzr driver now supports both the old and the new
+      format.
+    - Calling Bzr::Repository->projects would sometimes fail because
+      Repository.pm wasn't using VCI::VCS::Bzr::Project.
+    - Tests were always failing because they weren't properly checking
+      for non-perl-module prerequisites.
+
+0.1.0_2 Mon, Sep 3, 2007
+    - 0.1.0_1 was completely broken for several drivers (couldn't connect
+      to a Repository).
+    - Various fixes to Diffs in various drivers (compared to 0.1.0_1).
+    - Project objects now remove trailing and starting forward-slashes
+      from their names when they are initialized. So "/project/" will be the
+      same as "project".
+    - Various POD fixes.
+    - Doing "./Build dist" will now always run tests before building the
+      distribution. This is necessary because running the tests properly
+      sets up t/repos/ for distribution.
+    - Added tests for Cvs, Svn, Git, and Bzr, which caused a lot of re-arch
+      and various bug fixes:
+    
+    Svn:
+        - Support for local repositories, including relative paths.
+        - "time" on objects from get_path, get_file, and get_directory
+          was wrong. (Svn returns microseconds and we were interpreting
+          them as seconds.)
+        - The 'R' action is now interepreted as the file being modified,
+          not added and then deleted.
+        - Properly strip the final newline from Commit::message.
+        - Copied/moved files now handled correctly (and how they are
+          handled is better documented).
+        - File and Directory objects from other Projects won't show up
+          in your Project's Commit objects.
+    
+    Cvs:
+        - Support for local repositories, including relative paths.
+        - Repository now supports "projects".
+        - File and Directory objects now return the correct time if gotten
+          from get_path, get_file, or get_directory.
+        - We weren't passing the "-u" argument to cvsps, so the History
+          wasn't being updated if there was a new commit to the repository
+          since the very first time anybody ever called "history" on this
+          project.
+    
+    Git:
+        - Calling "contents" on a versioned Directory now correctly returns
+          the contents of that Directory at that time in history.
+        - Commit::message was always returning an empty string. It now
+          correctly returns the message.
+        - File objects now return their most recent revision instead of
+          'HEAD' if you got them from get_path or get_file.
+        - Support for relative paths to local repos.
+        - Repository::projects now also detects "bare" repositories.
+    
+    Bzr:
+        - Commit:message no longer has an extra space at the start or an
+          extra newline at the end.
+
+0.1.0_1 Fri, Aug 31, 2007
+    - Added "as_diff" to VCI::Abstract::Commit, and implemented it in all
+      drivers. This allows you to get the actual changes done during
+      the commit both as a raw diff from the VCS and as an object
+      representing that diff.
+    - Repository objects now fix "root" to end with a slash (if it doesn't
+      already) on most VCSes, and fix it to *not* end with a slash on
+      CVS.
+    - Slightly improved debug output for Bzr.
+
 0.0.3 Fri, Aug 31, 2007
     - Svn history was broken when the repo history contained copied items.
 
@@ -158,3 +351,6 @@
     - Test::Warn was missing from build_requires
     - Cleaned up documentation
     - Committables now can never be created with just time and no revision.
+
+0.0.0_1 Mon, Aug 27, 2007
+    - Initial release, supporting Bzr, Svn, Hg, and Git

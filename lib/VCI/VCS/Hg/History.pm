@@ -1,7 +1,7 @@
 package VCI::VCS::Hg::History;
 use Moose;
 
-use VCI::VCS::Hg::Commit;
+use XML::Simple qw(:strict);
 
 extends 'VCI::Abstract::History';
 
@@ -43,7 +43,8 @@ sub _x_get_rss_commits {
             last if $link =~ /\Q$rev_id\E/;
         }
     }
-    return [map { VCI::VCS::Hg::Commit->x_from_rss_item($_, $project) } @$items];
+    return [map { $project->commit_class->x_from_rss_item($_, $project) }
+                @$items];
 }
 
 __PACKAGE__->meta->make_immutable;

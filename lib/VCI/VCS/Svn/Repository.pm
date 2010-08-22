@@ -5,8 +5,6 @@ use Cwd qw (abs_path);
 use SVN::Ra;
 
 use VCI::Util qw(detaint);
-use VCI::VCS::Svn::Directory;
-use VCI::VCS::Svn::Project;
 
 extends 'VCI::Abstract::Repository';
 
@@ -42,7 +40,7 @@ sub _build_projects {
     my @projects;
     foreach my $item (@$contents) {
         next if !$item->isa('VCI::VCS::Svn::Directory');
-        my $project = VCI::VCS::Svn::Project->new(
+        my $project = $self->project_class->new(
             name => $item->name, repository => $self,
             root_directory => $item);
         push(@projects, $project);

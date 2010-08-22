@@ -1,8 +1,6 @@
 package VCI::VCS::Svn::Directory;
 use Moose;
 
-use VCI::VCS::Svn::File;
-
 use Path::Abstract::Underload;
 use SVN::Core;
 
@@ -17,10 +15,11 @@ sub _x_handle_svn_failure { die $_[0]; }
 sub _build_contents {
     my $self = shift;
     my $project = $self->project;
-    my $vci = $project->repository->vci;
+    my $vci = $project->vci;
     my $ra = $project->repository->x_ra;
     my $dir_path  = Path::Abstract::Underload->new($project->name, $self->path);
-    print STDERR "Getting contents for $dir_path rev " . $self->revision . "\n"
+    print STDERR "Getting contents for " . $dir_path->stringify
+                 . " rev " . $self->revision . "\n"
         if $vci->debug;
 
     my @info;
@@ -69,7 +68,7 @@ sub _build_contents {
             push(@contents, $dir);
         }
         elsif ($item->kind == $SVN::Node::file) {
-            my $file = VCI::VCS::Svn::File->new(
+            my $file = $self->file_class->new(
                 path => $path, project => $project, parent => $self,
                 x_info => $item);
             push(@contents, $file);

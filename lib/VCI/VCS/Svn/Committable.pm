@@ -33,8 +33,8 @@ sub _build_history {
     my $commits = $self->project->_x_get_commits(
         path => Path::Abstract::Underload->new($self->project->name,
                                     $self->path->stringify)->stringify);
-    return VCI::VCS::Svn::History->new(commits => $commits,
-                                       project => $self->project);
+    return $self->history_class->new(commits => $commits,
+                                     project => $self->project);
 }
 
 sub _build_revision {
@@ -58,7 +58,7 @@ sub _build_time {
 # construction.
 sub _build_x_info {
     my $self = shift;
-    my $ctx = $self->repository->vci->x_client;
+    my $ctx = $self->vci->x_client;
     my $info;
     # XXX Need to check return for errors.
     my $full_path = Path::Abstract::Underload->new($self->name, $self->path);

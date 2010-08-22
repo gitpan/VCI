@@ -34,6 +34,7 @@ use constant EXPECTED_CONTENTS => [qw(
 
 use constant EXPECTED_COMMIT => {
     revision  => 12,
+    revno     => 12,
     message   => "This is the commit for testing VCI.\n"
                  . "And it has a two-line message.",
     committer => 'mkanat',
@@ -56,6 +57,7 @@ use constant EXPECTED_COMMIT => {
 use constant EXPECTED_FILE => {
     path     => 'GQProtocol_SourceEngine.inc.php',
     revision => 11,
+    revno    => 11,
     time     => '2007-08-13T04:54:44',
     timezone => '+0000',
     size     => 11819,
@@ -99,7 +101,7 @@ eval { require SVN::Core };
 
 plan skip_all => "svn not enabled" if !feature_enabled('svn');
 
-plan tests => 49;
+plan tests => 51;
 
 test_vcs({
     type          => 'Svn',

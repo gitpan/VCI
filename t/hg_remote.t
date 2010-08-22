@@ -29,7 +29,10 @@ tests/run-tests.sh tests/width-good.agh
 )];
 
 use constant EXPECTED_COMMIT => {
+    # XXX At some point we should actually properly support revno,
+    #     and "revision" should become the full revision id.
     revision  => 'b56a898fdf90',
+    revno     => 'b56a898fdf90',
     message   => "This is the commit for testing VCI.\n"
                  . "And it has a two-line message.",
     committer => 'root@12.d1.5446.static.theplanet.com',
@@ -47,6 +50,7 @@ use constant EXPECTED_COMMIT => {
 use constant EXPECTED_FILE => {
     path     => 'Makefile',
     revision => '626207473726',
+    revno    => '626207473726',
     time     => '2007-02-01T09:59:44',
     timezone => '+0100',
     size     => 865,
@@ -63,7 +67,7 @@ plan skip_all => 'VCI_REMOTE_TESTS environment variable not set to 1'
     if !$ENV{VCI_REMOTE_TESTS};
 plan skip_all => "hg not enabled" if !feature_enabled('hg');
 
-plan tests => 46;
+plan tests => 48;
 
 test_vcs({
     type         => 'Hg',
