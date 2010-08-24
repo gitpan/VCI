@@ -1,6 +1,6 @@
 package VCI::VCS::Hg;
 use Moose;
-our $VERSION = '0.6.0_2';
+our $VERSION = '0.6.1';
 
 use LWP::UserAgent;
 

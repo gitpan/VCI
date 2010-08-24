@@ -276,6 +276,5 @@ t/repos/svn/hooks/start-commit.tmpl
 t/repos/svn/locks/db-logs.lock
 t/repos/svn/locks/db.lock
 t/repos/svn/README.txt
-t/repos/svn/svn-test.tar.bz2-25156
 t/svn.t
 t/vci_api_version.t
