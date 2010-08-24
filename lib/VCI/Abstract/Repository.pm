@@ -76,6 +76,9 @@ by your version-control system.
 In some VCSes, it's not really a "server", it's just a directory that contains
 Projects.
 
+For details on what your VCS considers a "repository", see the C<VCI::VCS>
+driver for your VCS.
+
 =head1 METHODS
 
 =head2 Accessors
@@ -157,8 +160,7 @@ implementations will return a valid Project object even if that
 object doesn't exist in the Repository. The only way to know if
 a Project is valid is to perform some operation on it.
 
-Some VCI::VCS implementations may C<die> message if you request an
-invalid Project.
+Some VCI::VCS implementations may C<die> if you request an invalid Project.
 
 =back
 

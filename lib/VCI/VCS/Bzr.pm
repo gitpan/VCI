@@ -1,15 +1,14 @@
 package VCI::VCS::Bzr;
 use Moose;
-use MooseX::Method;
+our $VERSION = '0.6.0_2';
 
 use VCI::Util qw(taint_fail);
 
+use MooseX::Method;
 use IPC::Cmd;
 use Scalar::Util qw(tainted);
 
 extends 'VCI';
-
-our $VERSION = '0.6.0_1';
 
 # The path to the bzr binary.
 has 'x_bzr' => (is => 'ro', isa => 'Str',
@@ -28,11 +27,28 @@ sub diff_class {
 
 sub _build_x_bzr {
     my $cmd = IPC::Cmd::can_run('bzr')
-        || confess('Could not find "bzr" in your path');
+        || confess("Could not find 'bzr' in your path");
     taint_fail("We found '$cmd' for bzr, but that string is tainted."
                . ' This probably means $ENV{PATH} is tainted')
         if tainted($cmd);
     return $cmd;
+}
+
+sub missing_requirements {
+    my $bzr = IPC::Cmd::can_run('bzr');
+    my %have = (
+        bzr => $bzr ? 1 : 0,
+        bzrtools => _check_bzr_plugin($bzr, 'bzrtools'),
+        'bzr-xmloutput' => _check_bzr_plugin($bzr, 'xmloutput'),
+    );
+    return (grep { !$have{$_} } keys %have);
+}
+
+sub _check_bzr_plugin {
+    my ($bzr, $plugin) = @_;
+    return 0 if !$bzr;
+    my $plugins = `$bzr plugins`;
+    return ($plugins =~ /^\Q$plugin\E/m) ? 1 : 0;
 }
 
 method 'x_do' => named (
@@ -49,9 +65,6 @@ method 'x_do' => named (
     if ($self->debug) {
         print STDERR "Command: $full_command\n";
     }
-    
-    # See http://rt.cpan.org/Ticket/Display.html?id=31738
-    local $IPC::Cmd::USE_IPC_RUN = 1;
     
     my ($success, $error_msg, $all, $stdout, $stderr) =
         IPC::Cmd::run(command => [$self->x_bzr, @$args]);
@@ -104,10 +117,16 @@ __END__
 
 VCI::VCS::Bzr - Object-oriented interface to Bazaar (bzr)
 
+=head1 SYNOPSIS
+
+ use VCI;
+ my $repository = VCI->connect(type => 'Bzr',
+                               repo => 'bzr://bzr.example.com/');
+
 =head1 DESCRIPTION
 
 This is a "driver" for L<VCI> for the Bazaar version-control system.
-You can find out more about Bazaar at L<http://bazaar-vcs.org>.
+You can find out more about Bazaar at L<http://bazaar.canonical.com/>.
 
 For information on how to use VCI::VCS::Bzr, see L<VCI>.
 
@@ -149,16 +168,17 @@ contain the full path to the C<bzr> executable, such as F</usr/bin/bzr>.
 
 The C<bzrtools> extension package must be installed. Usually this is
 available as a package (RPM or deb) in your distrubution, or you can
-download it from here: L<http://bazaar-vcs.org/BzrTools>.
+download it from here: L<http://launchpad.net/bzrtools>.
 
 =item bzr-xmloutput
 
 Because VCI::VCS::Bzr processes the output of bzr, it needs it in a
 machine-readable format like XML. For bzr, this is accomplished by the
 C<bzr-xmloutput> plugin, which is available here:
-L<https://launchpad.net/bzr-xmloutput>.
+L<http://launchpad.net/bzr-xmloutput>.
 
-You can read about how to install it at L<http://bazaar-vcs.org/UsingPlugins>.
+You can read about how to install it at
+L<http://doc.bazaar.canonical.com/plugins/en/plugin-installation.html>.
 
 =back
 
@@ -203,18 +223,13 @@ calling C<projects> on a Repository.
 
 L<VCI>
 
-=head1 BUGS
-
-VCI::VCS::Bzr is very new, and may have significant bugs. The code is
-alpha-quality at this point.
-
 =head1 AUTHOR
 
 Max Kanat-Alexander <mkanat@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2007-2008 by Everything Solved, Inc.
+Copyright 2007-2010 by Everything Solved, Inc.
 
 L<http://www.everythingsolved.com>
 

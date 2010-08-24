@@ -5,11 +5,7 @@ use Test::More;
 use lib 't/lib';
 use Support qw(feature_enabled all_modules);
 
-# If we don't do this, Module::Build will think that SVN is *always*
-# disabled.
-eval { require SVN::Core };
-
-plan skip_all => "svn not enabled" if !feature_enabled('svn');
+plan skip_all => "svn requirements not installed" if !feature_enabled('svn');
 
 my @vcs_modules = all_modules("lib/VCI/VCS/Svn");
 push(@vcs_modules, "VCI::VCS::Svn");

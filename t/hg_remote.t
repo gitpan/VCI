@@ -5,7 +5,7 @@ use Test::More;
 use Test::Exception;
 use VCI;
 use lib 't/lib';
-use Support qw(test_vcs feature_enabled);
+use Support qw(test_vcs);
 
 #############################
 # Constants and Subroutines #
@@ -65,7 +65,6 @@ use constant EXPECTED_FILE => {
 
 plan skip_all => 'VCI_REMOTE_TESTS environment variable not set to 1'
     if !$ENV{VCI_REMOTE_TESTS};
-plan skip_all => "hg not enabled" if !feature_enabled('hg');
 
 plan tests => 48;
 

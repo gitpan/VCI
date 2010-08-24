@@ -1,3 +1,13 @@
+0.6.0_2 Aug 23, 2010
+   - The POD has all been reviewed and improved, for every module.
+   - VCI is no longer alpha-quality software.
+   - The VCI package now uses Module::Install instead of Module::Build
+   
+   New Features:
+      - Added a new method to VCI.pm, "missing_requirements", to assist
+        downstream consumers in figuring out what needs to be installed
+        in order for certain VCI::VCS modules to work.
+
 0.6.0_1 Aug 22, 2010
    - VCI now explicitly requires Perl 5.8. (We probably always did actually
      require 5.8, because some of our dependencies did.)

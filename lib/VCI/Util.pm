@@ -111,6 +111,44 @@ VCI::Util - Types and Utility Functions used by VCI
 This contains mostly L<subtypes|Moose::Util::TypeConstraints/subtype> used
 by accessors in various VCI modules.
 
+=head1 TYPES
+
+=over
+
+=item C<VCI::Type::DateTime>
+
+A L<DateTime> object.
+
+If you pass in a number for this argument, it will be interpreted as
+a Unix epoch (seconds since January 1, 1970) and converted to a DateTime
+object using L<DateTime/from_epoch>.
+
+If you pass in a string that's not just an integer, it will be parsed
+by L<DateTime::Format::DateParse>. (B<Note>: If you don't specify a time
+zone in your string, it will be assumed your time is in the local time zone.)
+
+=item C<VCI::Type::IntBool>
+
+This is basically an Int that accepts C<undef> and turns it into 0, and
+converts a string into C<1> if it represents a true value, C<0> if it doesn't.
+
+=item C<VCI::Type::Path>
+
+A L<Path::Abstract::Underload> object. You can convert this into a string
+by calling C<stringify> on it, like: C<< $object->stringify >>
+
+If you pass a string for this argument, it will be converted using
+L<Path::Abstract::Underload/new>. This means that paths are always Unix
+paths--the path separator is always C</>. C<\path\to\file> will not work.
+
+After processing, the path will never start with C</> and never end with
+C</>. (In other words, it will always be a relative path and never end
+with C</>.)
+
+If you pass the root path (C</>) you will get an empty path.
+
+=back
+
 =head1 SUBROUTINES
 
 =over
@@ -144,8 +182,7 @@ That is not a complete list. All VCI::VCS implementors are strongly
 encouraged to read L<perlsec>.
 
 Note that passing a string to L<IPC::Cmd> is safe, because a shell is never
-invoked. If you are going to use L<IPC::Cmd>, please see other VCI::VCS
-implementations for how to make it safe.
+invoked.
 
 =item C<taint_fail>
 
@@ -157,44 +194,5 @@ Messages are thrown from the perspective of the caller, so the error
 is shown up as an error in the caller's code, not an error in VCI.
 
 It takes one argument: the message to warn or die with.
-
-=back
-
-=head1 TYPES
-
-=head2 Objects
-
-=over
-
-=item C<VCI::Type::DateTime>
-
-A L<DateTime> object.
-
-If you pass in a number for this argument, it will be interpreted as
-a Unix epoch (seconds since January 1, 1970) and converted to a DateTime
-object using L<DateTime/from_epoch>.
-
-If you pass in a string that's not just an integer, it will be parsed
-by L<DateTime::Format::DateParse>. (B<Note>: If you don't specify a time
-zone in your string, it will be assumed your time is in the local time zone.)
-
-=item C<VCI::Type::IntBool>
-
-This is basically an Int that accepts C<undef> and turns it into 0, and
-converts a string into C<1> if it represents a true value, C<0> if it doesn't.
-
-=item C<VCI::Type::Path>
-
-A L<Path::Abstract::Underload> object.
-
-If you pass a string for this argument, it will be converted using
-L<Path::Abstract::Underload/new>. This means that paths are always Unix paths--the
-path separator is always C</>. C<\path\to\file> will not work.
-
-After processing, the path will never start with C</> and never end with
-C</>. (In other words, it will always be a relative path and never end
-with C</>.)
-
-If you pass the root path (C</>) you will get an empty path.
 
 =back

@@ -77,6 +77,7 @@ sub _build_history {
         my $in_contents = grep {$_->path->stringify eq $current_path}
                                @{$commit->contents};
         push(@commits, $commit) if $in_contents;
+        # XXX Need to also track our history through copies.
         if (exists $commit->moved->{$current_path}) {
             $current_path = $commit->moved->{$current_path}->path->stringify;
         }
@@ -124,16 +125,6 @@ to a repository. In other words, a File I<or> a Directory.
 
 It represents it at a specific time in its history, so it has a revision
 identifier and time.
-
-=head1 CONSTRUCTION
-
-When you call C<new> on a Committable, if you don't specify C<revision> and
-C<time>, then we assume that you're talking about the most recent version
-that's in the repository, and L</revision> and L</time> will return the
-revision and time of the most recent revision.
-
-You cannot specify L</time> without specifying L</revision>, in the
-constructor.
 
 =head1 METHODS
 
@@ -218,9 +209,9 @@ revision was committed to the repository.
 The L<Path|VCI::Util/VCI::Type::Path> of this file, from the root of the project,
 including its filename if it's a file.
 
-In most version-control systems, this will never change, but there are
-some modern systems that understand the idea of moving or renaming a file,
-so this could be different at different points in history.
+In some version-control systems, this will never change, but there are
+many modern systems that understand the idea of moving, renaming, or copying
+a file, so this could be different at different points in history.
 
 =item C<name>
 
@@ -245,6 +236,17 @@ accessor returns C<undef>.
 The L<VCI::Abstract::Project> that this committable is in.
 
 =back
+
+=head1 FOR IMPLEMENTORS OF VCI::VCS MODULES: CONSTRUCTION
+
+When you call C<new> on a Committable, if you don't specify C<revision> and
+C<time>, then we assume that you're talking about the most recent version
+that's in the repository, and L</revision> and L</time> will return the
+revision and time of the most recent revision.
+
+You cannot specify L</time> without specifying L</revision>, in the
+constructor. (However you can specify L</revision> without specifying
+L</time>.)
 
 =head1 SEE ALSO
 

@@ -170,8 +170,6 @@ sub x_cvsps_do {
     # Just using the --root argument of cvsps doesn't work.
     local $ENV{CVSROOT} = $root;
     local $ENV{TZ} = 'UTC';
-    # See http://rt.cpan.org/Ticket/Display.html?id=31738
-    local $IPC::Cmd::USE_IPC_RUN = 1;
     # XXX cvsps must be able to write to $HOME or this will fail.
     my ($success, $error_msg, $all, $stdout, $stderr) =
         IPC::Cmd::run(command => [$self->vci->x_cvsps, @args]);

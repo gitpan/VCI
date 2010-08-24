@@ -1,5 +1,7 @@
 package VCI::VCS::Cvs;
 use Moose;
+our $VERSION = '0.6.0_2';
+
 use MooseX::Method;
 extends 'VCI';
 
@@ -8,8 +10,6 @@ use IPC::Cmd;
 use Scalar::Util qw(tainted);
 
 use VCI::Util qw(taint_fail detaint);
-
-our $VERSION = '0.6.0_1';
 
 has 'x_cvsps' => (is => 'ro', isa => 'Str', lazy_build => 1);
 has 'x_cvs' => (is => 'ro', isa => 'Str', lazy_build => 1);
@@ -20,6 +20,14 @@ sub BUILD {
         if tainted($self->{x_cvs});
     taint_fail("The x_cvsps argument '$self->{x_cvsps}' is tainted")
         if tainted($self->{x_cvsps});
+}
+
+sub missing_requirements {
+    my @need;
+    foreach my $bin qw(cvs cvsps) {
+        push(@need, $bin) if !IPC::Cmd::can_run($bin);
+    }
+    return @need;
 }
 
 sub _build_x_cvsps {
@@ -57,9 +65,6 @@ method 'x_do' => named (
     my $old_cwd = cwd();
     chdir $fromdir or confess("Failed to chdir to $fromdir: $!");
 
-    # See http://rt.cpan.org/Ticket/Display.html?id=31738
-    local $IPC::Cmd::USE_IPC_RUN = 1;
-    
     my ($success, $error_msg, $all, $stdout, $stderr) =
         IPC::Cmd::run(command => [$self->x_cvs, '-f', @$args]);
 
@@ -104,6 +109,14 @@ __END__
 
 VCI::VCS::Cvs - Object-oriented interface to CVS
 
+=head1 SYNOPSIS
+
+ use VCI;
+ my $repository = VCI->connect(
+    type => 'Cvs',
+    repo => ':pserver:anonymous@cvs.example.com:/cvsroot'
+ );
+
 =head1 DESCRIPTION
 
 This is a "driver" for L<VCI> for the CVS (Concurrent Versioning System)
@@ -114,8 +127,9 @@ For information on how to use VCI::VCS::Cvs, see L<VCI>.
 
 =head1 CONNECTING TO A CVS REPOSITORY
 
-For the L<repo|VCI/repo> argument to L<VCI/connect>, choose what you
-would put in the C<CVSROOT> environment variable.
+For CVS, the format of the L<repo|VCI/repo> argument to L<VCI/connect> is
+the same as what you would put in the C<CVSROOT> environment variable
+when using the C<cvs> program.
 
 The constructor also takes two additional, optional parameters:
 
@@ -187,6 +201,12 @@ integer identifier.
 Since VCI::VCS::Cvs uses cvsps, the revision identifiers on Commit objects
 will be these PatchSet ids.
 
+These patchset ids are cached by C<cvsps> in your home directory, so as long
+as you keep using VCI on the same system, the revision identifiers should stay
+stable. However, if you move VCI to a different system and don't copy the
+cvsps cache (usually in C<$HOME/.cvsps/>) then the revision identifiers for
+Commits might change.
+
 For File objects, the revision identifiers will be the actual revision
 identifier as returned by CVS for that file. For example C<1.1>, etc.
 
@@ -200,7 +220,9 @@ For Directory objects, the revision identifier is currently always C<HEAD>.
 
 Currently VCI doesn't understand the concept of "branches", so you are
 always dealing with the C<HEAD> branch of a project. This will change
-in the future so that VCI can access branches of projects.
+in the future so that VCI can access branches of projects. If this feature
+is important to you, please let the author of VCI know so that he is
+encouraged to implement it more quickly.
 
 =item *
 
@@ -280,18 +302,13 @@ the repository.
 
 L<VCI>
 
-=head1 BUGS
-
-VCI::VCS::Cvs is very new, and may have significant bugs. The code is
-alpha-quality at this point.
-
 =head1 AUTHOR
 
 Max Kanat-Alexander <mkanat@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2007-2008 by Everything Solved, Inc.
+Copyright 2007-2010 by Everything Solved, Inc.
 
 L<http://www.everythingsolved.com>
 

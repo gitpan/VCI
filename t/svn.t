@@ -95,11 +95,7 @@ my $repo_success = eval {
 };
 $repo_success || plan skip_all => "Unable to create svn testing repo: $@";
 
-# If we don't do this, Module::Build will think that SVN is *always*
-# disabled.
-eval { require SVN::Core };
-
-plan skip_all => "svn not enabled" if !feature_enabled('svn');
+plan skip_all => "svn requirements not installed" if !feature_enabled('svn');
 
 plan tests => 51;
 

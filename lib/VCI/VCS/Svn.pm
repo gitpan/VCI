@@ -1,11 +1,10 @@
 package VCI::VCS::Svn;
 use Moose;
+our $VERSION = '0.6.0_2';
 
 use SVN::Client;
 
 extends 'VCI';
-
-our $VERSION = '0.6.0_1';
 
 has 'x_client' => (is => 'ro', isa => 'SVN::Client', lazy_build => 1);
 
@@ -29,10 +28,15 @@ __END__
 
 VCI::VCS::Svn - Object-oriented interface to Subversion
 
+=head1 SYNOPSIS
+
+ my $repository = VCI->connect(type => 'Svn',
+                               repo => 'svn://svn.example.com/svn/');
+
 =head1 DESCRIPTION
 
 This is a "driver" for L<VCI> for the Subversion version-control system.
-You can find out more about Subversion at L<http://subversion.tigris.org/>.
+You can find out more about Subversion at L<http://subversion.apache.org/>.
 
 For information on how to use VCI::VCS::Svn, see L<VCI>.
 
@@ -43,7 +47,7 @@ URL that you'd pass to your SVN client, without the actual branch name.
 That is, pass a URL to the very root of your repository.
 
 For example, if I have a project called Foo that I store in
-C<svn.domain.com/svn/repo/Foo> then the C<repo> would be
+C<svn.domain.com/svn/repo/Foo/trunk> then the C<repo> would be
 C<svn://svn.domain.com/svn/repo/>.
 
 =head2 Local Repositories
@@ -122,18 +126,13 @@ they most commonly use L<VCI>.
 
 L<VCI>
 
-=head1 BUGS
-
-VCI::VCS::Svn is very new, and may have significant bugs. The code is
-alpha-quality at this point.
-
 =head1 AUTHOR
 
 Max Kanat-Alexander <mkanat@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2007-2008 by Everything Solved, Inc.
+Copyright 2007-2010 by Everything Solved, Inc.
 
 L<http://www.everythingsolved.com>
 

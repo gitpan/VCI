@@ -1,157 +1,43 @@
 ---
-name: VCI
-version: 0.6.0_1
+abstract: 'A library for interacting with version-control systems.'
 author:
   - 'Max Kanat-Alexander <mkanat@cpan.org>'
-abstract: A library for interacting with various version-control systems.
+build_requires:
+  ExtUtils::MakeMaker: 6.42
+  Test::Exception: 0
+  Test::More: 0
+  Test::Warn: 0
+configure_requires:
+  ExtUtils::MakeMaker: 6.42
+distribution_type: module
+generated_by: 'Module::Install version 0.91'
 license: perl
-resources:
-  homepage: http://vci.everythingsolved.com/
-  license: ~
-  repository: bzr://bzr.everythingsolved.com/vci/
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+module_name: VCI
+name: VCI
+no_index:
+  directory:
+    - inc
+    - t
+recommends:
+  Git: 0
+  SVN::Core: 1.2.0
 requires:
-  Carp: 0
-  Cwd: 0
   DateTime: 0
   DateTime::Format::DateParse: 0
-  File::Path: 0
-  File::Temp: 0
   IPC::Cmd: 0.42
-  IPC::Run: 0.55
   LWP::UserAgent: 0
-  List::Util: 0
   Module::Load::Conditional: 0.24
   Moose: 0.27
   MooseX::Method: 0
   Path::Abstract: 0.093
   Text::Diff::Parser: 0.07
   XML::Simple: 0
-  perl: 5.008
-build_requires:
-  File::Spec: 0
-  Test::Exception: 0
-  Test::More: 0
-  Test::Warn: 0
-provides:
-  VCI:
-    file: lib/VCI.pm
-    version: 0.6.0_1
-  VCI::Abstract::Commit:
-    file: lib/VCI/Abstract/Commit.pm
-  VCI::Abstract::Committable:
-    file: lib/VCI/Abstract/Committable.pm
-  VCI::Abstract::Diff:
-    file: lib/VCI/Abstract/Diff.pm
-  VCI::Abstract::Diff::File:
-    file: lib/VCI/Abstract/Diff/File.pm
-  VCI::Abstract::Directory:
-    file: lib/VCI/Abstract/Directory.pm
-  VCI::Abstract::File:
-    file: lib/VCI/Abstract/File.pm
-  VCI::Abstract::FileContainer:
-    file: lib/VCI/Abstract/FileContainer.pm
-  VCI::Abstract::History:
-    file: lib/VCI/Abstract/History.pm
-  VCI::Abstract::Project:
-    file: lib/VCI/Abstract/Project.pm
-  VCI::Abstract::ProjectItem:
-    file: lib/VCI/Abstract/ProjectItem.pm
-  VCI::Abstract::Repository:
-    file: lib/VCI/Abstract/Repository.pm
-  VCI::Util:
-    file: lib/VCI/Util.pm
-  VCI::VCS::Bzr:
-    file: lib/VCI/VCS/Bzr.pm
-    version: 0.6.0_1
-  VCI::VCS::Bzr::Commit:
-    file: lib/VCI/VCS/Bzr/Commit.pm
-  VCI::VCS::Bzr::Committable:
-    file: lib/VCI/VCS/Bzr/Committable.pm
-  VCI::VCS::Bzr::Directory:
-    file: lib/VCI/VCS/Bzr/Directory.pm
-  VCI::VCS::Bzr::File:
-    file: lib/VCI/VCS/Bzr/File.pm
-  VCI::VCS::Bzr::History:
-    file: lib/VCI/VCS/Bzr/History.pm
-  VCI::VCS::Bzr::Project:
-    file: lib/VCI/VCS/Bzr/Project.pm
-  VCI::VCS::Bzr::Repository:
-    file: lib/VCI/VCS/Bzr/Repository.pm
-  VCI::VCS::Cvs:
-    file: lib/VCI/VCS/Cvs.pm
-    version: 0.6.0_1
-  VCI::VCS::Cvs::Commit:
-    file: lib/VCI/VCS/Cvs/Commit.pm
-  VCI::VCS::Cvs::Diff:
-    file: lib/VCI/VCS/Cvs/Diff.pm
-  VCI::VCS::Cvs::Directory:
-    file: lib/VCI/VCS/Cvs/Directory.pm
-  VCI::VCS::Cvs::File:
-    file: lib/VCI/VCS/Cvs/File.pm
-  VCI::VCS::Cvs::History:
-    file: lib/VCI/VCS/Cvs/History.pm
-  VCI::VCS::Cvs::Project:
-    file: lib/VCI/VCS/Cvs/Project.pm
-  VCI::VCS::Cvs::Repository:
-    file: lib/VCI/VCS/Cvs/Repository.pm
-  VCI::VCS::Git:
-    file: lib/VCI/VCS/Git.pm
-    version: 0.6.0_1
-  VCI::VCS::Git::Commit:
-    file: lib/VCI/VCS/Git/Commit.pm
-  VCI::VCS::Git::Committable:
-    file: lib/VCI/VCS/Git/Committable.pm
-  VCI::VCS::Git::Diff:
-    file: lib/VCI/VCS/Git/Diff.pm
-  VCI::VCS::Git::Directory:
-    file: lib/VCI/VCS/Git/Directory.pm
-  VCI::VCS::Git::File:
-    file: lib/VCI/VCS/Git/File.pm
-  VCI::VCS::Git::History:
-    file: lib/VCI/VCS/Git/History.pm
-  VCI::VCS::Git::Project:
-    file: lib/VCI/VCS/Git/Project.pm
-  VCI::VCS::Git::Repository:
-    file: lib/VCI/VCS/Git/Repository.pm
-  VCI::VCS::Hg:
-    file: lib/VCI/VCS/Hg.pm
-    version: 0.6.0_1
-  VCI::VCS::Hg::Commit:
-    file: lib/VCI/VCS/Hg/Commit.pm
-  VCI::VCS::Hg::Committable:
-    file: lib/VCI/VCS/Hg/Committable.pm
-  VCI::VCS::Hg::Diff:
-    file: lib/VCI/VCS/Hg/Diff.pm
-  VCI::VCS::Hg::Directory:
-    file: lib/VCI/VCS/Hg/Directory.pm
-  VCI::VCS::Hg::File:
-    file: lib/VCI/VCS/Hg/File.pm
-  VCI::VCS::Hg::History:
-    file: lib/VCI/VCS/Hg/History.pm
-  VCI::VCS::Hg::Project:
-    file: lib/VCI/VCS/Hg/Project.pm
-  VCI::VCS::Hg::Repository:
-    file: lib/VCI/VCS/Hg/Repository.pm
-  VCI::VCS::Svn:
-    file: lib/VCI/VCS/Svn.pm
-    version: 0.6.0_1
-  VCI::VCS::Svn::Commit:
-    file: lib/VCI/VCS/Svn/Commit.pm
-  VCI::VCS::Svn::Committable:
-    file: lib/VCI/VCS/Svn/Committable.pm
-  VCI::VCS::Svn::Directory:
-    file: lib/VCI/VCS/Svn/Directory.pm
-  VCI::VCS::Svn::File:
-    file: lib/VCI/VCS/Svn/File.pm
-  VCI::VCS::Svn::FileOrDirectory:
-    file: lib/VCI/VCS/Svn/FileOrDirectory.pm
-  VCI::VCS::Svn::History:
-    file: lib/VCI/VCS/Svn/History.pm
-  VCI::VCS::Svn::Project:
-    file: lib/VCI/VCS/Svn/Project.pm
-  VCI::VCS::Svn::Repository:
-    file: lib/VCI/VCS/Svn/Repository.pm
-generated_by: Module::Build version 0.32
-meta-spec:
-  url: http://module-build.sourceforge.net/META-spec-v1.2.html
-  version: 1.2
+  perl: 5.8.0
+resources:
+  homepage: http://vci.everythingsolved.com/
+  license: http://dev.perl.org/licenses/
+  repository: bzr://bzr.everythingsolved.com/vci/stable
+version: 0.6.0_2

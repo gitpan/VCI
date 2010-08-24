@@ -1,9 +1,13 @@
 package VCI::VCS::Git;
 use Moose;
+our $VERSION = '0.6.0_2';
+
+# Assure that we die immediately upon use if somebody tries to use us
+# without the proper prerequisite installed.
+use Git;
 
 extends 'VCI';
 
-our $VERSION = '0.6.0_1';
 
 __PACKAGE__->meta->make_immutable;
 
@@ -15,10 +19,15 @@ __END__
 
 VCI::VCS::Git - Object-oriented interface to Git
 
+=head1 SYNOPSIS
+
+ use VCI;
+ my $repository = VCI->connect(type => 'Git', repo => 'path/above/clone/');
+
 =head1 DESCRIPTION
 
 This is a "driver" for L<VCI> for the Git version-control system.
-You can find out more about Git at L<http://git.or.cz/>.
+You can find out more about Git at L<http://git-scm.com/>.
 
 For information on how to use VCI::VCS::Git, see L<VCI>.
 
@@ -76,18 +85,13 @@ commits and with under 10000 files).
 
 L<VCI>
 
-=head1 BUGS
-
-VCI::VCS::Git is very new, and may have significant bugs. The code is
-alpha-quality at this point.
-
 =head1 AUTHOR
 
 Max Kanat-Alexander <mkanat@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2007-2008 by Everything Solved, Inc.
+Copyright 2007-2010 by Everything Solved, Inc.
 
 L<http://www.everythingsolved.com>
 

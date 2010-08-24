@@ -28,11 +28,6 @@ sub _build_revision {
     return $head_rev;
 }
 
-sub _build_revno {
-    my $revision = shift->revision;
-    return substr($revision, 0, 7);
-}
-
 sub _build_time {
     my $self = shift;
     my $time = $self->project->x_do('log', ['-1', '--pretty=format:%cD', '--',

@@ -1,7 +1,7 @@
 package VCI;
 use 5.008;
 use Moose;
-our $VERSION = '0.6.0_1';
+our $VERSION = '0.6.0_2';
 
 use Class::MOP;
 use VCI::Util;
@@ -41,6 +41,8 @@ sub connect {
     my $repo = $vci->repository;
     return $repo;
 }
+
+sub missing_requirements { () }
 
 sub api_version {
     my $invocant = shift;
@@ -107,7 +109,7 @@ __END__
 
 =head1 NAME
 
-VCI - A library for interacting with various version-control systems.
+VCI - A library for interacting with version-control systems.
 
 =head1 SYNOPSIS
 
@@ -116,22 +118,22 @@ VCI - A library for interacting with various version-control systems.
 =head1 DESCRIPTION
 
 This is VCI, the generic Version Control Interface. The goal of VCI is to
-create a common API that can interface with all version control systems.
-
-VCI uses L<Moose>, so all constructors for all objects are called
-C<new> (although for L<VCI> itself you'll want to use L</connect>),
-and they all take named parameters as a hash (not a hashref).
+create a common API that can interface with all version control systems
+(which are sometimes also called Software Configuration Management or "SCM"
+systems).
 
 The VCI home page is at L<http://vci.everythingsolved.com/>.
-
-B<Note>: The interface of all VCI modules should currently be considered
-B<UNSTABLE>. I may make breaking changes in order to fix I<any> design
-problems.
 
 =head2 New to VCI?
 
 If you aren't sure where to start, you want to first look at L</connect>
 and then at L<VCI::Abstract::Repository>.
+
+Basically, when using VCI, you L<connect|/connect> to
+a L<Repository|VCI::Abstract::Repository>,
+L<get|VCI::Abstract::Repository/get_project> a
+L<Project|VCI::Abstract::Project> from that Repository,
+and then L<call methods on that Project|VCI::Abstract::Project/METHODS>.
 
 The general interface of VCI is described in the various VCI::Abstract
 modules, and those contain the documentation you should read in order to
@@ -307,6 +309,20 @@ values than C<1>.
 
 =back
 
+=item C<missing_requirements>
+
+Some drivers have requirements beyond just Perl modules, in order to work.
+Calling this method will tell you if those requirements are installed.
+You would call this method like:
+
+ use VCI::VCS::Cvs;
+ my @need = VCI::VCS::Cvs->missing_requirements;
+
+Returns an array (not an arrayref) of strings representing items that still
+need to be installed in order for this driver to function. If the array is
+empty, then all non-Perl requirements for this driver are already installed
+and available.
+
 =item C<new>
 
 This has the same parameters as L</connect>, but actually returns a
@@ -359,20 +375,20 @@ Generally you don't want to use this, and you just want to use L</connect>.
 VCI is available on CPAN, which is the recommended way to get it:
 L<http://search.cpan.org/dist/VCI/>
 
-VCI is also available from my source repository. You can get the latest
+VCI is also available from its source repository. You can get the latest
 development version by doing:
 
  bzr co http://bzr.everythingsolved.com/vci/trunk
 
-Note that if you check out code from my trunk repository, it may be unstable or
-completely broken.
+Note that if you check out code from the trunk repository, it may be unstable
+or completely broken.
 
 You can get the latest stable version by doing:
 
  bzr co http://bzr.everythingsolved.com/vci/stable
 
-You have to do C<perl Build.PL> and C<./Build manifest> on any checked-
-out code before you can install it.
+You have to do C<perl Makefile.PL> and C<make manifest> on any checked-out
+code before you can install it.
 
 =head1 PERFORMANCE
 
@@ -395,15 +411,20 @@ impossible to know what to optimize.
 
 =head1 SUPPORT
 
-VCI has an IRC channel on irc.perl.org called #vci. If the author
-of VCI is awake and on the computer, he's usually there.
+The author of VCI is available via IRC, on irc.mozilla.org, in
+L<#mozwebtools|http://landfill.bugzilla.org/irc/>. His IRC name is
+C<mkanat>.
 
 Otherwise, the best way to get support for VCI is just to email
 the author at C<mkanat@cpan.org>.
 
-VCI also has a (currently minimal) home page at:
+VCI also has a home page at:
 
 L<http://vci.everythingsolved.com/>
+
+And there is a blog with updates about VCI at:
+
+L<http://avatraxiom.livejournal.com/tag/vci>
 
 =head1 USING VCI IN TAINT MODE
 
@@ -418,6 +439,13 @@ in their documentation.
 
 This is information for people who want to hack on the internals of VCI
 or implement a driver for their VCS.
+
+=head2 Constructors
+
+VCI uses L<Moose>, so all constructors for all objects are called
+C<new> (although for L<VCI> itself you'll want to use L</connect>),
+and they all take named parameters as a hash (not a hashref). Generally
+users don't call constructors--we only call constructors internally.
 
 =head2 The POD is an API
 
@@ -441,7 +469,7 @@ with C<x_> (or C<_x_> for private methods). VCI won't I<enforce> that, but
 if you don't do it, your module could seriously break in the future if VCI
 implements a method with the same name as yours.
 
-VCI promises not to have any standard methods or accesors that start
+VCI promises not to have any abstract methods or accesors that start
 with C<x_> or C<_x_>.
 
 =head2 The Design Goals of VCI
@@ -566,7 +594,7 @@ have everything, you can implement L<VCI::Abstract::Commit>.
 
 In general, you shouldn't override L</connect>. Also, using C<before>
 on L</connect> probably also isn't a good idea. You could use C<after>,
-but it mostly just makes sense to implement L</build_repository> and leave
+but it mostly just makes sense to implement L</_build_repository> and leave
 it at that.
 
 If you I<do> override connect, you B<must> call I<this> C<connect> at some
@@ -578,7 +606,7 @@ You B<must> not add new C<required> attributes to C<connect>.
 
 =over
 
-=item C<build_repository>
+=item C<_build_repository>
 
 Returns the L<VCI::Abstract::Repository> object. (This is basically
 what L</connect> returns, so this does the "heavy_lifting" for
@@ -588,12 +616,14 @@ L</connect>.)
 
 =head1 SEE ALSO
 
+L<VCI::Abstract::Repository>
+
 B<Drivers>: L<VCI::VCS::Svn>, L<VCI::VCS::Bzr>, L<VCI::VCS::Hg>,
 L<VCI::VCS::Git>, and L<VCI::VCS::Cvs>
 
 =head1 TODO
 
-Eventually the drivers will be split into their own packages.
+Eventually the drivers may be split into their own packages.
 
 Need C<user> and C<pass> support for L</connect>.
 
@@ -611,9 +641,11 @@ not to strings.
 
 =head1 BUGS
 
-VCI is very new, and probably has many significant bugs. The code is
-no better than alpha-quality at this point. However, VCI's test suite has
-nearly 100% code coverage, and VCI currently passes all tests.
+All complex software has bugs, and VCI is probably no exception.
+However, VCI's test suite has nearly 100% code coverage, and VCI currently
+passes all tests.
+
+Some drivers do have limitations, see their documentation for details.
 
 =head1 AUTHOR
 

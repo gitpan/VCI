@@ -114,7 +114,7 @@ is a string identifying who wrote the patch, in a simialr format to
 L</committer>.
 
 For VCSes that don't understand the concept of "author" (or for
-commits where the "author" field is empty), this is identical to
+commits where the "author" field isn't set), this is identical to
 L</committer>.
 
 =item C<contents>
@@ -146,12 +146,12 @@ Some version-control systems understand the idea that a file can be renamed
 or moved, not just removed and then added.
 
 If a file was moved or renamed, it will show up in this accessor, which is a
-hashref where the keys are the B<new> path and the value is the B<old> path,
-as strings. (That might seem backwards until you realize that the I<new>
-name is what shows up in L</modified>, so having keys on the I<new> name is
-much more useful.)
+hashref where the keys are the B<new> path and the value is a
+L<VCI::Abstract::Committable> representing the B<old> path. (That might seem
+backwards until you realize that the I<new> name is what shows up in
+L</modified>, so having keys on the I<new> name is much more useful.)
 
-The file will show up in L</modified> if it also had modifications
+Each file will also show up in L</modified> if it also had modifications
 during this commit. (However, if there were no changes to the file other
 than that it was moved, it won't show up in L</modified>.)
 
@@ -163,7 +163,7 @@ Project (and in rare cases, a completely different Repository, though VCI
 might not track that it was copied in that case).
 
 The keys are the name of the file as it is now, and the value is a
-C<VCI::Abstract::Committable> that represents the object it was copied from.
+C<VCI::Abstract::Committable> that represents the path it was copied from.
 
 Any item in C<copied> will also show up in C<modified> if it was changed
 during this commit, and C<added> otherwise.

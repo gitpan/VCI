@@ -1,10 +1,16 @@
 package Support;
 use strict;
+use Class::MOP;
 use File::Spec;
 use Test::More;
 use Test::Exception;
 our @ISA = qw(Exporter);
-our @EXPORT_OK = qw(test_vcs all_modules feature_enabled);
+our @EXPORT_OK = qw(test_vcs all_modules feature_enabled check_requirements);
+
+use constant FEATURES => {
+    git => { module => 'Git' },
+    svn => { module => 'SVN::Core', version => '1.2.0' },
+};
 
 sub test_vcs {
     my $params = shift;
@@ -207,12 +213,20 @@ sub _get_all_paths {
 
 sub feature_enabled {
     my $feature = shift;
-    eval("use Module::Build 0.26");
-    return undef if $@;
-    if(my $build = eval { Module::Build->current; }) {
-        return $build->feature($feature)
+    my $module = FEATURES->{$feature}->{module};
+    my $version = FEATURES->{$feature}->{version};
+    my $loaded = eval { Class::MOP::load_class($module, -version => $version) };
+    return $loaded ? 1 : 0;
+}
+
+sub check_requirements {
+    my ($type) = @_;
+    my $class = "VCI::VCS::$type";
+    Class::MOP::load_class($class);
+    my @need = $class->missing_requirements;
+    if (@need) {
+        plan skip_all => "missing: " . join(', ', @need);
     }
-    return 1;
 }
 
 # Stolen from Test::Pod::Coverage

@@ -5,8 +5,7 @@ use lib 't/lib';
 use Cwd qw(cwd);
 use Test::More;
 use VCI;
-use Support qw(test_vcs feature_enabled);
-BEGIN { plan skip_all => "cvs not enabled" if !feature_enabled('cvs'); }
+use Support qw(test_vcs check_requirements);
 use IPC::Cmd;
 
 #############################
@@ -93,10 +92,7 @@ sub setup_repo {
 # Tests #
 #########
 
-IPC::Cmd::can_run('cvs')
-    || plan skip_all => 'cvs not installed or in the path';
-IPC::Cmd::can_run('cvsps')
-    || plan skip_all => 'cvsps not installed or in the path';
+check_requirements('Cvs');
 
 my $repo_success = eval {
     my $cwd = cwd();

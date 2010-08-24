@@ -1,5 +1,6 @@
 package VCI::VCS::Hg;
 use Moose;
+our $VERSION = '0.6.0_2';
 
 use LWP::UserAgent;
 
@@ -7,7 +8,6 @@ use VCI::Util;
 
 extends 'VCI';
 
-our $VERSION = '0.6.0_1';
 
 has 'x_ua' => (is => 'ro', isa => 'LWP::UserAgent', lazy_build => 1);
 has 'x_timeout' => (is => 'ro', isa => 'Int', default => sub { 60 });
@@ -30,10 +30,16 @@ __END__
 
 VCI::VCS::Hg - Object-oriented interface to Mercurial (aka Hg)
 
+=head1 SYNOPSIS
+
+ use VCI;
+ my $repository = VCI->connect(type => 'Hg',
+                               repo => 'http://hgweb.example.com/');
+
 =head1 DESCRIPTION
 
 This is a "driver" for L<VCI> for the Mercurial version-control system.
-You can find out more about Mercurial at L<http://www.selenic.com/mercurial/>.
+You can find out more about Mercurial at L<http://mercurial.selenic.com/>.
 
 For information on how to use VCI::VCS::Hg, see L<VCI>.
 
@@ -77,9 +83,10 @@ point they are just a local repository.)
 =item *
 
 Directory objects without a revision specified (such as those that you
-get through VCI::Abstract::Project::get_path, get_directory, and get_file)
-will always have the revision "tip", even if this wasn't the revision
-they were modified most recently in.
+get through L<get_path|VCI::Abstract::Project/get_path>,
+L<get_directory|VCI::Abstract::Project/get_path>, and
+L<VCI::Abstract::Project/get_file>) will always have the revision "tip",
+even if this wasn't the revision they were modified most recently in.
 
 This also means that their C<time> will be the time of the C<tip> revision,
 not the time they were last modified.
@@ -146,18 +153,13 @@ slow, as it has to access the web interface.
 
 L<VCI>
 
-=head1 BUGS
-
-VCI::VCS::Hg is very new, and may have significant bugs. The code is
-alpha-quality at this point.
-
 =head1 AUTHOR
 
 Max Kanat-Alexander <mkanat@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2007-2008 by Everything Solved, Inc.
+Copyright 2007-2010 by Everything Solved, Inc.
 
 L<http://www.everythingsolved.com>
 

@@ -7,11 +7,6 @@ has 'x_changes' => (is => 'ro', lazy_build => 1);
 # Moose doesn't let me do lazy_build here, as of Moose 0.33.
 has '+message' => (lazy => 1, default => sub { shift->_build_message });
 
-sub _build_revno {
-    my $revision = shift->revision;
-    return substr($revision, 0, 7);
-}
-
 sub _build_message {
     my $self = shift;
     my $text = $self->project->x_do('log', ['-1', '--pretty=medium',

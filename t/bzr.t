@@ -3,16 +3,12 @@ use strict;
 use warnings;
 use lib 't/lib';
 use Test::More;
-use Support qw(test_vcs feature_enabled);
+use Support qw(test_vcs check_requirements);
 use VCI;
-BEGIN { plan skip_all => "bzr not enabled" if !feature_enabled('bzr'); }
-use IPC::Cmd;
 
 #############################
 # Constants and Subroutines #
 #############################
-
-our $bzr;
 
 use constant EXPECTED_CONTENTS => [qw(
     VCI
@@ -68,22 +64,11 @@ sub setup_repo {
            . " t/repos/bzr/vci");
 }
 
-sub check_plugin {
-    my $plugin = shift;
-    my $plugins = `$bzr plugins`;
-    return ($plugins =~ /^\Q$plugin\E/m) ? 1 : 0;
-}
-
 #########
 # Tests #
 #########
 
-$bzr = IPC::Cmd::can_run('bzr')
-    or plan skip_all => 'bzr not installed or in the path';
-check_plugin('bzrtools')
-    || plan skip_all => 'bzrtools not installed';
-check_plugin('xmloutput')
-    || plan skip_all => 'xmloutput not installed';
+check_requirements('Bzr');
 
 eval { setup_repo() if !-d 't/repos/bzr/.bzr'; 1; }
     || plan skip_all => "Unable to create bzr testing repo: $@";
