@@ -8,16 +8,16 @@ INSTALLATION
 
 To install VCI, run the following commands:
 
-    perl Build.PL
-    ./Build
-    ./Build test
-    ./Build install
+    perl Makefile.PL
+    make
+    make test
+    make install
 
 REQUIREMENTS
 
-  When you run "perl Build.PL" it will tell you if you are missing any
+  When you run "make test" it will tell you if you are missing any
 dependencies. If you want to see what the dependencies are without
-having to run Build.PL, you can look at the contents of Build.PL,
+having to run make, you can look at the contents of Makefile.PL,
 where the dependencies should be fairly clear.
 
 COPYRIGHT

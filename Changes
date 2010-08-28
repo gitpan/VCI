@@ -1,3 +1,7 @@
+0.6.2 Aug 28, 2010
+    - Fix the META.yml in the VCI package to have the correct version
+      numbers.
+
 0.6.1 Aug 24, 2010
    - VCI now explicitly requires Perl 5.8. (We probably always did actually
      require 5.8, because some of our dependencies did.)
