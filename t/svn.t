@@ -2,7 +2,8 @@
 use strict;
 use warnings;
 use lib 't/lib';
-use Cwd qw(cwd);
+use Cwd qw(cwd abs_path);
+use Digest::MD5 qw(md5_hex);
 use Test::More;
 use VCI;
 use Support qw(test_vcs feature_enabled);
@@ -35,6 +36,7 @@ use constant EXPECTED_CONTENTS => [qw(
 use constant EXPECTED_COMMIT => {
     revision  => 12,
     revno     => 12,
+    uuid      => md5_hex('file://' . abs_path('t/repos/svn') . '/', 12),
     message   => "This is the commit for testing VCI.\n"
                  . "And it has a two-line message.",
     committer => 'mkanat',
@@ -97,7 +99,7 @@ $repo_success || plan skip_all => "Unable to create svn testing repo: $@";
 
 plan skip_all => "svn requirements not installed" if !feature_enabled('svn');
 
-plan tests => 51;
+plan tests => 54;
 
 test_vcs({
     type          => 'Svn',
@@ -114,6 +116,8 @@ test_vcs({
     copy_in_diff  => 1,
     expected_file => EXPECTED_FILE,
     other_tests   => \&other_tests,
+    revisions_global => 1,
+    revisions_universal => 0,
 });
 
 sub other_tests {

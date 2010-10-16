@@ -1,6 +1,6 @@
 package VCI::VCS::Cvs;
 use Moose;
-our $VERSION = '0.6.3';
+our $VERSION = '0.7.0_1';
 
 use MooseX::Method;
 extends 'VCI';
@@ -21,6 +21,9 @@ sub BUILD {
     taint_fail("The x_cvsps argument '$self->{x_cvsps}' is tainted")
         if tainted($self->{x_cvsps});
 }
+
+use constant revisions_are_global => 0;
+use constant revisions_are_universal => 0;
 
 sub missing_requirements {
     my @need;

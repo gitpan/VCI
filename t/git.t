@@ -41,6 +41,7 @@ use constant EXPECTED_CONTENTS => [qw(
 use constant EXPECTED_COMMIT => {
     revision  => '0e15f67ea2b4388eb6663678404c23919a054f0c',
     revno     => '0e15f67ea2b4388eb6663678404c23919a054f0c',
+    uuid      => '0e15f67ea2b4388eb6663678404c23919a054f0c',
     message   => "Commit with all types of files.\nAnd a second line of text.",
     committer => 'Max Kanat-Alexander <mkanat@es-compy.(none)>',
     time      => '2007-09-01T22:53:38',
@@ -87,7 +88,7 @@ plan skip_all => "git requirements not installed" if !feature_enabled('git');
 eval { setup_repo() if !-d 't/repos/git/test.git'; 1; }
     || plan skip_all => "Unable to create git testing repo: $@";
 
-plan tests => 48;
+plan tests => 51;
 
 test_vcs({
     type          => 'Git',
@@ -101,4 +102,6 @@ test_vcs({
     expected_commit   => EXPECTED_COMMIT,
     diff_type     => 'VCI::VCS::Git::Diff',
     expected_file => EXPECTED_FILE,
+    revisions_global => 1,
+    revisions_universal => 1,
 });

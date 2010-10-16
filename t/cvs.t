@@ -2,7 +2,8 @@
 use strict;
 use warnings;
 use lib 't/lib';
-use Cwd qw(cwd);
+use Cwd qw(cwd abs_path);
+use Digest::MD5 qw(md5_hex);
 use Test::More;
 use VCI;
 use Support qw(test_vcs check_requirements);
@@ -42,6 +43,7 @@ use constant EXPECTED_CONTENTS => [qw(
 use constant EXPECTED_COMMIT => {
     revision  => 6,
     revno     => 6,
+    uuid      => md5_hex(abs_path('t/repos/cvs'), 6, 'htom'),
     message   => "This is the commit for testing VCI.\n"
                  . "And it has a two-line message.",
     committer => 'mkanat',
@@ -102,7 +104,7 @@ my $repo_success = eval {
 };
 $repo_success || plan skip_all => "Unable to create cvs testing repo: $@";
 
-plan tests => 48;
+plan tests => 51;
 
 test_vcs({
     type          => 'Cvs',
@@ -117,4 +119,6 @@ test_vcs({
     expected_commit   => EXPECTED_COMMIT,
     diff_type     => 'VCI::VCS::Cvs::Diff',
     expected_file => EXPECTED_FILE,
+    revisions_global => 0,
+    revisions_universal => 0,
 });

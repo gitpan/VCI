@@ -1,6 +1,6 @@
 package VCI::VCS::Bzr;
 use Moose;
-our $VERSION = '0.6.3';
+our $VERSION = '0.7.0_1';
 
 use VCI::Util qw(taint_fail);
 

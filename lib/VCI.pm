@@ -1,12 +1,15 @@
 package VCI;
 use 5.008;
 use Moose;
-our $VERSION = '0.6.3';
+our $VERSION = '0.7.0_1';
 
 use Class::MOP;
 use VCI::Util;
 
 use constant CLASS_BASE => 'VCI::VCS::';
+
+use constant revisions_are_universal => 1;
+use constant revisions_are_global => 1;
 
 # Will also need a write_repo in the future, if we add commit support,
 # for things like Hg that read from hgweb but have to write through the
@@ -329,6 +332,35 @@ This has the same parameters as L</connect>, but actually returns a
 C<VCI> object, not a L<VCI::Abstract::Repository>.
 
 You'll generally want use L</connect> instead of this.
+
+=back
+
+=head2 VCS Information
+
+These represent information about a particular version-control system.
+You can call these on a class, like
+C<< VCI::VCS::Cvs->revisions_are_universal >>, or if you have a
+L<VCI::Abstract::Repository> object, you can call these methods using the
+C<vci> accessor, like: C<< $repository->vci->revisions_are_universal >>.
+
+=over
+
+=item C<revisions_are_global>
+
+A boolean. If true, then the "revision" accessor on a L<VCI::Abstract::Commit>
+for this VCS is globally unique within an entire Repository, not just
+for this Project. (For example, Subversion's commit ids are globally unique
+within a repository.)
+
+If false, then different Projects could have overlapping revision identifiers.
+
+=item C<revisions_are_universal>
+
+A boolean. If true, then the "revision" accessor on a L<VCI::Abstract::Commit>
+returns a value that will be universally unique across all repositories in
+the world. For example, Git, Mercurial, and Bazaar have universally unique
+revision identifiers--no two revisions in existence are likely to have
+duplicate revision ids unless they are actually the same revision.
 
 =back
 

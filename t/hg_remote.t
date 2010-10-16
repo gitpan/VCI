@@ -33,6 +33,7 @@ use constant EXPECTED_COMMIT => {
     #     and "revision" should become the full revision id.
     revision  => 'b56a898fdf90',
     revno     => 'b56a898fdf90',
+    uuid      => 'b56a898fdf90',
     message   => "This is the commit for testing VCI.\n"
                  . "And it has a two-line message.",
     committer => 'root@12.d1.5446.static.theplanet.com',
@@ -66,7 +67,7 @@ use constant EXPECTED_FILE => {
 plan skip_all => 'VCI_REMOTE_TESTS environment variable not set to 1'
     if !$ENV{VCI_REMOTE_TESTS};
 
-plan tests => 48;
+plan tests => 51;
 
 test_vcs({
     type         => 'Hg',
@@ -81,4 +82,6 @@ test_vcs({
     diff_type     => 'VCI::VCS::Hg::Diff',
     copy_in_diff  => 1,
     expected_file => EXPECTED_FILE,
+    revisions_global => 1,
+    revisions_universal => 1,
 });

@@ -27,6 +27,7 @@ use constant EXPECTED_CONTENTS => [qw(
 
 use constant EXPECTED_COMMIT => {
     revision  => 'mkanat@es-compy-20070806041257-f16n2g248d63mf1i',
+    uuid      => 'mkanat@es-compy-20070806041257-f16n2g248d63mf1i',
     revno     => 3,
     message   => "Add more documentation, re-work Committable, move"
           . " VCI::Abstract::Util to just be VCI::Util (that makes more sense,"
@@ -73,7 +74,7 @@ check_requirements('Bzr');
 eval { setup_repo() if !-d 't/repos/bzr/.bzr'; 1; }
     || plan skip_all => "Unable to create bzr testing repo: $@";
     
-plan tests => 48;
+plan tests => 51;
 
 test_vcs({
     type          => 'Bzr',
@@ -86,4 +87,6 @@ test_vcs({
     expected_commit   => EXPECTED_COMMIT,
     diff_type     => 'VCI::Abstract::Diff',
     expected_file => EXPECTED_FILE,
+    revisions_global => 1,
+    revisions_universal => 1,
 });

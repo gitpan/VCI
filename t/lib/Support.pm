@@ -37,6 +37,12 @@ sub test_vcs {
             debug => $ENV{VCI_TEST_DEBUG}),
            "${class}::Repository", 'Repository');
     
+    # revisions_are_*
+    is($repo->vci->revisions_are_global, $params->{revisions_global},
+       'revisions_are_global');
+    is($repo->vci->revisions_are_universal, $params->{revisions_universal},
+       'revisions_are_universal');
+    
     # Repository
     my $project;
     isa_ok($project = $repo->get_project(name => $project_name),
@@ -104,6 +110,7 @@ sub test_vcs {
     is($commit->time->iso8601, $expected_commit->{time}, 'Commit time');
     is($commit->time->strftime('%z'), $expected_commit->{timezone},
        'Commit timezone');
+    is($commit->uuid, $expected_commit->{uuid}, 'Commit uuid');
     my $commit_at;
     isa_ok($commit_at = $project->get_commit(time => $commit->time),
            "${class}::Commit",

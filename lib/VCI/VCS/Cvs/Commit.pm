@@ -26,6 +26,22 @@ sub _build_as_diff {
     return $self->diff_class->new(raw => $diff, project => $self->project);
 }
 
+# In CVS, no matter how you access a repository, or what credentials you use,
+# it's still the same repository.
+sub _repository_for_uuid {
+    my ($self) = @_;
+    my $repo = $self->repository->root;
+    # This is for repos like mkanat%bugzilla.org@cvs.mozilla.org:/cvsroot
+    if ($repo =~ /@/) {
+        $repo = s/.+@(.+)/$1/;
+    }
+    # This is for repos like :pserver:cvs-mirror.mozilla.org:/cvsroot
+    else {
+        $repo =~ s/^:\w+://;
+    }
+    return $repo;
+}
+
 __PACKAGE__->meta->make_immutable;
 
 1;

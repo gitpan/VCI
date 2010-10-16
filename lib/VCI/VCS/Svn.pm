@@ -1,12 +1,14 @@
 package VCI::VCS::Svn;
 use Moose;
-our $VERSION = '0.6.3';
+our $VERSION = '0.7.0_1';
 
 use SVN::Client;
 
 extends 'VCI';
 
 has 'x_client' => (is => 'ro', isa => 'SVN::Client', lazy_build => 1);
+
+use constant revisions_are_universal => 0;
 
 sub _build_x_client {
     my $self = shift;

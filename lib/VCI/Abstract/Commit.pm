@@ -1,6 +1,7 @@
 package VCI::Abstract::Commit;
 use Moose;
 use VCI::Util;
+use Digest::MD5 qw(md5_hex);
 
 # XXX ProjectItem should really be composed by FileContainer, but see the
 #     note there.
@@ -32,10 +33,10 @@ has 'revno'     => (is => 'ro', isa => 'Str', lazy_build => 1);
 #     for VCSes that store that, and the first line of the message for
 #     VCSes that don't.
 has 'message'   => (is => 'ro', isa => 'Str', default => sub { '' });
+has 'uuid'      => (is => 'ro', isa => 'Str', lazy_build => 1);
 
 has 'as_diff'  => (is => 'ro', isa => 'VCI::Abstract::Diff', lazy_build => 1);
 
-sub _build_added     { [] }
 sub _build_removed   { [] }
 sub _build_modified  { [] }
 sub _build_moved     { {} }
@@ -48,6 +49,33 @@ sub _build_contents {
 
 sub _build_author { shift->committer }
 sub _build_revno  { shift->revision  }
+
+sub _build_uuid {
+    my ($self) = @_;
+    if ($self->vci->revisions_are_universal) {
+        return $self->revision;
+    }
+
+    my @pieces = ($self->_repository_for_uuid, $self->revision);
+    if (!$self->vci->revisions_are_global) {
+        push(@pieces, $self->project->name);
+    }
+    utf8::downgrade($_) foreach @pieces;
+    return md5_hex(@pieces);
+}
+
+sub _repository_for_uuid {
+    my ($self) = @_;
+    # Many VCSes allow access over URIs, where you can specify
+    # a username and password in the URI. However, no matter what credentials
+    # you use to access a repository, it's still the same repo, so we
+    # shouldn't take those credentials into account when creating the UUID.
+    #
+    # bzr can have "+" in the protocol identifiers, so we allow that.
+    my $repo = $self->repository->root;
+    $repo =~ s{^([A-Za-z\+]+://)[^/]+@}{$1};
+    return $repo;
+}
 
 # as_patch, as_bundle
 # Also as_patch_binary, as_bundle_binary?
@@ -196,6 +224,24 @@ string like "1.2.3.4".
 
 In some VCSes, C<revno> and L</revision> are identical. In other VCSes,
 C<revno> is just a shorter version of L</revision>.
+
+=item C<uuid>
+
+A universally-unique identifier for this Commit. This is a unique string
+that identifies this exact commit across all possible Repositories and
+Projects in the world. If any Commit from any Repository or Project
+has this uuid, it I<is> this Commit.
+
+Note that it's possible that two Commits with differing uuids I<could> be the
+same Commit, because for VCSes where L<VCI/revisions_are_universal> isn't
+true, the uuid is generated based on the name of the Repository (and
+possibly Project) this Commit is in, and if you call the same Repository
+or Project by two different names, you may get two different UUIDs for the
+Commit objects in that Repository/Project.
+
+B<Note:> Currently, there is a chance that the way this is generated
+will change between versions of VCI. If it does, it will be noted in the
+Changes file that comes along with the VCI package.
 
 =item C<message>
 

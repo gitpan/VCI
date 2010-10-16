@@ -108,7 +108,7 @@ sub _build_as_diff {
     if ($self->vci->debug) {
         print STDERR "Getting diff for '$path' from $previous_rev to $rev\n";
     }
-    $ctx->diff([], $path, $previous_rev, $path, $rev, 1, 0, 0,
+    $ctx->diff([], $path, int($previous_rev), $path, int($rev), 1, 0, 0,
                $out->filename, $err->filename);
     { local $/ = undef; $err = <$err>; $out = <$out> }
     confess($err) if $err;
