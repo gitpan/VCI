@@ -1,3 +1,6 @@
+0.6.3 Oct 15, 2010
+    - Make the CVS driver compatible with the date output format of CVS 1.12.
+
 0.6.2 Aug 28, 2010
     - Fix the META.yml in the VCI package to have the correct version
       numbers.

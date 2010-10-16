@@ -1,6 +1,6 @@
 package VCI::VCS::Cvs;
 use Moose;
-our $VERSION = '0.6.2';
+our $VERSION = '0.6.3';
 
 use MooseX::Method;
 extends 'VCI';

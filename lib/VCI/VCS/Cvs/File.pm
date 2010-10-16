@@ -20,10 +20,13 @@ sub _build_revno { shift->revision }
 sub _build_time {
     my $self = shift;
     my $rev = $self->revision;
+    # CVS 1.12 includes timezones in timestamps, and outputs them
+    # in the timezone specified by the TZ environment variable.
+    local $ENV{TZ} = 'UTC';
     my $output = $self->vci->x_do(
         args => ['-n', 'log', '-N', "-r$rev", $self->name],
         fromdir => $self->parent->x_cvs_dir);
-    $output =~ /^date: (\S+ \S+);/ms;
+    $output =~ /^date: (\S+ \S+(?: \S+)?);/ms;
     my $time = $1;
     confess("Failed to parse time for " . $self->path->stringify . " $rev")
         if !defined $time;

@@ -1,6 +1,6 @@
 package VCI::VCS::Svn;
 use Moose;
-our $VERSION = '0.6.1';
+our $VERSION = '0.6.3';
 
 use SVN::Client;
 

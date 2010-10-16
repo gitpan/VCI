@@ -1,6 +1,6 @@
 package VCI::VCS::Git;
 use Moose;
-our $VERSION = '0.6.2';
+our $VERSION = '0.6.3';
 
 # Assure that we die immediately upon use if somebody tries to use us
 # without the proper prerequisite installed.
