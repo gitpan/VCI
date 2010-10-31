@@ -40,4 +40,4 @@ resources:
   homepage: http://vci.everythingsolved.com/
   license: http://dev.perl.org/licenses/
   repository: bzr://bzr.everythingsolved.com/vci/stable
-version: 0.7.0_1
+version: 0.7.1

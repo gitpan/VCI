@@ -1,6 +1,6 @@
 package VCI::VCS::Bzr;
 use Moose;
-our $VERSION = '0.7.0_1';
+our $VERSION = '0.7.1';
 
 use VCI::Util qw(taint_fail);
 
@@ -70,7 +70,7 @@ method 'x_do' => named (
         IPC::Cmd::run(command => [$self->x_bzr, @$args]);
     
     print STDERR "Error Message: $error_msg\n" 
-        if (defined $error_msg and $self->debug);
+        if (defined $error_msg and $self->debug > 1);
     
     if (!$success) {
         my $err_string = join('', @$stderr);
